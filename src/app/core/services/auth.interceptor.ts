@@ -9,7 +9,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const token = sitzung.token;
   const anfrage = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
-  if (token && !req.url.includes('/auth/')) sitzung.aktivitaet();
+  if (token && !req.url.includes('/auth/') && !req.url.includes('/api/takt') && !req.url.includes('/api/demo/')) sitzung.aktivitaet();
   return next(anfrage).pipe(
     catchError((e: HttpErrorResponse) => {
       if (e.status === 401 && e.error?.code === 'SITZUNG_ABGELAUFEN' && sitzung.angemeldet()) {

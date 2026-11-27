@@ -46,7 +46,20 @@
     <p class="leise klein schritt-text">Schritt {{ Math.min(schritt() + 1, anzahl() + 1) }} von {{ anzahl() + 1 }}</p>
   </nav>
 
+  @if (lokalerEntwurf(); as le) {
+    <div class="hinweis info entwurf-hinweis" role="status">
+      <span><strong>Weiter, wo Sie aufgehört haben?</strong> Sie haben dieses Formular am {{ zeitText(le.zeit) }} begonnen. Ihre Angaben wurden automatisch zwischengespeichert.</span>
+      <span class="aktionen"><button type="button" class="btn klein primaer" (click)="fortsetzen()">Fortsetzen</button><button type="button" class="btn klein link" (click)="neuBeginnen()">Neu beginnen</button></span>
+    </div>
+  }
   @if (definition().hinweis && schritt() === 0) { <div class="hinweis info">{{ definition().hinweis }}</div> }
+  @if (definition().antragsteller; as a) {
+    @if (schritt() === 0) {
+      <div class="antragsteller"><vp-symbol name="user-round" [groesse]="18" />
+        <span><span class="leise klein">Antragsteller/in</span><strong>{{ a.name }}</strong> · Versichertennummer {{ a.versichertennummer }}<br /><span class="klein">{{ a.anschrift }}</span></span>
+        <a class="klein" routerLink="/profil">Daten ändern</a></div>
+    }
+  }
 
   <form class="karte formular" (ngSubmit)="weiter()" novalidate>
     @if (!zusammenfassung()) {
@@ -59,6 +72,10 @@
       }
     } @else {
       <h2>Bitte prüfen Sie Ihre Angaben</h2>
+      @if (definition().antragsteller; as a) {
+        <section class="pruefblock"><h3>Antragsteller/in</h3>
+          <dl class="daten"><dt>Name</dt><dd>{{ a.name }}</dd><dt>Versichertennummer</dt><dd>{{ a.versichertennummer }}</dd><dt>Anschrift</dt><dd>{{ a.anschrift }}</dd></dl></section>
+      }
       @for (b of zusammenfassungsBloecke(); track b.index) {
         <section class="pruefblock">
           <div class="zeile"><h3>{{ b.titel }}</h3><button type="button" class="btn link klein" (click)="gehe(b.index)">Ändern</button></div>

@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { VORGANG_TYP_TEXT } from '../../core/konfiguration';
 import { formular } from '../../core/formulare/formular-katalog';
 import { optionenVon } from '../../core/formulare/formular-pruefung';
-import { Anhang, Vorgang } from '../../core/models';
+import { Anhang, Vorgang, widerspruchsfaehig } from '../../core/models';
 import { Api } from '../../core/services/api.service';
 import { fehlertext } from '../../core/services/auth.interceptor';
 import { SitzungService } from '../../core/services/sitzung.service';
@@ -16,6 +16,7 @@ import { DateigroessePipe, DatumPipe, EuroPipe, StatusTextPipe, TypTextPipe } fr
 import { pdfHerunterladen } from '../../shared/pdf';
 import { SymbolComponent } from '../../shared/symbol.component';
 
+import { anhangOeffnen } from '../../shared/dokumente/anhang-oeffnen';
 @Component({
   selector: 'vp-vorgaenge',
   imports: [FormsModule, RouterLink, StatusComponent, DatumPipe, EuroPipe, TypTextPipe],
@@ -107,7 +108,7 @@ export class VorgaengeComponent implements OnInit {
           </dl>
           @if (v.anhaenge.length) {
             <h3>Eingereichte Unterlagen</h3>
-            <ul class="liste-ohne">@for (a of v.anhaenge; track a.id) { <li class="klein"><vp-symbol name="file-text" [groesse]="15" /> {{ a.name }} <span class="leise">({{ a.groesseBytes | groesse }}, {{ a.hochgeladenAm | datum }})</span></li> }</ul>
+            <ul class="liste-ohne">@for (a of v.anhaenge; track a.id) { <li class="klein"><vp-symbol name="file-text" [groesse]="15" /> <button type="button" class="btn link" (click)="anhangOeffnen(a, v.vorgangsnummer)">{{ a.name }}</button> <span class="leise">({{ a.groesseBytes | groesse }}, {{ a.hochgeladenAm | datum }})</span></li> }</ul>
           }
         </section>
         <section class="karte">
@@ -115,17 +116,30 @@ export class VorgaengeComponent implements OnInit {
           <ul class="zeitleiste">@for (h of verlauf(); track $index) { <li><strong>{{ h.status | statusText }}</strong> · <span class="klein leise">{{ h.zeitpunkt | datum: true }}</span><br />{{ h.text }}<br /><span class="klein leise">{{ h.von }}</span></li> }</ul>
         </section>
       </div>
+      @if (kommunikation().length) {
+        <section class="karte mt">
+          <h2>Kommunikation zu diesem Vorgang</h2>
+          <ul class="liste-ohne kommunikation">
+            @for (n of kommunikation(); track n.id) {
+              <li><vp-symbol [name]="n.ordner === 'GESENDET' ? 'send' : 'mail'" [groesse]="16" />
+                <a [routerLink]="['/postfach', n.id]" [class.fett]="!n.gelesen">{{ n.betreff }}</a>
+                <span class="leise klein">{{ n.ordner === 'GESENDET' ? 'von Ihnen' : n.absender }} · {{ n.datum | datum: true }}</span></li>
+            }
+          </ul>
+        </section>
+      }
       <div class="aktionen">
         @if (v.status === 'EINGEREICHT' || v.status === 'RUECKFRAGE') { @if (v.typ !== 'ARBEITSUNFAEHIGKEIT') { <button class="btn gefahr" type="button" (click)="zurueckziehen()">Antrag zurückziehen</button> } }
-        @if (widerspruchMoeglich()) { <a class="btn" routerLink="/antraege/neu/WIDERSPRUCH">Widerspruch einlegen (bis {{ widerspruchsfrist() | datum }})</a> }
+        @if (widerspruchMoeglich()) { <a class="btn" routerLink="/antraege/neu/WIDERSPRUCH" [queryParams]="{ bezug: v.id }">Widerspruch einlegen (bis {{ widerspruchsfrist() | datum }})</a> }
         @if (v.bescheidAm) { <button class="btn" type="button" (click)="bescheid()">Bescheid herunterladen</button> }
         @if (!offen()) { <button class="btn" type="button" (click)="archivieren()">{{ v.archiviert ? 'Aus Archiv holen' : 'Archivieren' }}</button> }
-        <a class="btn link" routerLink="/postfach/neu">Frage zum Vorgang stellen</a>
+        <a class="btn link" routerLink="/postfach/neu" [queryParams]="{ vorgang: v.id }">Frage zum Vorgang stellen</a>
         <button class="btn link" type="button" (click)="drucken()">Drucken</button>
       </div>
     } @else if (fehler()) { <div class="hinweis fehler">{{ fehler() }}</div> } @else { <p class="lade">Wird geladen …</p> }`,
 })
 export class VorgangComponent implements OnInit {
+  readonly anhangOeffnen = anhangOeffnen;
   private api = inject(VorgangApi);
   private gApi = inject(Api);
   private ui = inject(UiService);
@@ -145,7 +159,7 @@ export class VorgangComponent implements OnInit {
   });
   readonly widerspruchMoeglich = computed(() => {
     const v = this.v();
-    return !!v && v.typ !== 'WIDERSPRUCH' && ['ABGELEHNT', 'TEILWEISE_GENEHMIGT'].includes(v.status) && parseIso(this.widerspruchsfrist()!) >= heute();
+    return !!v && widerspruchsfaehig(v) && parseIso(this.widerspruchsfrist()!) >= heute();
   });
   readonly angaben = computed(() => {
     const v = this.v();
@@ -169,9 +183,12 @@ export class VorgangComponent implements OnInit {
     return zeilen.slice(0, 14);
   });
 
+  readonly kommunikation = signal<{ id: string; betreff: string; datum: string; ordner: string; absender: string; gelesen: boolean }[]>([]);
+
   async ngOnInit() {
     try {
       this.v.set(await this.api.detail(this.id()));
+      this.gApi.get<any[]>(`/api/vorgaenge/${this.id()}/nachrichten`).then(l => this.kommunikation.set(l)).catch(() => undefined);
     } catch (e) {
       this.fehler.set(fehlertext(e));
     }

@@ -1,7 +1,7 @@
 import { formular } from '../formulare/formular-katalog';
 import { optionenVon, pruefeFormular } from '../formulare/formular-pruefung';
 import { Bedingung, FeldDef, FormularDef, Option } from '../formulare/formular-typen';
-import { Benutzer } from '../models';
+import { Benutzer, widerspruchsfaehig } from '../models';
 import { addTage, heute, toIso } from '../util/datum';
 import { Anfrage, ApiFehler, Route } from './api-kontext';
 import { formularVerarbeiten, mitgliedsantragPruefen } from './handler-formulare';
@@ -14,7 +14,7 @@ import { formularVerarbeiten, mitgliedsantragPruefen } from './handler-formulare
 interface Auswahlkontext {
   personen: Option[];
   angehoerige: Option[];
-  vorgaenge: { id: string; text: string; status: string; typ: string }[];
+  vorgaenge: { id: string; text: string; status: string; typ: string; widerspruchsfaehig: boolean }[];
 }
 
 const MUSTER = {
@@ -32,7 +32,7 @@ function optionenFuer(f: FeldDef, k: Auswahlkontext): Option[] {
     case 'person': return k.personen;
     case 'kind': return k.angehoerige;
     case 'vorgang': return k.vorgaenge
-      .filter(v => (!f.vorgangFilter?.status || f.vorgangFilter.status.includes(v.status)) && (!f.vorgangFilter?.typen || f.vorgangFilter.typen.includes(v.typ)))
+      .filter(v => (!f.vorgangFilter?.nurWiderspruchsfaehig || v.widerspruchsfaehig) && (!f.vorgangFilter?.status || f.vorgangFilter.status.includes(v.status)) && (!f.vorgangFilter?.typen || f.vorgangFilter.typen.includes(v.typ)))
       .map(v => ({ wert: v.id, text: v.text }));
     default: return optionenVon(f);
   }
@@ -175,7 +175,7 @@ function kontextFuer(a: Anfrage, b?: Benutzer): Auswahlkontext {
     angehoerige,
     vorgaenge: a.store.vorgaenge.filter(v => v.benutzerId === b.id && v.status !== 'ENTWURF')
       .sort((x, y) => y.erstelltAm.localeCompare(x.erstelltAm))
-      .map(v => ({ id: v.id, text: `${v.vorgangsnummer} – ${v.titel}`, status: v.status, typ: v.typ })),
+      .map(v => ({ id: v.id, text: `${v.vorgangsnummer} – ${v.titel}`, status: v.status, typ: v.typ, widerspruchsfaehig: widerspruchsfaehig(v) })),
   };
 }
 
@@ -186,8 +186,26 @@ function definitionLaden(a: Anfrage, oeffentlich: boolean): FormularDef {
   return def;
 }
 
+/** Angaben aus dem Versichertenkonto, mit denen Formulare vorbelegt bzw. Anträge gekennzeichnet werden */
+function antragsteller(b: Benutzer, def: FormularDef) {
+  const felder = def.schritte.flatMap(s => s.felder.map(f => f.name));
+  const quelle: Record<string, string | undefined> = {
+    telefon: b.mobil || b.telefon, email: b.email, iban: b.bank?.iban, kontoinhaber: b.bank?.kontoinhaber,
+    strasse: `${b.adresse.strasse} ${b.adresse.hausnummer}`.trim(), plz: b.adresse.plz, ort: b.adresse.ort,
+  };
+  const vorbelegung = Object.fromEntries(Object.entries(quelle).filter(([k, w]) => w && felder.includes(k)));
+  return {
+    vorbelegung,
+    antragsteller: {
+      name: `${b.titel ? b.titel + ' ' : ''}${b.vorname} ${b.nachname}`, versichertennummer: b.versichertennummer,
+      anschrift: `${b.adresse.strasse} ${b.adresse.hausnummer}, ${b.adresse.plz} ${b.adresse.ort}`, geburtsdatum: b.geburtsdatum,
+    },
+  };
+}
+
 function definition(a: Anfrage) {
-  return formularBeschreibung(definitionLaden(a, false), kontextFuer(a, a.benutzer));
+  const def = definitionLaden(a, false);
+  return { ...formularBeschreibung(def, kontextFuer(a, a.benutzer)), ...antragsteller(a.benutzer!, def) };
 }
 
 function oeffentlicheDefinition(a: Anfrage) {

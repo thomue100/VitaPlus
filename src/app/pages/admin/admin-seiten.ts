@@ -356,6 +356,13 @@ export class AdminFeedbackComponent implements OnInit {
           <dt>Benutzer</dt><dd>{{ s.datensaetze.benutzer }}</dd><dt>Vorgänge</dt><dd>{{ s.datensaetze.vorgaenge }}</dd><dt>Nachrichten</dt><dd>{{ s.datensaetze.nachrichten }}</dd><dt>Protokolleinträge</dt><dd>{{ s.datensaetze.protokoll }}</dd></dl>
           <h3>Löschkonzept</h3><p class="klein">Entfernt Papierkorb-Nachrichten älter als 30 Tage und abgelaufene Tokens. Läuft zusätzlich automatisch bei jeder Anfrage.</p>
           <button class="btn" type="button" (click)="loeschlauf()">Löschlauf jetzt ausführen</button></section>
+        <section class="karte" [class.hervor]="s.stoerung"><h2>Störung simulieren</h2>
+          <p class="klein">Für Ausfalltests: Antragsannahme, Nachrichtenversand und Uploads antworten mit „Dienst nicht erreichbar“ (HTTP 503). Eingaben bleiben im Browser erhalten.</p>
+          <p>Status: <span class="badge" [class.rot]="s.stoerung" [class.gruen]="!s.stoerung">{{ s.stoerung ? 'Störung aktiv' : 'Normalbetrieb' }}</span></p>
+          <button class="btn" type="button" (click)="stoerung(!s.stoerung)">{{ s.stoerung ? 'Störung beenden' : 'Störung starten' }}</button></section>
+        <section class="karte"><h2>Testumgebung zurücksetzen</h2>
+          <p class="klein">Stellt alle Testkonten, Vorgänge, Nachrichten und Einstellungen auf den Auslieferungszustand zurück. Alle Sitzungen werden beendet.</p>
+          <button class="btn gefahr" type="button" (click)="zuruecksetzen()">Testdaten zurücksetzen</button></section>
       </div>
     }`,
 })
@@ -377,6 +384,16 @@ export class AdminSystemComponent implements OnInit {
     } catch (e) {
       this.ui.fehler(fehlertext(e));
     }
+  }
+  async stoerung(an: boolean) {
+    this.s.set(await this.api.put('/api/admin/system', { stoerung: an }));
+    this.ui.info(an ? 'Störungssimulation aktiv.' : 'Störungssimulation beendet.');
+  }
+  async zuruecksetzen() {
+    if (!(await this.ui.bestaetigen('Testdaten zurücksetzen', 'Alle Daten werden auf den Auslieferungszustand zurückgesetzt und alle Sitzungen beendet – auch Ihre.', { gefaehrlich: true, bestaetigen: 'Zurücksetzen' }))) return;
+    await this.api.post('/api/demo/zuruecksetzen');
+    sessionStorage.clear();
+    window.location.href = '/anmelden';
   }
   async loeschlauf() {
     const r = await this.api.post('/api/admin/loeschlauf');

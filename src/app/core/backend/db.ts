@@ -33,6 +33,14 @@ export function db(): Store {
   return cache;
 }
 
+/** Setzt den Datenbestand auf den Auslieferungszustand zurück und beendet alle Sitzungen. */
+export function neuAufsetzen(): Store {
+  cache = erzeugeStartdaten();
+  persistieren();
+  localStorage.removeItem(SITZUNG_SCHLUESSEL);
+  return cache;
+}
+
 export function persistieren(): void {
   if (!cache) return;
   try {

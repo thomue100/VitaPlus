@@ -15,6 +15,7 @@ const BETRAGS_TYPEN = ['KOSTENERSTATTUNG', 'ZAHNERSATZ', 'FAHRKOSTEN', 'KIEFEROR
 const ERWARTET: Record<string, string> = { KOSTENERSTATTUNG: 'voraussichtlich', ZAHNERSATZ: 'festzuschuss', FAHRKOSTEN: 'erstattung', KIEFERORTHOPAEDIE: 'kassenanteil', KUENSTLICHE_BEFRUCHTUNG: 'zuschuss',
   VERHINDERUNGSPFLEGE: 'erstattbar', KURZZEITPFLEGE: 'erstattbar', WOHNUMFELD: 'zuschuss', ENTLASTUNGSBETRAG: 'erstattbar', ZUZAHLUNGSBEFREIUNG: 'erstattung' };
 
+import { anhangOeffnen } from '../../shared/dokumente/anhang-oeffnen';
 @Component({
   selector: 'vp-sb-eingang',
   imports: [FormsModule, StatusComponent, DatumPipe, EuroPipe],
@@ -112,7 +113,7 @@ export class SbEingangComponent implements OnInit {
           @if (v.daten['antwortRueckfrage']) { <div class="hinweis info"><strong>Antwort des Versicherten:</strong> {{ v.daten['antwortRueckfrage'] }}</div> }
           @if (v.ablehnungsgrund) { <div class="hinweis fehler"><strong>Ablehnungsgrund:</strong> {{ v.ablehnungsgrund }}</div> }
           <h3>Unterlagen</h3>
-          <ul class="liste-ohne">@for (a of v.anhaenge; track a.id) { <li class="klein"><vp-symbol name="file-text" [groesse]="15" /> {{ a.name }} ({{ a.groesseBytes | groesse }}, {{ a.hochgeladenAm | datum }})</li> } @empty { <li class="leer">Keine Unterlagen</li> }</ul>
+          <ul class="liste-ohne">@for (a of v.anhaenge; track a.id) { <li class="klein"><vp-symbol name="file-text" [groesse]="15" /> <button type="button" class="btn link" (click)="anhangOeffnen(a, v.vorgangsnummer)">{{ a.name }}</button> ({{ a.groesseBytes | groesse }}, {{ a.hochgeladenAm | datum }})</li> } @empty { <li class="leer">Keine Unterlagen</li> }</ul>
         </section>
         <section class="karte">
           <h2>Versicherte/r</h2>
@@ -160,6 +161,7 @@ export class SbEingangComponent implements OnInit {
     } @else if (fehler()) { <div class="hinweis fehler">{{ fehler() }}</div> }`,
 })
 export class SbVorgangComponent implements OnInit {
+  readonly anhangOeffnen = anhangOeffnen;
   readonly sitzung = inject(SitzungService);
   private api = inject(SachbearbeitungApi);
   private ui = inject(UiService);

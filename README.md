@@ -31,7 +31,7 @@ löschen und die Seite neu laden.
   (`POST /api/formulare/{code}/pruefung`).
 - **Weiterverarbeitung:** Eingegangene Anliegen durchlaufen eine Hintergrundverarbeitung (`core/backend/verarbeitung.ts`,
   Steuerung über `VERARBEITUNG` in `core/konfiguration.ts`).
-- **Versand:** E-Mails, SMS und Briefe der Kasse landen in der Demo im Postausgang, erreichbar über „E-Mail & SMS (Demo)“
+- **Versand:** E-Mails, SMS und Briefe der Kasse landen in der Demo im Postausgang, erreichbar über den Knopf „Demo: E-Mail, SMS & Testdaten“ unten rechts
   rechts unten in der Anwendung.
 
 ## Demo-Zugänge
@@ -64,6 +64,18 @@ Für die Registrierung vorgesehene Mitgliedschaften (noch ohne Online-Zugang):
 | E111222333 | 12.04.1995 |
 | F444555666 | 30.09.2001 |
 | G777888999 | 01.12.1988 |
+
+## Demo-Umgebung
+
+Der Knopf „Demo: E-Mail, SMS & Testdaten“ öffnet zwei Reiter:
+
+- **E-Mail & SMS:** alles, was die Kasse verschickt (Sicherheitscodes, Bestätigungen, Briefe, Benachrichtigungen)
+- **Testdaten:** eine Stunde vorspulen (Hintergrundverarbeitung, Zahlläufe und Antworten des Service-Teams laufen sofort weiter),
+  Beispielfälle für das angemeldete Konto anlegen (offene Rückfrage, Ablehnung, Teilerstattung), eine Störung simulieren
+  (Antragsannahme antwortet mit HTTP 503) und alle Daten auf den Ausgangszustand zurücksetzen
+
+Hochgeladene Dateien werden im Browser (IndexedDB) gespeichert und lassen sich im Dokumentbetrachter öffnen.
+Angefangene Formulare werden sieben Tage lang lokal zwischengespeichert.
 
 ## Projektstruktur
 

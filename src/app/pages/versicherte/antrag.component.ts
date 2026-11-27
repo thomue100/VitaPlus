@@ -26,6 +26,8 @@ export class AntragComponent implements OnInit, HatUngespeicherteAenderungen {
   private title = inject(Title);
   readonly code = input<string>();
   readonly id = input<string>();
+  /** Bezugsvorgang, z. B. beim Widerspruch aus der Vorgangsansicht */
+  readonly bezug = input<string>();
   private formularApi = inject(FormularApi);
   readonly def = signal<FormularDefinition | undefined>(undefined);
   readonly daten = signal<Record<string, any>>({});
@@ -52,6 +54,7 @@ export class AntragComponent implements OnInit, HatUngespeicherteAenderungen {
     }
     try {
       const d = await this.formularApi.definition(code || '');
+      if (this.bezug() && code === 'WIDERSPRUCH') d.vorbelegung = { ...(d.vorbelegung || {}), bezugVorgangId: this.bezug() };
       this.def.set(d);
       this.title.setTitle(`${d.kurz} – VitaPlus`);
     } catch (e) {

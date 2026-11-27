@@ -6,6 +6,7 @@ import { fehlertext } from '../../core/services/auth.interceptor';
 import { HatUngespeicherteAenderungen } from '../../core/services/guards';
 import { NachrichtDetail, PostfachApi } from '../../core/services/service-api.service';
 import { SitzungService } from '../../core/services/sitzung.service';
+import { VorgangApi } from '../../core/services/vorgang-api.service';
 import { UiService } from '../../core/services/ui.service';
 import { DateienComponent, FeldfehlerComponent } from '../../shared/bausteine';
 import { DateigroessePipe, DatumPipe } from '../../shared/pipes';
@@ -195,6 +196,10 @@ export class NachrichtComponent implements OnInit {
             @for (k of themen; track k[0]) { <option [value]="k[0]">{{ k[1] }}</option> }</select>
           <vp-feldfehler [control]="form.controls.kategorie" />
           @if (form.value.kategorie === 'BESCHWERDE') { <span class="hilfe">Ihre Nachricht wird direkt an unser Beschwerdemanagement weitergeleitet. Für die Nachverfolgung nutzen Sie auch das <a routerLink="/antraege/neu/BESCHWERDE">Beschwerdeformular</a>.</span> }</div>
+        <div class="feld breit"><label for="nm-vorgang">Bezug zu einem Vorgang (optional)</label>
+          <select id="nm-vorgang" formControlName="vorgangId"><option value="">Kein Bezug</option>
+            @for (v of vorgaenge(); track v.id) { <option [value]="v.id">{{ v.vorgangsnummer }} – {{ v.titel }}</option> } @empty { <option value="" disabled>Sie haben noch keine Vorgänge</option> }</select>
+          <span class="hilfe">Mit Vorgangsbezug landet Ihre Nachricht direkt bei der zuständigen Sachbearbeitung.</span></div>
         <div class="feld breit"><label for="nm-betreff" class="pflicht">Betreff</label><input id="nm-betreff" formControlName="betreff" maxlength="100" /><vp-feldfehler [control]="form.controls.betreff" /></div>
         <div class="feld breit"><label for="nm-text" class="pflicht">Ihre Nachricht</label><textarea id="nm-text" formControlName="text" maxlength="2000" rows="8"></textarea>
           <span class="zaehler">{{ form.value.text?.length || 0 }} / 2000</span><vp-feldfehler [control]="form.controls.text" /></div>
@@ -210,20 +215,27 @@ export class NachrichtSchreibenComponent implements OnInit, HatUngespeicherteAen
   private ui = inject(UiService);
   private fb = inject(FormBuilder);
   readonly antwortAuf = input<string>(undefined, { alias: 'antwort' });
+  readonly vorgang = input<string>();
+  private vorgangApi = inject(VorgangApi);
+  readonly vorgaenge = signal<{ id: string; vorgangsnummer: string; titel: string }[]>([]);
   readonly anhaenge = signal<Anhang[]>([]);
   readonly fehler = signal<string | null>(null);
   readonly sendet = signal(false);
   readonly themen = Object.entries(KATEGORIEN).filter(([k]) => k !== 'SYSTEM');
   private gesendet = false;
   form = this.fb.nonNullable.group({
-    kategorie: ['', Validators.required], betreff: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
+    vorgangId: [''], kategorie: ['', Validators.required], betreff: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
     text: ['', [Validators.required, Validators.minLength(20), Validators.maxLength(2000)]],
   });
 
   async ngOnInit() {
+    const liste = await this.vorgangApi.liste({}).catch(() => [] as any[]);
+    this.vorgaenge.set(liste.filter((v: any) => v.status !== 'ENTWURF'));
+    const bezug = liste.find((v: any) => v.id === this.vorgang());
+    if (bezug) this.form.patchValue({ vorgangId: bezug.id, kategorie: bezug.zustaendig === 'Mitgliedschaft & Beiträge' ? 'MITGLIEDSCHAFT' : 'LEISTUNG', betreff: `Frage zu ${bezug.vorgangsnummer}` });
     if (this.antwortAuf()) {
       const n = await this.api.detail(this.antwortAuf()!);
-      this.form.patchValue({ kategorie: n.kategorie === 'SYSTEM' ? 'ALLGEMEIN' : n.kategorie, betreff: n.betreff.startsWith('AW:') ? n.betreff : `AW: ${n.betreff}`.substring(0, 100) });
+      this.form.patchValue({ vorgangId: n.vorgangId || '', kategorie: n.kategorie === 'SYSTEM' ? 'ALLGEMEIN' : n.kategorie, betreff: n.betreff.startsWith('AW:') ? n.betreff : `AW: ${n.betreff}`.substring(0, 100) });
     }
   }
 
@@ -236,7 +248,8 @@ export class NachrichtSchreibenComponent implements OnInit, HatUngespeicherteAen
     if (this.form.invalid) return;
     this.sendet.set(true);
     try {
-      await this.api.senden({ ...this.form.getRawValue(), anhaenge: this.anhaenge(), antwortAufId: this.antwortAuf() });
+      const { vorgangId, ...rest } = this.form.getRawValue();
+      await this.api.senden({ ...rest, vorgangId: vorgangId || undefined, anhaenge: this.anhaenge(), antwortAufId: this.antwortAuf() });
       this.gesendet = true;
       this.ui.erfolg('Ihre Nachricht wurde gesendet. Eine Eingangsbestätigung finden Sie im Posteingang.');
       this.router.navigate(['/postfach']);

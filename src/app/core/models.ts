@@ -186,6 +186,8 @@ export interface Vorgang {
   geaendertAm: string;
   betragBeantragt?: number;
   betragErstattet?: number;
+  /** Bereits überwiesener Betrag (für Nachzahlungen nach Widerspruch) */
+  betragAusgezahlt?: number;
   daten: Record<string, any>;
   anhaenge: Anhang[];
   historie: Historieneintrag[];
@@ -229,6 +231,8 @@ export interface Nachricht {
   vorgangId?: string;
   antwortAufId?: string;
   wichtig: boolean;
+  /** Bei gesendeten Nachrichten: Zeitpunkt der Antwort des Kundenservice */
+  beantwortetAm?: string;
 }
 
 export interface BonusMassnahmeDef {
@@ -340,7 +344,7 @@ export interface Store {
   gesundheitsziele: Gesundheitsziel[];
   challengeTeilnahmen: { benutzerId: string; challengeId: string; seit: string; fortschritt: number }[];
   krankengeldZahlungen: KrankengeldZahlung[];
-  system: { wartungsmodus: boolean; wartungstext: string; version: string };
+  system: { wartungsmodus: boolean; wartungstext: string; version: string; stoerung?: boolean };
   seitenaufrufe: { seite: string; zeitpunkt: string }[];
   passwortResetTokens: { token: string; benutzerId: string; gueltigBis: string }[];
   /** Simulierter Versand über externe Kanäle (E-Mail-Gateway, SMS-Gateway, Druckstraße) */
@@ -553,4 +557,11 @@ export interface KrankengeldZahlung {
   abzuege: number;
   netto: number;
   ausgezahltAm: string;
+}
+
+/** Gegen ablehnende oder nur teilweise stattgebende Entscheidungen ist ein Widerspruch zulässig – auch wenn der Teilbetrag schon ausgezahlt wurde. */
+export function widerspruchsfaehig(v: Pick<Vorgang, 'typ' | 'status' | 'betragBeantragt' | 'betragErstattet'>): boolean {
+  if (v.typ === 'WIDERSPRUCH') return false;
+  if (v.status === 'ABGELEHNT' || v.status === 'TEILWEISE_GENEHMIGT') return true;
+  return v.status === 'AUSGEZAHLT' && v.betragBeantragt != null && (v.betragErstattet ?? 0) < v.betragBeantragt;
 }

@@ -1,3 +1,4 @@
+import { dokumentAnzeigen } from './dokumente/vorschau';
 /**
  * Minimaler PDF-Erzeuger (PDF 1.4, Helvetica, WinAnsi-Kodierung) für Bescheinigungen und Bescheide.
  */
@@ -82,6 +83,7 @@ export function herunterladen(blob: Blob, dateiname: string) {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
+/** Erzeugt das PDF und öffnet es im Dokumentbetrachter (dort auch Herunterladen und Drucken). */
 export function pdfHerunterladen(titel: string, zeilen: string[], dateiname: string) {
-  herunterladen(erzeugePdf(titel, zeilen), dateiname);
+  dokumentAnzeigen(titel, erzeugePdf(titel, zeilen), dateiname);
 }

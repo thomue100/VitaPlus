@@ -14,6 +14,7 @@ import { SymbolComponent } from '../../shared/symbol.component';
 
 interface ArchivEintrag { datum: string; titel: string; kategorie: 'BESCHEINIGUNG' | 'BESCHEID' | 'UPLOAD' | 'INFORMATION'; quelle: string; link?: any[]; aktion?: () => void }
 
+import { anhangOeffnen } from '../../shared/dokumente/anhang-oeffnen';
 @Component({
   selector: 'vp-dokumente',
   imports: [FormsModule, RouterLink, DatumPipe, SymbolComponent],
@@ -80,7 +81,7 @@ interface ArchivEintrag { datum: string; titel: string; kategorie: 'BESCHEINIGUN
       }
       @case ('uploads') {
         <div class="tabelle-wrapper karte" style="padding:0"><table class="tabelle"><thead><tr><th>Hochgeladen</th><th>Datei</th><th>Vorgang</th><th>Status</th></tr></thead><tbody>
-          @for (u of uploads(); track u.datei + u.vorgang.id) { <tr><td>{{ u.datum | datum: true }}</td><td><vp-symbol name="file-text" [groesse]="16" /> {{ u.datei }}</td><td><a [routerLink]="['/vorgaenge', u.vorgang.id]">{{ u.vorgang.vorgangsnummer }}</a></td><td class="klein">Eingang bestätigt</td></tr> }
+          @for (u of uploads(); track u.datei + u.vorgang.id) { <tr><td>{{ u.datum | datum: true }}</td><td><vp-symbol name="file-text" [groesse]="16" /> <button type="button" class="btn link" (click)="anhangOeffnen(u.anhang, u.vorgang.vorgangsnummer)">{{ u.datei }}</button></td><td><a [routerLink]="['/vorgaenge', u.vorgang.id]">{{ u.vorgang.vorgangsnummer }}</a></td><td class="klein">Eingang bestätigt</td></tr> }
           @empty { <tr><td colspan="4" class="leer">Sie haben noch keine Dokumente hochgeladen.</td></tr> }
         </tbody></table></div>
       }
@@ -88,6 +89,7 @@ interface ArchivEintrag { datum: string; titel: string; kategorie: 'BESCHEINIGUN
   styles: [`button.kachel{text-align:left;font:inherit;cursor:pointer}.gewaehlt{border-color:var(--vp-primaer);background:var(--vp-primaer-hell)}`],
 })
 export class DokumenteComponent implements OnInit {
+  readonly anhangOeffnen = anhangOeffnen;
   private dokApi = inject(DokumentApi);
   private famApi = inject(FamilieApi);
   private api = inject(Api);
@@ -115,7 +117,7 @@ export class DokumenteComponent implements OnInit {
     }))),
   ].sort((a, b) => b.datum.localeCompare(a.datum)));
 
-  readonly uploads = computed(() => this.vorgaenge().flatMap(v => v.anhaenge.map(a => ({ datum: a.hochgeladenAm, datei: a.name, vorgang: v }))).sort((a, b) => b.datum.localeCompare(a.datum)));
+  readonly uploads = computed(() => this.vorgaenge().flatMap(v => v.anhaenge.map(a => ({ datum: a.hochgeladenAm, datei: a.name, vorgang: v, anhang: a }))).sort((a, b) => b.datum.localeCompare(a.datum)));
 
   async ngOnInit() {
     const [d, f, v, n] = await Promise.all([this.dokApi.laden(), this.famApi.liste(), this.api.get<Vorgang[]>('/api/vorgaenge'), this.api.get<Nachricht[]>('/api/nachrichten', { ordner: 'EINGANG' })]);

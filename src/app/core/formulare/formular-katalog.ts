@@ -615,7 +615,7 @@ export const FORMULARE: FormularDef[] = [
     suchbegriffe: ['widerspruch', 'ablehnung', 'bescheid', 'einspruch'], lebenslagen: ['GELD'],
     hinweis: 'Der Widerspruch muss innerhalb eines Monats nach Bekanntgabe des Bescheids eingehen.',
     schritte: [{ titel: 'Widerspruch', felder: [
-      { name: 'bezugVorgangId', label: 'Gegen welche Entscheidung legen Sie Widerspruch ein?', typ: 'vorgang', pflicht: true, vorgangFilter: { status: ['ABGELEHNT', 'TEILWEISE_GENEHMIGT'] } },
+      { name: 'bezugVorgangId', label: 'Gegen welche Entscheidung legen Sie Widerspruch ein?', typ: 'vorgang', pflicht: true, vorgangFilter: { nurWiderspruchsfaehig: true } },
       f.lang('begruendung', 'Begründung', { minLaenge: 30, hilfe: 'Sie können die Begründung auch später nachreichen.' }),
       f.check('begruendungFolgt', 'Ich reiche eine ausführliche Begründung nach'),
       f.datei('anhaenge', 'Weitere Unterlagen', { pflicht: false }),

@@ -16,6 +16,8 @@ export interface FormularDefinition {
   oeffentlich: boolean;
   schritte: { titel: string; felder: string[] }[];
   schema: JsonSchema & { properties: Record<string, any> };
+  vorbelegung?: Record<string, any>;
+  antragsteller?: { name: string; versichertennummer: string; anschrift: string; geburtsdatum: string };
   uischema: UISchemaElement & { elements: (UISchemaElement & { label: string; elements: UISchemaElement[]; options?: Record<string, any> })[] };
 }
 

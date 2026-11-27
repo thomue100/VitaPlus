@@ -9,6 +9,7 @@ import { Anhang } from '../core/models';
 import { fehlertext as serverFehlertext } from '../core/services/auth.interceptor';
 import { Eingangsbestaetigung, FormularApi, FormularDefinition } from '../core/services/formular-api.service';
 import { UiService } from '../core/services/ui.service';
+import { SitzungService } from '../core/services/sitzung.service';
 import { DEUTSCH } from './json-forms/fehlertexte';
 import { VP_RENDERER } from './json-forms/vp-renderer';
 import { pdfHerunterladen } from './pdf';
@@ -43,6 +44,7 @@ export class FormularRendererComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private sitzung = inject(SitzungService);
 
   readonly definition = input.required<FormularDefinition>();
   readonly startdaten = input<Record<string, any>>({});
@@ -76,6 +78,49 @@ export class FormularRendererComponent implements OnInit {
   private schemaFehler: ErrorObject[] = [];
   private geaendert = false;
   private fehlerNachWechsel = false;
+  private speicherTimer?: ReturnType<typeof setTimeout>;
+  readonly lokalerEntwurf = signal<{ werte: Record<string, any>; schritt: number; freigegeben: number; zeit: string } | null>(null);
+
+  /** Schlüssel für die automatische Zwischenspeicherung im Browser */
+  private get entwurfSchluessel() {
+    return `vp_entwurf_${this.definition().code}_${this.sitzung.benutzer()?.id || 'gast'}`;
+  }
+
+  private entwurfPruefen() {
+    if (this.entwurfId()) return;
+    try {
+      const e = JSON.parse(localStorage.getItem(this.entwurfSchluessel) || 'null');
+      if (e && Date.now() - new Date(e.zeit).getTime() < 7 * 86400000 && Object.keys(e.werte || {}).length) this.lokalerEntwurf.set(e);
+      else if (e) localStorage.removeItem(this.entwurfSchluessel);
+    } catch { /* beschädigter Eintrag */ }
+  }
+
+  fortsetzen() {
+    const e = this.lokalerEntwurf();
+    if (!e) return;
+    this.werte = { ...this.werte, ...e.werte };
+    this.schrittDaten.set(this.werte);
+    this.lokalerEntwurf.set(null);
+    this.freigegeben.set(e.freigegeben);
+    this.geaendert = true;
+    this.navigieren(Math.min(e.schritt, this.anzahl() - 1));
+    this.ui.info('Ihre Angaben wurden wiederhergestellt.');
+  }
+
+  neuBeginnen() {
+    localStorage.removeItem(this.entwurfSchluessel);
+    this.lokalerEntwurf.set(null);
+  }
+
+  private zwischenspeichern() {
+    if (this.entwurfId() || this.ergebnis()) return;
+    clearTimeout(this.speicherTimer);
+    this.speicherTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(this.entwurfSchluessel, JSON.stringify({ werte: this.werte, schritt: Math.min(this.schritt(), this.anzahl() - 1), freigegeben: this.freigegeben(), zeit: new Date().toISOString() }));
+      } catch { /* Speicher voll */ }
+    }, 400);
+  }
 
   readonly anzahl = computed(() => this.definition().schritte.length);
   readonly zusammenfassung = computed(() => this.schritt() >= this.anzahl());
@@ -85,7 +130,8 @@ export class FormularRendererComponent implements OnInit {
   readonly fortschritt = computed(() => Math.round((Math.min(this.schritt(), this.anzahl()) / this.anzahl()) * 100));
 
   ngOnInit() {
-    this.werte = structuredClone(this.startdaten() || {});
+    this.werte = { ...(this.definition().vorbelegung || {}), ...structuredClone(this.startdaten() || {}) };
+    this.entwurfPruefen();
     const dateiFeld = this.dateiFelder()[0];
     if (dateiFeld && this.startAnhaenge().length && !this.werte[dateiFeld]) this.werte[dateiFeld] = [...this.startAnhaenge()];
     this.schrittDaten.set(this.werte);
@@ -104,6 +150,8 @@ export class FormularRendererComponent implements OnInit {
     if (d === this.werte) return;
     this.geaendert = true;
     this.werte = d;
+    if (this.lokalerEntwurf()) this.lokalerEntwurf.set(null);
+    this.zwischenspeichern();
     if (this.zusatzFehler().length) this.zusatzFehler.set([]);
   }
 
@@ -126,6 +174,7 @@ export class FormularRendererComponent implements OnInit {
 
   private navigieren(i: number) {
     this.freigegeben.update(f => Math.max(f, i));
+    if (this.geaendert) this.zwischenspeichern();
     const schritt = i >= this.anzahl() ? 'pruefen' : String(i + 1);
     this.router.navigate([], { relativeTo: this.route, queryParams: { schritt }, queryParamsHandling: 'merge' });
   }
@@ -259,6 +308,8 @@ export class FormularRendererComponent implements OnInit {
         : await this.formularApi.einreichen(this.definition().code, daten, anhaenge, this.oeffentlich());
       this.ergebnis.set(r);
       this.geaendert = false;
+      clearTimeout(this.speicherTimer);
+      localStorage.removeItem(this.entwurfSchluessel);
       this.fertig.emit(r);
       window.scrollTo({ top: 0 });
     } catch (e: any) {
@@ -285,11 +336,17 @@ export class FormularRendererComponent implements OnInit {
     }
   }
 
+  zeitText(iso: string) {
+    return new Date(iso).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' }) + ' Uhr';
+  }
+
   eingangsbestaetigungHerunterladen() {
     const e = this.ergebnis();
     const d = this.definition();
     if (!e) return;
+    const a = d.antragsteller;
     const zeilen = [
+      ...(a ? [`Antragsteller/in: ${a.name}`, `Versichertennummer: ${a.versichertennummer}`, `Anschrift: ${a.anschrift}`, ''] : []),
       `Vorgangsnummer: ${e.vorgangsnummer}`,
       `Eingegangen am: ${new Date().toLocaleString('de-DE')}`,
       `Zuständig: Team ${d.zustaendig}`,

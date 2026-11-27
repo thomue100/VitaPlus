@@ -73,7 +73,7 @@ const EREIGNIS: Record<string, string> = {
           <section class="karte"><h2>Sicherheitsprotokoll</h2>
             <div class="filterleiste"><label class="auswahl"><input type="checkbox" [(ngModel)]="nurZugriffe" [ngModelOptions]="{ standalone: true }" (ngModelChange)="protokollLaden()" /> nur Zugriffe auf meine Daten</label></div>
             <div class="tabelle-wrapper"><table class="tabelle klein"><thead><tr><th>Zeitpunkt</th><th>Ereignis</th><th>Details</th><th>Durch</th><th>Gerät</th></tr></thead><tbody>
-              @for (p of protokoll(); track p.id) { <tr [class.fett]="p.stufe === 'KRITISCH'"><td class="nowrap">{{ p.zeitpunkt | datum: true }}</td><td>{{ ereignis[p.ereignis] || p.ereignis }}</td><td>{{ p.details }}</td><td>{{ $any(p).akteur }}</td><td>{{ p.geraet || '' }}</td></tr> }
+              @for (p of protokoll(); track p.id) { <tr [class.fett]="p.stufe === 'KRITISCH'"><td class="nowrap">{{ p.zeitpunkt | datum: true }}</td><td>{{ ereignis[p.ereignis] || p.ereignis }}</td><td>{{ p.details }}</td><td>{{ $any(p).akteur }}</td><td>{{ p.geraet || '' }}</td></tr> } @empty { <tr><td colspan="5" class="leer">Noch keine Einträge im Zeitraum.</td></tr> }
             </tbody></table></div></section>
           <section class="karte"><h2>Verdacht auf Missbrauch?</h2>
             <p>Sperren Sie Ihren Zugang sofort. Sie können ihn anschließend über „Passwort vergessen“ oder den Online-Ausweis wieder entsperren.</p>

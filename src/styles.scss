@@ -302,3 +302,14 @@ fieldset.liste > .btn { align-self: flex-start; }
 .vorteile-kurz { list-style: none; padding: 0; margin: .75rem 0 0; display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; font-weight: 600; }
 .vorteile-kurz li { display: inline-flex; align-items: center; gap: .35rem; }
 .vorteile-kurz vp-symbol { color: var(--vp-primaer); }
+.entwurf-hinweis { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.entwurf-hinweis .aktionen { margin: 0; }
+.antragsteller { display: flex; gap: .75rem; align-items: center; padding: .75rem 1rem; margin-bottom: 1rem; border: 1px solid var(--vp-rand); border-radius: var(--vp-radius); background: #fff; }
+.antragsteller > span { flex: 1; }
+.antragsteller > span .leise { display: block; }
+.antragsteller vp-symbol { color: var(--vp-primaer); }
+.kommunikation li { display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap; padding: .35rem 0; border-bottom: 1px solid var(--vp-rand); }
+.sitzung-hintergrund { position: fixed; inset: 0; background: rgba(10, 30, 30, .45); z-index: 1300; }
+.sitzung-dialog { position: fixed; left: 50%; top: 30%; transform: translate(-50%, -30%); width: min(480px, calc(100vw - 2rem)); background: #fff; border-radius: 16px; padding: 1.5rem; z-index: 1301; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+.sitzung-dialog h2 { display: flex; align-items: center; gap: .5rem; margin-top: 0; font-size: 1.25rem; }
+.sitzung-dialog vp-symbol { color: var(--vp-akzent); }

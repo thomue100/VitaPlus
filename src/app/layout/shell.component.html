@@ -134,6 +134,16 @@
 
 @if (sitzung.benutzer()?.rolle !== 'SACHBEARBEITER' && sitzung.benutzer()?.rolle !== 'ADMIN') { <vp-chat /> }
 <vp-postausgang />
+<vp-dokument-betrachter />
+<vp-cookie-hinweis />
+@if (warnen()) {
+  <div class="sitzung-hintergrund"></div>
+  <section class="sitzung-dialog" role="alertdialog" aria-labelledby="sitzung-titel" aria-describedby="sitzung-text">
+    <h2 id="sitzung-titel"><vp-symbol name="clock" [groesse]="22" /> Ihre Sitzung läuft gleich ab</h2>
+    <p id="sitzung-text">Aus Sicherheitsgründen melden wir Sie nach 15 Minuten ohne Aktivität automatisch ab. Verbleibende Zeit: <strong>{{ restzeit() }}</strong></p>
+    <div class="aktionen"><button type="button" class="btn primaer" (click)="angemeldetBleiben()">Angemeldet bleiben</button><button type="button" class="btn" (click)="abmelden()">Abmelden</button></div>
+  </section>
+}
 
 <div class="toasts" aria-live="assertive">
   @for (h of ui.hinweise(); track h.id) {

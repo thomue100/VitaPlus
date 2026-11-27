@@ -10,6 +10,8 @@ import { UiService } from '../core/services/ui.service';
 import { UebersetzungPipe } from '../shared/pipes';
 import { ChatComponent } from './chat.component';
 import { PostausgangComponent } from './postausgang.component';
+import { CookieHinweisComponent, statistikErlaubt } from './cookie-hinweis.component';
+import { DokumentBetrachterComponent } from '../shared/dokumente/dokument-betrachter.component';
 import { SymbolComponent } from '../shared/symbol.component';
 import { LogoComponent } from '../shared/logo.component';
 
@@ -18,7 +20,7 @@ interface NavGruppe { schluessel: string; eintraege: NavEintrag[] }
 
 @Component({
   selector: 'vp-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, UebersetzungPipe, ChatComponent, SymbolComponent, LogoComponent, PostausgangComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, UebersetzungPipe, ChatComponent, SymbolComponent, LogoComponent, PostausgangComponent, DokumentBetrachterComponent, CookieHinweisComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
@@ -140,7 +142,7 @@ export class ShellComponent implements OnInit {
       if (this.sitzung.benutzer()?.rolle === 'VERSICHERTER') {
         this.postfach.zaehlerAktualisieren().catch(() => undefined);
         this.benachrichtigung.aktualisieren();
-        this.api.post('/api/analyse', { seite: (e as NavigationEnd).urlAfterRedirects.split('?')[0] }).catch(() => undefined);
+        if (statistikErlaubt()) this.api.post('/api/analyse', { seite: (e as NavigationEnd).urlAfterRedirects.split('?')[0] }).catch(() => undefined);
       }
       document.getElementById('inhalt')?.focus({ preventScroll: true });
     });
@@ -164,6 +166,11 @@ export class ShellComponent implements OnInit {
   suchen() {
     if (this.suchbegriff.trim().length < 2) return;
     this.router.navigate(['/suche'], { queryParams: { q: this.suchbegriff.trim() } });
+  }
+
+  async angemeldetBleiben() {
+    await this.api.get('/api/auth/ich').catch(() => undefined);
+    this.sitzung.aktivitaet();
   }
 
   abmelden() {

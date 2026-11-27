@@ -26,6 +26,8 @@ const MELDUNGEN: Record<string, (e: any) => string> = {
   server: e => e,
 };
 
+import { dokumentenablage } from '../core/backend/dokumentenablage';
+import { anhangOeffnen } from './dokumente/anhang-oeffnen';
 @Component({
   selector: 'vp-feldfehler',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -75,7 +77,9 @@ let uploadZaehler = 0;
       @if (dateien().length) {
         <ul class="liste-ohne">
           @for (d of dateien(); track d.id) {
-            <li class="zeile"><span><vp-symbol name="file-text" [groesse]="16" /> {{ d.name }} <span class="leise klein">({{ d.groesseBytes | groesse }})</span></span>
+            <li class="zeile"><span><vp-symbol [name]="d.mimeType.startsWith('image/') ? 'camera' : 'file-text'" [groesse]="16" />
+              <button type="button" class="btn link" (click)="ansehen(d)" [attr.aria-label]="'Datei ' + d.name + ' ansehen'">{{ d.name }}</button>
+              <span class="leise klein">({{ typText(d.mimeType) }}, {{ d.groesseBytes | groesse }})</span></span>
               <button type="button" class="btn link" (click)="entfernen(d.id)" [attr.aria-label]="'Datei ' + d.name + ' entfernen'">Entfernen</button></li>
           }
         </ul>
@@ -125,7 +129,9 @@ export class DateienComponent {
         this.fehler.set(`„${f.name}“ ist leer.`);
         continue;
       }
-      neu.push({ id: Math.random().toString(36).substring(2, 10), name: f.name, groesseBytes: f.size, mimeType: typ, hochgeladenAm: new Date().toISOString() });
+      const anhang: Anhang = { id: Math.random().toString(36).substring(2, 10), name: f.name, groesseBytes: f.size, mimeType: typ, hochgeladenAm: new Date().toISOString() };
+      dokumentenablage.speichern(anhang.id, f);
+      neu.push(anhang);
     }
     const gesamt = [...this.dateien(), ...neu];
     if (gesamt.length > this.max()) this.fehler.set(`Es sind höchstens ${this.max()} Dateien erlaubt.`);
@@ -134,6 +140,14 @@ export class DateienComponent {
 
   entfernen(id: string) {
     this.dateien.set(this.dateien().filter(d => d.id !== id));
+  }
+
+  ansehen(a: Anhang) {
+    anhangOeffnen(a);
+  }
+
+  typText(mime: string) {
+    return mime === 'application/pdf' ? 'PDF' : mime === 'image/png' ? 'PNG' : 'JPG';
   }
 }
 

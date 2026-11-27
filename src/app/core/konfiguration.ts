@@ -281,6 +281,8 @@ export const VERARBEITUNG = {
   sachbearbeitungEntscheidungNachSek: 150,
   nachNachreichungSek: 60,
   auszahlungNachSek: 90,
+  /** Antwort des Kundenservice auf Nachrichten aus dem Postfach */
+  nachrichtAntwortNachSek: 120,
   /** Vorgangstypen, die ohne Sachbearbeitung regelbasiert entschieden werden */
   dunkelTypen: ['KOSTENERSTATTUNG', 'FAHRKOSTEN', 'ZUZAHLUNGSBEFREIUNG', 'DIGA', 'DMP', 'FAMILIENSTAND', 'STAATSANGEHOERIGKEIT', 'ARBEITGEBERWECHSEL',
     'BESCHAEFTIGUNGSENDE', 'AUSBILDUNG', 'STUDIUM', 'AUSLAND', 'EINKOMMEN', 'LEISTUNGSAUSKUNFT', 'DATENSCHUTZANFRAGE', 'RUECKRUF', 'MITGLIEDSANTRAG',

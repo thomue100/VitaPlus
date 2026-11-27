@@ -37,7 +37,7 @@ export interface FeldDef {
   hilfe?: string;
   platzhalter?: string;
   maxDateien?: number;
-  vorgangFilter?: { status?: string[]; typen?: string[] };
+  vorgangFilter?: { status?: string[]; typen?: string[]; nurWiderspruchsfaehig?: boolean };
   breit?: boolean;
   /** Auswahlwerte, die erst zur Laufzeit feststehen (z. B. mögliche Beginntermine) */
   optionenQuelle?: 'MONATSERSTE';

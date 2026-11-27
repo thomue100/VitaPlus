@@ -14,6 +14,7 @@ import { VORGANG_ROUTEN, zeitgesteuerteUebergaenge } from './handler-vorgaenge';
 import { hintergrundverarbeitung } from './verarbeitung';
 import { FORMULAR_ROUTEN } from './handler-formulare';
 import { FORMULARSERVICE_ROUTEN } from './formularservice';
+import { DEMO_ROUTEN } from './handler-demo';
 import { KONTO_ROUTEN } from './handler-konto';
 import { VERSICHERUNG_ROUTEN } from './handler-versicherung';
 import { fehlerErfassen, INHALT_ADMIN_ROUTEN, messpunktErfassen } from './handler-inhalte-admin';
@@ -28,6 +29,7 @@ const ROUTEN: Route[] = [
   ...SB_ROUTEN,
   ...FORMULAR_ROUTEN,
   ...FORMULARSERVICE_ROUTEN,
+  ...DEMO_ROUTEN,
   ...KONTO_ROUTEN,
   ...VERSICHERUNG_ROUTEN,
   ...INHALT_ADMIN_ROUTEN,
@@ -57,6 +59,10 @@ function finde(methode: string, pfad: string): Treffer | undefined {
   }
   return undefined;
 }
+
+/** Bei simulierter Störung betroffene Schnittstellen (Antragsannahme und Uploads) */
+const STOERUNG_BETROFFEN = [/^POST \/api\/antraege$/, /^PUT \/api\/antraege\/[^/]+$/, /^POST \/api\/oeffentlich\/formulare\/[^/]+$/, /^POST \/api\/erstattung$/,
+  /^POST \/api\/krankmeldung$/, /^POST \/api\/nachrichten$/, /^POST \/api\/vorgaenge\/[^/]+\/nachreichen$/];
 
 function latenz(): number {
   return 120 + Math.floor(Math.random() * 380);
@@ -105,6 +111,9 @@ export const mockBackendInterceptor: HttpInterceptorFn = (req, next): Observable
             s.letzteAktivitaet = Date.now();
             sitzungen.aktualisieren(s);
           }
+        }
+        if (store.system.stoerung && STOERUNG_BETROFFEN.some(m => m.test(`${req.method} ${url.pathname}`))) {
+          throw new ApiFehler(503, 'Ihr Anliegen konnte gerade nicht übermittelt werden, weil ein Dienst vorübergehend nicht erreichbar ist. Ihre Eingaben bleiben erhalten – bitte versuchen Sie es in einigen Minuten erneut.', undefined, 'DIENST_NICHT_ERREICHBAR');
         }
         zeitgesteuerteUebergaenge(store);
         hintergrundverarbeitung(store);

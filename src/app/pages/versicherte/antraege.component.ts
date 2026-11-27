@@ -49,7 +49,7 @@ const SONDERSEITEN: { titel: string; route: string; kategorie: FormularKategorie
       <h2>{{ g.titel }}</h2>
       <div class="raster">
         @for (f of g.formulare; track f.code) {
-          <a class="kachel" [class.deaktiviert]="!f.verfuegbar" [routerLink]="['/antraege/neu', f.code]" [attr.aria-disabled]="!f.verfuegbar">
+          <a class="kachel" [class.deaktiviert]="!f.verfuegbar" [routerLink]="f.verfuegbar ? ['/antraege/neu', f.code] : null" [attr.aria-disabled]="!f.verfuegbar" [attr.tabindex]="f.verfuegbar ? null : -1">
             <span class="titel">{{ f.titel }}</span><br />
             <span class="klein leise">{{ f.verfuegbar ? 'Bearbeitung ca. ' + f.bearbeitungTage + ' Tage' : 'Für Ihre Versicherungsart nicht verfügbar' }}</span></a>
         }

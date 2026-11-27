@@ -2,7 +2,7 @@ import { BEITRAG, BINDUNGSFRIST_MONATE, DIGA_LISTE, DMP_PROGRAMME, PFLEGE, WIDER
 import { alleFelder, formular, FORMULARE } from '../formulare/formular-katalog';
 import { bereinige, pruefeFormular } from '../formulare/formular-pruefung';
 import { FormularDef } from '../formulare/formular-typen';
-import { Benutzer, Familienmitglied, Vorgang } from '../models';
+import { Benutzer, Familienmitglied, Vorgang, widerspruchsfaehig } from '../models';
 import { berechneBeitrag } from '../util/berechnungen';
 import { addMonate, addTage, alterAm, formatDatum, heute, heuteIso, istFeiertag, istWochenende, jetztIso, parseIso, tageZwischen, toIso } from '../util/datum';
 import { Anfrage, ApiFehler, anrede, euro, postfachNachricht, Route, statusSetzen, voller, eingangErfassen, verarbeitungStarten, versenden } from './api-kontext';
@@ -377,7 +377,7 @@ const SONDERREGELN: Record<string, (k: Kontext) => Ergebnis | void> = {
   },
   WIDERSPRUCH: k => {
     const bezug = k.a.store.vorgaenge.find(v => v.id === k.d['bezugVorgangId'] && v.benutzerId === k.b.id);
-    if (!bezug || !['ABGELEHNT', 'TEILWEISE_GENEHMIGT'].includes(bezug.status)) throw fehler('Gegen diesen Vorgang ist kein Widerspruch möglich.', 'bezugVorgangId', 400);
+    if (!bezug || !widerspruchsfaehig(bezug)) throw fehler('Gegen diesen Vorgang ist kein Widerspruch möglich.', 'bezugVorgangId', 400);
     const bescheid = bezug.bescheidAm || bezug.geaendertAm.substring(0, 10);
     // Bekanntgabe gilt am dritten Tag nach Versand als erfolgt
     const fristEnde = addTage(addMonate(parseIso(bescheid), 1), 3);

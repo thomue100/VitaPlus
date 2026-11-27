@@ -1,4 +1,4 @@
-import { Benutzer, Buchung, Leistungsdatensatz, Store, Zuzahlung } from '../models';
+import { Benutzer, Buchung, Leistungsdatensatz, Store, Vorgang, Zuzahlung } from '../models';
 import { berechneBeitrag } from '../util/berechnungen';
 import { alterAm } from '../util/datum';
 
@@ -101,6 +101,8 @@ function leistungsdaten(): Leistungsdatensatz[] {
     ['u1', 'Lena Schmidt', ['Dr. med. Katrin Zimmermann (Kinder- und Jugendmedizin)']],
     ['u3', 'Dr. Erika Weber', ['Prof. Dr. med. Stefan Krüger (Kardiologie)', 'Dr. med. Hanna Richter (Innere Medizin)', 'Dr. med. Ole Neumann (Augenheilkunde)']],
     ['u2', 'Max Mustermann', ['Dr. med. Tobias Schulz (Allgemeinmedizin)']],
+    ['u5', 'Paul Weber', ['Dr. med. Felix Huber (Allgemeinmedizin)', 'Dr. med. dent. Sophie Maier (Zahnmedizin)', 'Dr. med. Andreas Wolf (Orthopädie)']],
+    ['u4', 'Jonas Klein', ['Dr. med. Laura Becker (Allgemeinmedizin)']],
   ];
   let i = 0;
   personen.forEach(([bid, person, praxen], pi) => {
@@ -277,6 +279,64 @@ export function ergaenzeStartdaten(s: Store): Store {
     datum: '2026-11-10T15:40:00', gelesen: true, kategorie: 'LEISTUNG', anhaenge: [{ id: 'd8', name: 'Bescheid_VP-2026-001176.pdf', groesseBytes: 64000, mimeType: 'application/pdf', hochgeladenAm: '2026-11-10T15:40:00' }],
     vorgangId: 'v7', wichtig: true,
   });
+  // Weitere Vorgänge: Paul Weber (Angestellter, Basis) und ein widerspruchsfähiger Bescheid für Anna Schmidt
+  const t = (tageZurueck: number, uhr = '10:15:00') => { const d = new Date(); d.setDate(d.getDate() - tageZurueck); return `${d.toLocaleDateString('sv-SE')}T${uhr}`; };
+  const vorgaengeNeu: Vorgang[] = [
+    { id: 'v20', vorgangsnummer: 'VP-2026-001190', benutzerId: 'u1', typ: 'KOSTENERSTATTUNG', titel: 'Brille / Kontaktlinsen', status: 'AUSGEZAHLT',
+      erstelltAm: t(12), geaendertAm: t(8, '06:30:00'), betragBeantragt: 389, betragErstattet: 120, bescheidAm: t(9).substring(0, 10), zustaendig: 'Leistungen', bearbeiterId: 's1',
+      daten: { leistung: 'BRILLE', rechnungsdatum: t(20).substring(0, 10), rechnungsnummer: 'OP-55120', leistungserbringer: 'Optik Sehwerk Berlin', patient: 'Anna Schmidt', voraussichtlich: 120 },
+      anhaenge: [{ id: 'a20', name: 'Rechnung_Optik_Sehwerk.pdf', groesseBytes: 182400, mimeType: 'application/pdf', hochgeladenAm: t(12) }],
+      historie: [
+        { zeitpunkt: t(12), status: 'EINGEREICHT', text: 'Antrag online eingereicht', von: 'Anna Schmidt' },
+        { zeitpunkt: t(11, '08:40:00'), status: 'IN_BEARBEITUNG', text: 'Vorgang übernommen', von: 'Sabine Müller' },
+        { zeitpunkt: t(9, '14:05:00'), status: 'TEILWEISE_GENEHMIGT', text: 'Teilweise genehmigt: 120,00 € – Höchstbetrag für Sehhilfen im Tarif erreicht', von: 'Sabine Müller' },
+        { zeitpunkt: t(8, '06:30:00'), status: 'AUSGEZAHLT', text: '120,00 € überwiesen auf DE89 **** **** 3000', von: 'System' },
+      ] },
+    { id: 'v21', vorgangsnummer: 'VP-2026-001041', benutzerId: 'u5', typ: 'KOSTENERSTATTUNG', titel: 'Professionelle Zahnreinigung', status: 'AUSGEZAHLT',
+      erstelltAm: t(64), geaendertAm: t(58), betragBeantragt: 110, betragErstattet: 40, bescheidAm: t(60).substring(0, 10), zustaendig: 'Leistungen',
+      daten: { leistung: 'PZR', rechnungsdatum: t(70).substring(0, 10), rechnungsnummer: 'ZM-20931', leistungserbringer: 'Zahnarztpraxis Dr. Maier', patient: 'Paul Weber', voraussichtlich: 40 },
+      anhaenge: [{ id: 'a21', name: 'Rechnung_Zahnreinigung.pdf', groesseBytes: 98000, mimeType: 'application/pdf', hochgeladenAm: t(64) }],
+      historie: [
+        { zeitpunkt: t(64), status: 'EINGEREICHT', text: 'Antrag online eingereicht', von: 'Paul Weber' },
+        { zeitpunkt: t(60), status: 'GENEHMIGT', text: 'Automatisch genehmigt: 40,00 €', von: 'System' },
+        { zeitpunkt: t(58), status: 'AUSGEZAHLT', text: '40,00 € überwiesen', von: 'Zahllauf' },
+      ] },
+    { id: 'v22', vorgangsnummer: 'VP-2026-001122', benutzerId: 'u5', typ: 'ARBEITSUNFAEHIGKEIT', titel: 'Arbeitsunfähigkeit 13.10.–17.10.2026', status: 'GENEHMIGT',
+      erstelltAm: '2026-10-13T09:12:00', geaendertAm: '2026-10-13T09:12:00', zustaendig: 'Leistungen',
+      daten: { von: '2026-10-13', bis: '2026-10-17', arzt: 'Dr. med. Felix Huber', erstbescheinigung: true, arbeitgeber: 'Isar Software AG', tage: 5, kettenTage: 5, verspaetet: false, krankengeld: false },
+      anhaenge: [], historie: [
+        { zeitpunkt: '2026-10-13T09:12:00', status: 'EINGEREICHT', text: 'Elektronische AU von Dr. med. Felix Huber übermittelt', von: 'eAU-Verfahren' },
+        { zeitpunkt: '2026-10-13T09:12:00', status: 'GENEHMIGT', text: 'Arbeitsunfähigkeit registriert, Arbeitgeber informiert', von: 'System' },
+      ] },
+    { id: 'v23', vorgangsnummer: 'VP-2026-001201', benutzerId: 'u5', typ: 'KOSTENERSTATTUNG', titel: 'Osteopathie', status: 'ABGELEHNT',
+      erstelltAm: t(6), geaendertAm: t(4, '11:30:00'), betragBeantragt: 85, bescheidAm: t(4).substring(0, 10), zustaendig: 'Leistungen', bearbeiterId: 's1',
+      ablehnungsgrund: 'Osteopathische Behandlungen sind im Tarif VitaPlus Basis nicht enthalten. Eine Erstattung ist ab dem Tarif Komfort möglich.',
+      daten: { leistung: 'OSTEO', rechnungsdatum: t(15).substring(0, 10), rechnungsnummer: 'OS-1188', leistungserbringer: 'Osteopathie am Englischen Garten', patient: 'Paul Weber', voraussichtlich: 0 },
+      anhaenge: [{ id: 'a23', name: 'Rechnung_Osteopathie.pdf', groesseBytes: 76000, mimeType: 'application/pdf', hochgeladenAm: t(6) }],
+      historie: [
+        { zeitpunkt: t(6), status: 'EINGEREICHT', text: 'Antrag online eingereicht', von: 'Paul Weber' },
+        { zeitpunkt: t(4, '11:30:00'), status: 'ABGELEHNT', text: 'Antrag abgelehnt', von: 'Sabine Müller' },
+      ] },
+  ];
+  s.vorgaenge.push(...vorgaengeNeu);
+  s.nachrichten.push(
+    { id: 'n20', benutzerId: 'u1', ordner: 'EINGANG', betreff: 'Entscheidung zu Ihrem Antrag VP-2026-001190', absender: 'VitaPlus Leistungen', empfaenger: 'Anna Schmidt', datum: t(9, '14:05:00'), gelesen: false,
+      text: 'Sehr geehrte Frau Schmidt,\n\nwir haben Ihren Antrag „Brille / Kontaktlinsen“ geprüft. Wir übernehmen 120,00 € von 389,00 €.\n\nBegründung: Für Sehhilfen erstatten wir im Tarif VitaPlus Komfort höchstens 120,00 € in zwei Jahren. Dieser Höchstbetrag ist erreicht.\n\nGegen diese Entscheidung können Sie innerhalb eines Monats Widerspruch einlegen – direkt online in Ihrem Vorgang.\n\nMit freundlichen Grüßen\nSabine Müller\nTeam Leistungen',
+      kategorie: 'LEISTUNG', anhaenge: [{ id: 'bsv20', name: 'Bescheid_VP-2026-001190.pdf', groesseBytes: 48000, mimeType: 'application/pdf', hochgeladenAm: t(9, '14:05:00') }], vorgangId: 'v20', wichtig: false },
+    { id: 'n21', benutzerId: 'u5', ordner: 'EINGANG', betreff: 'Bescheid zu VP-2026-001201', absender: 'VitaPlus Leistungen', empfaenger: 'Paul Weber', datum: t(4, '11:30:00'), gelesen: false,
+      text: 'Sehr geehrter Herr Weber,\n\nleider können wir Ihrem Antrag „Osteopathie“ nicht entsprechen.\n\nBegründung: Osteopathische Behandlungen sind im Tarif VitaPlus Basis nicht enthalten. Eine Erstattung ist ab dem Tarif Komfort möglich.\n\nGegen diese Entscheidung können Sie innerhalb eines Monats nach Bekanntgabe Widerspruch einlegen – direkt online in Ihrem Vorgang.\n\nMit freundlichen Grüßen\nSabine Müller\nTeam Leistungen',
+      kategorie: 'LEISTUNG', anhaenge: [{ id: 'bsv23', name: 'Bescheid_VP-2026-001201.pdf', groesseBytes: 52000, mimeType: 'application/pdf', hochgeladenAm: t(4, '11:30:00') }], vorgangId: 'v23', wichtig: true },
+    { id: 'n22', benutzerId: 'u5', ordner: 'EINGANG', betreff: 'Ihre Erstattung VP-2026-001041 wurde ausgezahlt', absender: 'VitaPlus Zahlungsverkehr', empfaenger: 'Paul Weber', datum: t(58), gelesen: true,
+      text: 'Sehr geehrter Herr Weber,\n\nwir haben 40,00 € auf Ihr Konto DE83 •••• 4321 überwiesen.\nVerwendungszweck: VP-2026-001041 Professionelle Zahnreinigung\n\nIhre VitaPlus', kategorie: 'LEISTUNG', anhaenge: [], vorgangId: 'v21', wichtig: false },
+    { id: 'n23', benutzerId: 'u5', ordner: 'EINGANG', betreff: 'Willkommen beim Bonusprogramm', absender: 'VitaPlus Bonusprogramm', empfaenger: 'Paul Weber', datum: t(120), gelesen: true,
+      text: 'Sehr geehrter Herr Weber,\n\nschön, dass Sie beim Bonusprogramm „VitaPlus aktiv“ mitmachen. Reichen Sie Ihre Nachweise einfach online ein.\n\nIhre VitaPlus', kategorie: 'BONUS', anhaenge: [], wichtig: false },
+  );
+  s.bonus.push(
+    { id: 'b-u5-1', benutzerId: 'u5', code: 'CHECKUP', datum: t(90).substring(0, 10), punkte: 300, status: 'BESTAETIGT', eingeloest: false, eingereichtAm: t(88) } as any,
+    { id: 'b-u5-2', benutzerId: 'u5', code: 'SPORTABZ', datum: t(40).substring(0, 10), punkte: 250, status: 'BESTAETIGT', eingeloest: false, eingereichtAm: t(39) } as any,
+  );
+  // Gesendete Nachrichten aus dem Altbestand gelten als beantwortet
+  s.nachrichten.filter(n => n.ordner === 'GESENDET').forEach(n => (n.beantwortetAm = n.datum));
   s.system = { wartungsmodus: false, wartungstext: 'Die Online-Geschäftsstelle wird gerade gewartet. Bitte versuchen Sie es später erneut.', version: '4.12.0' };
   s.seitenaufrufe = [];
   return s;

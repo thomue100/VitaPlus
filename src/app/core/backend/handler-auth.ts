@@ -258,19 +258,7 @@ function passwortZuruecksetzen(a: Anfrage) {
   return { ok: true };
 }
 
-/** Postausgang der Demo-Umgebung: zeigt, was über E-Mail-, SMS- und Brief-Gateway versendet wurde. */
-function postausgang(a: Anfrage) {
-  return (a.store.postausgang || []).slice(0, 40);
-}
-
-function postausgangGelesen(a: Anfrage) {
-  (a.store.postausgang || []).forEach(n => (n.gelesen = true));
-  return { ok: true };
-}
-
 export const AUTH_ROUTEN: Route[] = [
-  { methode: 'GET', muster: '/api/demo/postausgang', handler: postausgang, oeffentlich: true },
-  { methode: 'POST', muster: '/api/demo/postausgang/gelesen', handler: postausgangGelesen, oeffentlich: true },
   { methode: 'POST', muster: '/api/auth/login', handler: login, oeffentlich: true },
   { methode: 'POST', muster: '/api/auth/zwei-faktor', handler: zweiFaktor, oeffentlich: true },
   { methode: 'POST', muster: '/api/auth/extern', handler: externeIdentitaet, oeffentlich: true },

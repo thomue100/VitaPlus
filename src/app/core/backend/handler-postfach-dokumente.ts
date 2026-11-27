@@ -95,7 +95,7 @@ const AUTO_ANTWORT: Record<NachrichtKategorie, string> = {
 
 function senden(a: Anfrage) {
   const b = a.benutzer!;
-  const { betreff, text, kategorie, anhaenge, antwortAufId } = a.body || {};
+  const { betreff, text, kategorie, anhaenge, antwortAufId, vorgangId } = a.body || {};
   pflicht(betreff, 'betreff');
   pflicht(text, 'text');
   if (String(betreff).trim().length < 5 || String(betreff).length > 100) throw new ApiFehler(400, 'Der Betreff muss zwischen 5 und 100 Zeichen lang sein.', 'betreff');
@@ -108,18 +108,27 @@ function senden(a: Anfrage) {
     if (!ursprung) throw new ApiFehler(404, 'Die ursprüngliche Nachricht wurde nicht gefunden.');
     if (ursprung.kategorie === 'SYSTEM') throw new ApiFehler(422, 'Auf Systemnachrichten kann nicht geantwortet werden.');
   }
+  const bezug = vorgangId ? a.store.vorgaenge.find(v => v.id === vorgangId && v.benutzerId === b.id) : undefined;
+  if (vorgangId && !bezug) throw new ApiFehler(404, 'Der Vorgang wurde nicht gefunden.', 'vorgangId');
   const heuteGesendet = a.store.nachrichten.filter(n => n.benutzerId === b.id && n.ordner === 'GESENDET' && n.datum.startsWith(heuteIso())).length;
   if (heuteGesendet >= 10) throw new ApiFehler(429, 'Sie haben heute bereits 10 Nachrichten gesendet. Bitte versuchen Sie es morgen erneut oder rufen Sie uns an.');
   const n: Nachricht = {
     id: neueId('n'), benutzerId: b.id, ordner: 'GESENDET', betreff: String(betreff).trim(), text: String(text).trim(),
     absender: voller(b), empfaenger: 'VitaPlus Kundenservice', datum: jetztIso(), gelesen: true, kategorie,
-    anhaenge: anhaenge || [], antwortAufId, wichtig: kategorie === 'BESCHWERDE',
+    anhaenge: anhaenge || [], antwortAufId, wichtig: kategorie === 'BESCHWERDE', vorgangId: bezug?.id,
   };
+  if (bezug) bezug.historie.push({ zeitpunkt: jetztIso(), status: bezug.status, text: `Nachricht des Versicherten: ${n.betreff}`, von: voller(b) });
   a.store.nachrichten.push(n);
   postfachNachricht(b.id, `Eingangsbestätigung: ${n.betreff}`,
     `${anrede(b)},\n\nvielen Dank für Ihre Nachricht. ${AUTO_ANTWORT[kategorie as NachrichtKategorie]}\n\nIhre VitaPlus`,
-    { kategorie: 'SYSTEM', absender: 'VitaPlus Kundenservice', antwortAufId: n.id });
+    { kategorie: 'SYSTEM', absender: 'VitaPlus Kundenservice', antwortAufId: n.id, vorgangId: bezug?.id });
   return n;
+}
+
+function nachrichtenZumVorgang(a: Anfrage) {
+  return a.store.nachrichten.filter(n => n.benutzerId === a.benutzer!.id && n.vorgangId === a.params['id'] && n.ordner !== 'PAPIERKORB')
+    .sort((x, y) => x.datum.localeCompare(y.datum))
+    .map(n => ({ id: n.id, betreff: n.betreff, datum: n.datum, ordner: n.ordner, absender: n.absender, gelesen: n.gelesen, kategorie: n.kategorie }));
 }
 
 // ---------------------------------------------------------------- Arztsuche
@@ -272,6 +281,7 @@ export const POSTFACH_DOKUMENT_ROUTEN: Route[] = [
   { methode: 'PUT', muster: '/api/nachrichten/:id', handler: nachrichtAendern, rolle: 'VERSICHERTER' },
   { methode: 'DELETE', muster: '/api/nachrichten/:id', handler: nachrichtLoeschen, rolle: 'VERSICHERTER' },
   { methode: 'POST', muster: '/api/nachrichten', handler: senden, rolle: 'VERSICHERTER' },
+  { methode: 'GET', muster: '/api/vorgaenge/:id/nachrichten', handler: nachrichtenZumVorgang, rolle: 'VERSICHERTER' },
   { methode: 'GET', muster: '/api/aerzte', handler: aerzte, oeffentlich: true },
   { methode: 'GET', muster: '/api/aerzte/favoriten', handler: favoriten },
   { methode: 'POST', muster: '/api/aerzte/:id/favorit', handler: favoritSetzen },

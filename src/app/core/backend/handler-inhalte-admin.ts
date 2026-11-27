@@ -4,6 +4,7 @@ import { LEISTUNGEN } from '../inhalte/leistungen';
 import { Benutzer } from '../models';
 import { heute, heuteIso, jetztIso, parseIso, tageZwischen } from '../util/datum';
 import { istEmailGueltig } from '../util/pruefungen';
+import { antworten, begruessung, liveAntwort } from './assistent';
 import { Anfrage, ApiFehler, ohnePasswort, pflicht, Route, voller } from './api-kontext';
 import { neueId, sitzungen } from './db';
 import { protokollieren } from './fachlogik';
@@ -143,19 +144,6 @@ function kontakt(a: Anfrage) {
   };
 }
 
-const CHAT_REGELN: { muster: RegExp; antwort: string; link?: string }[] = [
-  { muster: /karte.*(verloren|gestohlen|weg)|(verloren|gestohlen).*karte/i, antwort: 'Das tut mir leid! Sie können Ihre Karte sofort online sperren und eine neue bestellen.', link: '/gesundheitskarte' },
-  { muster: /passwort|zugang gesperrt|login/i, antwort: 'Über „Passwort vergessen“ setzen Sie Ihr Passwort zurück. Damit wird Ihr Zugang auch entsperrt.', link: '/passwort-vergessen' },
-  { muster: /krankmeld|krank geschrieben|\bau\b/i, antwort: 'Ihre Arztpraxis übermittelt die AU in der Regel elektronisch. Sie können eine Krankmeldung aber auch selbst erfassen.', link: '/krankmeldung' },
-  { muster: /rechnung|erstatt/i, antwort: 'Rechnungen reichen Sie unter „Kostenerstattung“ ein. Den voraussichtlichen Betrag sehen Sie schon bei der Eingabe.', link: '/erstattung' },
-  { muster: /bonus|punkte|prämie/i, antwort: 'Ihren Punktestand und alle Maßnahmen finden Sie im Bonusprogramm.', link: '/bonus' },
-  { muster: /beitrag|zusatzbeitrag/i, antwort: 'Der Zusatzbeitrag der VitaPlus beträgt 2,49 %. Ihren persönlichen Beitrag sehen Sie unter „Beiträge“.', link: '/beitraege' },
-  { muster: /adresse|umzug|umgezogen/i, antwort: 'Ihre neue Adresse können Sie direkt unter „Persönliche Daten“ ändern.', link: '/profil' },
-  { muster: /pflege/i, antwort: 'Alles rund um Pflegegrad, Pflegegeld und Entlastung finden Sie im Bereich Pflege.', link: '/pflege' },
-  { muster: /baby|geburt|schwanger/i, antwort: 'Herzlichen Glückwunsch! Melden Sie die Geburt online, dann ist Ihr Kind sofort familienversichert.', link: '/antraege/neu/GEBURT' },
-  { muster: /mitarbeiter|mensch|berater|persönlich/i, antwort: 'Gern verbinde ich Sie mit einer Kollegin oder einem Kollegen.', link: 'LIVE' },
-];
-
 function chat(a: Anfrage) {
   const text = String(a.body?.text || '').trim();
   if (!text) throw new ApiFehler(400, 'Bitte geben Sie eine Frage ein.', 'text');
@@ -166,17 +154,14 @@ function chat(a: Anfrage) {
     if (!e?.erteilt) a.store.einwilligungen.push({ id: neueId('ew'), benutzerId: a.benutzer.id, code: 'DIGITALER_ASSISTENT', erteilt: true, zeitpunkt: jetztIso(), historie: [{ zeitpunkt: jetztIso(), erteilt: true, kanal: 'Chat' }] });
   }
   if (a.body?.live) {
-    if (!istOffen(SERVICEZEITEN.chat)) return { von: 'SYSTEM', text: 'Unser Live-Chat ist Mo–Fr von 8 bis 18 Uhr besetzt. Möchten Sie einen Rückruf vereinbaren?', link: '/antraege/neu/RUECKRUF' };
-    return { von: 'MITARBEITER', name: 'Jana (Kundenservice)', text: 'Hallo, hier ist Jana vom VitaPlus Kundenservice. Wie kann ich Ihnen helfen?' };
+    if (!istOffen(SERVICEZEITEN.chat)) return { von: 'SYSTEM', text: 'Unser Live-Chat ist Mo–Fr von 8 bis 18 Uhr besetzt. Möchten Sie einen Rückruf vereinbaren?', links: [{ text: 'Rückruf vereinbaren', ziel: '/antraege/neu/RUECKRUF' }], kontext: {} };
+    return liveAntwort(text, a.benutzer);
   }
-  const regel = CHAT_REGELN.find(r => r.muster.test(text));
-  if (regel) return { von: 'BOT', text: regel.antwort, link: regel.link };
-  const worte = text.toLowerCase().split(/\W+/).filter(w => w.length > 3);
-  const besteFaq = a.store.inhalte.faq.filter(f => f.sichtbar)
-    .map(f => ({ f, punkte: worte.filter(w => (f.frage + ' ' + f.antwort).toLowerCase().includes(w)).length }))
-    .sort((x, y) => y.punkte - x.punkte)[0];
-  if (besteFaq && besteFaq.punkte >= 2) return { von: 'BOT', text: besteFaq.f.antwort, link: `/hilfe?faq=${besteFaq.f.id}` };
-  return { von: 'BOT', text: 'Das habe ich leider nicht verstanden. Formulieren Sie Ihre Frage anders oder schreiben Sie „Mitarbeiter“, um mit uns zu chatten.' };
+  return antworten(text, a.body?.kontext, a.store, a.benutzer);
+}
+
+function chatBegruessung(a: Anfrage) {
+  return begruessung(a.benutzer);
 }
 
 function feedbackSenden(a: Anfrage) {
@@ -393,12 +378,18 @@ function meldungLoeschen(a: Anfrage) {
 
 function system(a: Anfrage) {
   if (a.methode === 'PUT') {
-    const { wartungsmodus, wartungstext } = a.body || {};
-    if (wartungsmodus && (!wartungstext || String(wartungstext).trim().length < 10)) throw new ApiFehler(400, 'Bitte geben Sie einen Hinweistext an.', 'wartungstext');
-    a.store.system.wartungsmodus = !!wartungsmodus;
-    if (wartungstext) a.store.system.wartungstext = wartungstext;
-    if (wartungsmodus) a.store.benutzer.filter(b => b.rolle === 'VERSICHERTER').forEach(b => sitzungen.alleEntfernenFuer(b.id));
-    protokollieren({ akteurId: a.benutzer!.id, ereignis: 'WARTUNGSMODUS', details: wartungsmodus ? 'Wartungsmodus aktiviert' : 'Wartungsmodus beendet', stufe: 'KRITISCH' });
+    const { wartungsmodus, wartungstext, stoerung } = a.body || {};
+    if (stoerung !== undefined) {
+      a.store.system.stoerung = !!stoerung;
+      protokollieren({ akteurId: a.benutzer!.id, ereignis: 'STOERUNG', details: stoerung ? 'Störung der Antragsannahme simuliert' : 'Störungssimulation beendet', stufe: 'WARNUNG' });
+    }
+    if (wartungsmodus !== undefined) {
+      if (wartungsmodus && (!wartungstext || String(wartungstext).trim().length < 10)) throw new ApiFehler(400, 'Bitte geben Sie einen Hinweistext an.', 'wartungstext');
+      a.store.system.wartungsmodus = !!wartungsmodus;
+      if (wartungstext) a.store.system.wartungstext = wartungstext;
+      if (wartungsmodus) a.store.benutzer.filter(b => b.rolle === 'VERSICHERTER').forEach(b => sitzungen.alleEntfernenFuer(b.id));
+      protokollieren({ akteurId: a.benutzer!.id, ereignis: 'WARTUNGSMODUS', details: wartungsmodus ? 'Wartungsmodus aktiviert' : 'Wartungsmodus beendet', stufe: 'KRITISCH' });
+    }
   }
   return { ...a.store.system, speicherKb: Math.round((localStorage.getItem('vp_db') || '').length / 1024), datensaetze: {
     benutzer: a.store.benutzer.length, vorgaenge: a.store.vorgaenge.length, nachrichten: a.store.nachrichten.length, protokoll: a.store.protokoll.length,
@@ -426,6 +417,7 @@ export const INHALT_ADMIN_ROUTEN: Route[] = [
   { methode: 'POST', muster: '/api/leistungsfinder', handler: leistungsfinder, oeffentlich: true },
   { methode: 'GET', muster: '/api/kontakt', handler: kontakt, oeffentlich: true },
   { methode: 'POST', muster: '/api/chat', handler: chat, oeffentlich: true },
+  { methode: 'GET', muster: '/api/chat/begruessung', handler: chatBegruessung, oeffentlich: true },
   { methode: 'POST', muster: '/api/feedback', handler: feedbackSenden, oeffentlich: true },
   { methode: 'POST', muster: '/api/analyse', handler: seitenaufruf, oeffentlich: true },
   { methode: 'POST', muster: '/api/fehler', handler: clientFehler, oeffentlich: true },

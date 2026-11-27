@@ -97,6 +97,13 @@ export function postfachNachricht(
   db().nachrichten.push(n);
   benachrichtigen(benutzerId, n.anhaenge.length ? 'DOKUMENT' : n.kategorie === 'BONUS' ? 'BONUS' : 'NACHRICHT',
     n.anhaenge.length ? 'Neues Dokument im Postfach' : 'Neue Nachricht', n.betreff, `/postfach/${n.id}`);
+  // Hinweis-E-Mail bei wichtigen Nachrichten (Bescheide, Rückfragen, Zahlungen, Antworten) – ohne Inhalt, aus Datenschutzgründen
+  const hinweiswuerdig = n.wichtig || n.anhaenge.length > 0 || /^(Rückfrage|Entscheidung|Bescheid|Zahlungsavis|AW:|Widerspruchsbescheid)/.test(n.betreff);
+  if (empfaenger && empfaenger.kommunikation?.email !== false && hinweiswuerdig && empfaenger.rolle === 'VERSICHERTER') {
+    versenden('EMAIL', empfaenger.email, 'Neue Nachricht in Ihrer Online-Geschäftsstelle',
+      `Guten Tag ${voller(empfaenger)},\n\nin Ihrem Postfach der VitaPlus Online-Geschäftsstelle liegt eine neue Nachricht für Sie: „${n.betreff}“.\n\nAus Datenschutzgründen versenden wir die Inhalte nicht per E-Mail. Bitte melden Sie sich an, um die Nachricht zu lesen.\n\nIhre VitaPlus`,
+      { text: 'Zum Postfach', ziel: `/postfach/${n.id}` });
+  }
   return n;
 }
 

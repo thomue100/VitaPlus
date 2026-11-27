@@ -1,4 +1,4 @@
-import { RUECKFRAGE_FRIST_TAGE, VERARBEITUNG, VORGANG_TYP_TEXT } from '../konfiguration';
+import { RUECKFRAGE_FRIST_TAGE, STATUS_TEXT, VERARBEITUNG, VORGANG_TYP_TEXT } from '../konfiguration';
 import { formular, alleFelder } from '../formulare/formular-katalog';
 import { Store, Vorgang } from '../models';
 import { addTage, toIso } from '../util/datum';
@@ -14,6 +14,7 @@ import { BETRAGS_TYPEN, Entscheidung, entscheidungTreffen } from './handler-sach
  */
 export function hintergrundverarbeitung(store: Store): void {
   if (!VERARBEITUNG.aktiv) return;
+  nachrichtenBeantworten(store);
   const jetzt = Date.now();
   const a: Anfrage = { methode: 'INTERN', pfad: '', params: {}, query: new URLSearchParams(), body: {}, token: null, store };
   for (const v of store.vorgaenge) {
@@ -58,7 +59,9 @@ function zuweisen(a: Anfrage, v: Vorgang) {
   const sb = bearbeiterFuer(a, v);
   v.bearbeiterId = sb?.id;
   statusSetzen(v, 'IN_BEARBEITUNG', `Vorgang dem Team ${v.zustaendig || 'Leistungen'} zugewiesen`, sb ? voller(sb) : 'Teamverteilung');
-  if (fehlendeUnterlagen(v)) rueckfrageStellen(a, v, sb ? voller(sb) : `Team ${v.zustaendig}`);
+  if (v.typ === 'WIDERSPRUCH' && v.daten['begruendungFolgt'] && !v.verarbeitung?.rueckfrageGestellt) {
+    rueckfrageStellen(a, v, sb ? voller(sb) : 'Widerspruchsstelle', 'Sie haben angekündigt, Ihren Widerspruch ausführlich zu begründen. Bitte reichen Sie die Begründung und ggf. Nachweise (z. B. ärztliche Stellungnahme) über Ihren Vorgang nach, damit wir den Widerspruch prüfen können.');
+  } else if (fehlendeUnterlagen(v)) rueckfrageStellen(a, v, sb ? voller(sb) : `Team ${v.zustaendig}`);
 }
 
 /** Nachweisfeld eines Formulars, das für die Prüfung benötigt wird (keine „weiteren“ oder freiwilligen Unterlagen). */
@@ -73,9 +76,9 @@ function fehlendeUnterlagen(v: Vorgang): boolean {
   return !!nachweisfeld(v.typ);
 }
 
-function rueckfrageStellen(a: Anfrage, v: Vorgang, von: string) {
+function rueckfrageStellen(a: Anfrage, v: Vorgang, von: string, eigenerText?: string) {
   const feld = nachweisfeld(v.typ);
-  const text = `Für die Prüfung Ihres Antrags benötigen wir noch folgende Unterlagen: ${feld?.label || 'Nachweise'}. Bitte reichen Sie diese über Ihren Vorgang ein.`;
+  const text = eigenerText || `Für die Prüfung Ihres Antrags benötigen wir noch folgende Unterlagen: ${feld?.label || 'Nachweise'}. Bitte reichen Sie diese über Ihren Vorgang ein.`;
   v.rueckfrage = text;
   v.rueckfrageFrist = toIso(addTage(new Date(), RUECKFRAGE_FRIST_TAGE));
   v.verarbeitung!.rueckfrageGestellt = true;
@@ -108,7 +111,10 @@ function regelentscheidung(a: Anfrage, v: Vorgang): Entscheidung {
     if (!(anspruch > 0)) {
       return { entscheidung: 'ABGELEHNT', begruendung: `Nach den Leistungsvoraussetzungen Ihres Tarifs besteht für ${VORGANG_TYP_TEXT[v.typ] || v.titel} derzeit kein (weiterer) Erstattungsanspruch.` };
     }
-    return { entscheidung: 'GENEHMIGT', betrag: Math.min(anspruch, v.betragBeantragt || anspruch) };
+    const betrag = Math.min(anspruch, v.betragBeantragt || anspruch);
+    return betrag < (v.betragBeantragt || 0) - 0.005
+      ? { entscheidung: 'GENEHMIGT', betrag, begruendung: `Nach den Satzungsregelungen Ihres Tarifs übernehmen wir für diese Leistung ${euro(betrag)} der beantragten ${euro(v.betragBeantragt || 0)} (Erstattungssatz bzw. Jahreshöchstbetrag).` }
+      : { entscheidung: 'GENEHMIGT', betrag };
   }
   switch (v.typ) {
     case 'PFLEGEGRAD': {
@@ -116,11 +122,57 @@ function regelentscheidung(a: Anfrage, v: Vorgang): Entscheidung {
       return { entscheidung: 'GENEHMIGT', zusatz: { pflegegrad: Math.min(5, akte ? akte.pflegegrad + 1 : 2) } };
     }
     case 'WIDERSPRUCH': {
+      // Abhilfe, wenn der Widerspruch substanziiert begründet oder belegt ist – sonst Zurückweisung
       const bezug = a.store.vorgaenge.find(x => x.id === v.bezugVorgangId);
-      return { entscheidung: 'GENEHMIGT', zusatz: { betrag: bezug?.betragBeantragt } };
+      const begruendet = String(d['begruendung'] || '').trim().length >= 120 || v.anhaenge.length > 0 || v.historie.some(h => h.text.startsWith('Unterlagen nachgereicht'));
+      return begruendet
+        ? { entscheidung: 'GENEHMIGT', zusatz: { betrag: bezug?.betragBeantragt } }
+        : { entscheidung: 'ABGELEHNT', begruendung: `Wir haben die angefochtene Entscheidung zu ${bezug?.vorgangsnummer || 'Ihrem Antrag'} vollständig überprüft. Ihr Widerspruch enthält keine neuen Gesichtspunkte, die eine andere Entscheidung rechtfertigen. Die Entscheidung entspricht den gesetzlichen Vorgaben und unserer Satzung.` };
     }
     default:
       return { entscheidung: 'GENEHMIGT' };
+  }
+}
+
+const ANTWORT_TEAM: Record<string, string> = {
+  ALLGEMEIN: 'Kundenservice', LEISTUNG: 'Leistungen', BEITRAG: 'Mitgliedschaft & Beiträge', MITGLIEDSCHAFT: 'Mitgliedschaft & Beiträge', BONUS: 'Bonusprogramm', BESCHWERDE: 'Beschwerdemanagement',
+};
+
+const ANTWORT_TEXT: Record<string, string> = {
+  ALLGEMEIN: 'vielen Dank für Ihre Nachricht. Gern helfen wir Ihnen weiter. Viele Anliegen können Sie direkt in der Online-Geschäftsstelle erledigen – zum Beispiel Bescheinigungen herunterladen, Daten ändern oder Anträge stellen. Sollte Ihre Frage damit nicht beantwortet sein, rufen wir Sie gern zurück.',
+  LEISTUNG: 'vielen Dank für Ihre Anfrage zu unseren Leistungen. Den aktuellen Umfang je Tarif finden Sie unter „Leistungen A–Z“. Für eine Kostenübernahme reichen Sie bitte den Antrag bzw. die Rechnung online ein – wir prüfen dann den konkreten Anspruch.',
+  BEITRAG: 'vielen Dank für Ihre Anfrage zu Ihren Beiträgen. Der allgemeine Beitragssatz beträgt 14,6 %, unser Zusatzbeitrag 2,49 %. Ihren persönlichen Beitrag, Zahlungen und Bescheinigungen finden Sie jederzeit unter „Beiträge“.',
+  MITGLIEDSCHAFT: 'vielen Dank für Ihre Nachricht zu Ihrer Mitgliedschaft. Änderungen Ihrer Lebenssituation (neuer Arbeitgeber, Studium, Rente) melden Sie am schnellsten über das Antragscenter. Ihre Versicherungszeiten sehen Sie unter „Meine Versicherung“.',
+  BONUS: 'vielen Dank für Ihre Nachricht zum Bonusprogramm. Eingereichte Maßnahmen prüfen wir innerhalb weniger Tage. Ab 500 bestätigten Punkten können Sie Ihre Prämie anfordern.',
+  BESCHWERDE: 'vielen Dank, dass Sie uns Ihre Kritik mitteilen. Es tut uns leid, dass Sie unzufrieden sind. Wir haben den Sachverhalt geprüft und mit den beteiligten Kolleginnen und Kollegen besprochen. Ihr Hinweis hilft uns, besser zu werden.',
+};
+
+/** Der Kundenservice beantwortet Nachrichten aus dem Postfach – mit Bezug zum Vorgang, falls angegeben. */
+function nachrichtenBeantworten(store: Store) {
+  const jetzt = Date.now();
+  for (const n of store.nachrichten) {
+    if (n.ordner !== 'GESENDET' || n.beantwortetAm || (jetzt - zeitpunkt(n.datum)) / 1000 < VERARBEITUNG.nachrichtAntwortNachSek) continue;
+    const vers = store.benutzer.find(b => b.id === n.benutzerId);
+    n.beantwortetAm = jetztLokal();
+    if (!vers) continue;
+    const v = n.vorgangId ? store.vorgaenge.find(x => x.id === n.vorgangId) : undefined;
+    const team = ANTWORT_TEAM[n.kategorie] || 'Kundenservice';
+    const sb = store.benutzer.find(b => b.id === (VERARBEITUNG.teamZuweisung[v?.zustaendig || team] || 's1'));
+    const vorgangText = v
+      ? `vielen Dank für Ihre Nachricht zu Ihrem Vorgang ${v.vorgangsnummer} („${v.titel}“). Der Vorgang hat derzeit den Status „${STATUS_TEXT[v.status] || v.status}“. ` +
+        (v.status === 'RUECKFRAGE' ? 'Wir benötigen noch Unterlagen von Ihnen – bitte reichen Sie diese direkt im Vorgang nach.' :
+          ['EINGEREICHT', 'IN_BEARBEITUNG'].includes(v.status) ? `Wir haben Ihre Hinweise zum Vorgang genommen und melden uns${v.fristBis ? ' voraussichtlich bis zum ' + v.fristBis.split('-').reverse().join('.') : ''} mit einer Entscheidung.` :
+          'Die Entscheidung haben wir Ihnen bereits mitgeteilt. Wenn Sie damit nicht einverstanden sind, können Sie innerhalb eines Monats Widerspruch einlegen.')
+      : ANTWORT_TEXT[n.kategorie] || ANTWORT_TEXT['ALLGEMEIN'];
+    postfachNachricht(vers.id, n.betreff.startsWith('AW:') ? n.betreff : `AW: ${n.betreff}`.substring(0, 100),
+      `${anrede(vers)},
+
+${vorgangText}
+
+Mit freundlichen Grüßen
+${sb ? voller(sb) : 'Ihr Kundenservice'}
+Team ${team}`,
+      { kategorie: n.kategorie, absender: `VitaPlus ${team}`, antwortAufId: n.id, vorgangId: v?.id });
   }
 }
 
@@ -130,10 +182,13 @@ export function zahllauf(store: Store, v: Vorgang): boolean {
   if ((Date.now() - zeitpunkt(v.geaendertAm)) / 1000 < VERARBEITUNG.auszahlungNachSek) return false;
   const vers = store.benutzer.find(b => b.id === v.benutzerId);
   const konto = vers?.bank ? `${vers.bank.iban.substring(0, 4)} •••• ${vers.bank.iban.slice(-4)}` : 'Ihr hinterlegtes Konto';
-  statusSetzen(v, 'AUSGEZAHLT', `${euro(v.betragErstattet || 0)} überwiesen`, 'Zahllauf');
+  const betrag = Math.max(0, (v.betragErstattet || 0) - (v.betragAusgezahlt || 0));
+  const nachzahlung = (v.betragAusgezahlt || 0) > 0;
+  v.betragAusgezahlt = v.betragErstattet || 0;
+  statusSetzen(v, 'AUSGEZAHLT', `${euro(betrag)} ${nachzahlung ? 'nachgezahlt' : 'überwiesen'}`, 'Zahllauf');
   if (vers) {
     postfachNachricht(vers.id, `Zahlungsavis zu ${v.vorgangsnummer}`,
-      `${anrede(vers)},\n\nwir haben heute ${euro(v.betragErstattet || 0)} auf ${konto} überwiesen.\nVerwendungszweck: ${v.vorgangsnummer} ${v.titel}\n\nDie Gutschrift erfolgt je nach Bank innerhalb von 1–2 Werktagen.\n\nIhre VitaPlus`,
+      `${anrede(vers)},\n\nwir haben heute ${euro(betrag)}${nachzahlung ? ' (Nachzahlung nach Ihrem Widerspruch)' : ''} auf ${konto} überwiesen.\nVerwendungszweck: ${v.vorgangsnummer} ${v.titel}\n\nDie Gutschrift erfolgt je nach Bank innerhalb von 1–2 Werktagen.\n\nIhre VitaPlus`,
       { kategorie: 'LEISTUNG', absender: 'VitaPlus Zahlungsverkehr', vorgangId: v.id });
   }
   return true;

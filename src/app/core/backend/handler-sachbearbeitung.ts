@@ -190,6 +190,8 @@ export function entscheidungTreffen(a: Anfrage, v: Vorgang, e: Entscheidung, akt
       }
       status = 'TEILWEISE_GENEHMIGT';
     }
+    // Weniger als beantragt bewilligt: Teilbewilligung (widerspruchsfähig), auch wenn der berechnete Anspruch voll ausgeschöpft ist
+    if (status === 'GENEHMIGT' && v.betragBeantragt && b < v.betragBeantragt - 0.005) status = 'TEILWEISE_GENEHMIGT';
     v.betragErstattet = b;
     text = `${status === 'TEILWEISE_GENEHMIGT' ? 'Teilweise genehmigt' : 'Genehmigt'}: ${euro(b)}`;
   }
@@ -204,7 +206,7 @@ export function entscheidungTreffen(a: Anfrage, v: Vorgang, e: Entscheidung, akt
     postfachNachricht(vers.id, `Entscheidung zu Ihrem Antrag ${v.vorgangsnummer}`,
       `${anrede(vers)},\n\nwir haben Ihren Antrag „${v.titel}“ geprüft. ` +
       (v.betragErstattet !== undefined && istBetragsTyp(v.typ)
-        ? `Wir übernehmen ${euro(v.betragErstattet)}.` + (status === 'TEILWEISE_GENEHMIGT' ? `\n\nBegründung: ${begruendung}\n\nGegen diese Entscheidung können Sie innerhalb eines Monats Widerspruch einlegen.` : '')
+        ? `Wir übernehmen ${euro(v.betragErstattet)}.` + (status === 'TEILWEISE_GENEHMIGT' ? `\n\nBegründung: ${begruendung || 'Die Erstattung richtet sich nach den Satzungsregelungen Ihres Tarifs.'}\n\nGegen diese Entscheidung können Sie innerhalb eines Monats Widerspruch einlegen.` : '')
         : r.nachricht || 'Wir freuen uns, Ihnen mitteilen zu können, dass wir Ihren Antrag genehmigt haben.') +
       `\n\nMit freundlichen Grüßen\n${akteur.absender || akteur.name}`,
       { kategorie: v.typ === 'PFLEGEGRAD' ? 'LEISTUNG' : 'LEISTUNG', absender: 'VitaPlus ' + (v.zustaendig || 'Leistungsabteilung'), vorgangId: v.id,
@@ -327,7 +329,10 @@ function nachGenehmigung(a: Anfrage, v: Vorgang, zusatz: Record<string, any>): F
     case 'WIDERSPRUCH': {
       const bezug = a.store.vorgaenge.find(x => x.id === v.bezugVorgangId);
       if (bezug) {
+        if (bezug.status === 'AUSGEZAHLT') bezug.betragAusgezahlt = bezug.betragAusgezahlt ?? bezug.betragErstattet ?? 0;
         if (istBetragsTyp(bezug.typ) && bezug.betragBeantragt) bezug.betragErstattet = Number(zusatz['betrag']) || bezug.betragBeantragt;
+        // Nachzahlung über den regulären Zahllauf
+        if ((bezug.betragErstattet || 0) > (bezug.betragAusgezahlt || 0)) bezug.verarbeitung = { eingang: Date.now(), spur: 'DUNKEL' };
         bezug.ablehnungsgrund = undefined;
         statusSetzen(bezug, 'GENEHMIGT', 'Abhilfe im Widerspruchsverfahren', 'Widerspruchsstelle');
       }
