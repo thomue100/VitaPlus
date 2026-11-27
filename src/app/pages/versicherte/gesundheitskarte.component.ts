@@ -9,12 +9,14 @@ import { FamilieApi, FamilienEintrag, KartenApi } from '../../core/services/vers
 import { heuteIso } from '../../core/util/datum';
 import { DateienComponent, StatusComponent } from '../../shared/bausteine';
 import { DatumPipe } from '../../shared/pipes';
+import { EgkComponent } from '../../shared/egk.component';
+import { SymbolComponent } from '../../shared/symbol.component';
 
 type Aktion = 'sperren' | 'ersatz' | 'foto' | 'pin' | 'aktivieren' | 'versand' | null;
 
 @Component({
   selector: 'vp-gesundheitskarte',
-  imports: [FormsModule, RouterLink, DateienComponent, StatusComponent, DatumPipe],
+  imports: [FormsModule, RouterLink, DateienComponent, StatusComponent, DatumPipe, EgkComponent, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Elektronische Gesundheitskarte</h1><p class="leise">Ihre Karten und die Ihrer Familie</p></div>
@@ -34,12 +36,12 @@ type Aktion = 'sperren' | 'ersatz' | 'foto' | 'pin' | 'aktivieren' | 'versand' |
       </form>
     }
 
-    <div class="raster">
+    <div class="raster kartenraster">
       @for (k of karten(); track k.id) {
-        <article class="karte" [class.hervor]="k.status === 'AKTIV'">
-          <div class="zeile"><h2>{{ k.inhaber }}</h2><vp-status [wert]="k.status" /></div>
+        <article class="karte kartenansicht">
+          <vp-egk [name]="k.inhaber" [versichertennummer]="k.kartennummer" [gueltigBis]="k.gueltigBis" [status]="k.status" [foto]="k.fotoVorhanden" />
+          <div class="zeile mt"><h2>{{ k.inhaber }}</h2><vp-status [wert]="k.status" /></div>
           <dl class="daten">
-            <dt>Kartennummer</dt><dd>{{ k.kartennummer }}</dd>
             <dt>Gültig bis</dt><dd>{{ k.gueltigBis | datum }}</dd>
             <dt>Lichtbild</dt><dd>{{ k.fotoVorhanden ? 'vorhanden' : 'fehlt' }}</dd>
             @if (k.sperrgrund) { <dt>Gesperrt</dt><dd>{{ k.gesperrtAm | datum }} ({{ gruende[k.sperrgrund] }})</dd> }
@@ -104,7 +106,7 @@ type Aktion = 'sperren' | 'ersatz' | 'foto' | 'pin' | 'aktivieren' | 'versand' |
                 @case ('versand') {
                   @if (versand(); as v) {
                     @if (v.sendungsnummer) { <p class="klein">Sendungsnummer: <strong>{{ v.sendungsnummer }}</strong></p> }
-                    <ul class="liste-ohne">@for (s of v.schritte; track s.text) { <li>{{ s.erledigt ? '✅' : '⏳' }} {{ s.text }}</li> }</ul>
+                    <ul class="liste-ohne">@for (s of v.schritte; track s.text) { <li class="versandschritt" [class.erledigt]="s.erledigt"><vp-symbol [name]="s.erledigt ? 'circle-check' : 'clock'" [groesse]="18" /> {{ s.text }}</li> }</ul>
                   }
                   <button class="btn klein" type="button" (click)="abbrechen()">Schließen</button>
                 }

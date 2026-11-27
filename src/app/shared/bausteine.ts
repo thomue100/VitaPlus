@@ -3,6 +3,7 @@ import { AbstractControl } from '@angular/forms';
 import { ERLAUBTE_DATEITYPEN, MAX_ANHANG_BYTES } from '../core/konfiguration';
 import { Anhang } from '../core/models';
 import { DateigroessePipe, StatusTextPipe, statusFarbe } from './pipes';
+import { SymbolComponent } from './symbol.component';
 
 const MELDUNGEN: Record<string, (e: any) => string> = {
   required: () => 'Bitte füllen Sie dieses Feld aus.',
@@ -57,7 +58,7 @@ let uploadZaehler = 0;
 
 @Component({
   selector: 'vp-dateien',
-  imports: [DateigroessePipe],
+  imports: [DateigroessePipe, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="feld">
@@ -74,7 +75,7 @@ let uploadZaehler = 0;
       @if (dateien().length) {
         <ul class="liste-ohne">
           @for (d of dateien(); track d.id) {
-            <li class="zeile"><span>📄 {{ d.name }} <span class="leise klein">({{ d.groesseBytes | groesse }})</span></span>
+            <li class="zeile"><span><vp-symbol name="file-text" [groesse]="16" /> {{ d.name }} <span class="leise klein">({{ d.groesseBytes | groesse }})</span></span>
               <button type="button" class="btn link" (click)="entfernen(d.id)" [attr.aria-label]="'Datei ' + d.name + ' entfernen'">Entfernen</button></li>
           }
         </ul>

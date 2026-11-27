@@ -66,3 +66,9 @@ src/app
 ```
 
 Alle Personen, Daten, Beträge und Rechengrößen sind frei erfunden bzw. vereinfacht und haben keine Rechtsverbindlichkeit.
+
+## Bildnachweis
+
+- Illustrationen (`public/bilder/`), Logo und Kartendarstellung: eigene Gestaltung für dieses Projekt.
+- Symbole: [Lucide](https://lucide.dev), ISC-Lizenz (Pfade eingebettet in `src/app/shared/symbole.ts`).
+- Schrift: Source Sans 3 (SIL Open Font License) über `@fontsource-variable/source-sans-3`.

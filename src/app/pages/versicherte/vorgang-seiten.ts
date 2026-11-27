@@ -13,6 +13,7 @@ import { addMonate, addTage, heute, parseIso, toIso } from '../../core/util/datu
 import { DateienComponent, StatusComponent } from '../../shared/bausteine';
 import { DateigroessePipe, DatumPipe, EuroPipe, StatusTextPipe, TypTextPipe } from '../../shared/pipes';
 import { pdfHerunterladen } from '../../shared/pdf';
+import { SymbolComponent } from '../../shared/symbol.component';
 
 @Component({
   selector: 'vp-vorgaenge',
@@ -72,7 +73,7 @@ export class VorgaengeComponent implements OnInit {
 
 @Component({
   selector: 'vp-vorgang',
-  imports: [FormsModule, RouterLink, StatusComponent, DateienComponent, DatumPipe, EuroPipe, TypTextPipe, StatusTextPipe, DateigroessePipe],
+  imports: [FormsModule, RouterLink, StatusComponent, DateienComponent, DatumPipe, EuroPipe, TypTextPipe, StatusTextPipe, DateigroessePipe, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p class="brotkrumen"><a routerLink="/vorgaenge">Meine Vorgänge</a> › {{ v()?.vorgangsnummer }}</p>
@@ -105,7 +106,7 @@ export class VorgaengeComponent implements OnInit {
           </dl>
           @if (v.anhaenge.length) {
             <h3>Eingereichte Unterlagen</h3>
-            <ul class="liste-ohne">@for (a of v.anhaenge; track a.id) { <li class="klein">📄 {{ a.name }} <span class="leise">({{ a.groesseBytes | groesse }}, {{ a.hochgeladenAm | datum }})</span></li> }</ul>
+            <ul class="liste-ohne">@for (a of v.anhaenge; track a.id) { <li class="klein"><vp-symbol name="file-text" [groesse]="15" /> {{ a.name }} <span class="leise">({{ a.groesseBytes | groesse }}, {{ a.hochgeladenAm | datum }})</span></li> }</ul>
           }
         </section>
         <section class="karte">

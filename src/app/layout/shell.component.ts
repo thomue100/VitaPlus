@@ -9,13 +9,15 @@ import { SitzungService } from '../core/services/sitzung.service';
 import { UiService } from '../core/services/ui.service';
 import { UebersetzungPipe } from '../shared/pipes';
 import { ChatComponent } from './chat.component';
+import { SymbolComponent } from '../shared/symbol.component';
+import { LogoComponent } from '../shared/logo.component';
 
-interface NavEintrag { route: string; schluessel: string; zaehler?: () => number }
+interface NavEintrag { route: string; symbol: string; schluessel: string; zaehler?: () => number }
 interface NavGruppe { schluessel: string; eintraege: NavEintrag[] }
 
 @Component({
   selector: 'vp-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, UebersetzungPipe, ChatComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, UebersetzungPipe, ChatComponent, SymbolComponent, LogoComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
@@ -41,64 +43,65 @@ export class ShellComponent implements OnInit {
     const s = this.sitzung.restSekunden();
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   });
+  readonly initialen = computed(() => { const b = this.sitzung.benutzer(); return b ? `${b.vorname?.[0] ?? ''}${b.nachname?.[0] ?? ''}`.toUpperCase() : ''; });
   readonly warnen = computed(() => this.sitzung.angemeldet() && this.sitzung.restSekunden() <= 120);
   readonly sichtbareMeldungen = computed(() => this.meldungen().filter(m => !this.ausgeblendet().includes(m.id)));
 
   readonly versichertenNavigation: NavGruppe[] = [
     { schluessel: 'nav.gruppe.service', eintraege: [
-      { route: '/start', schluessel: 'nav.start' },
-      { route: '/postfach', schluessel: 'nav.postfach', zaehler: () => this.ungelesen() },
-      { route: '/vorgaenge', schluessel: 'nav.vorgaenge' },
-      { route: '/antraege', schluessel: 'nav.antraege' },
-      { route: '/dokumente', schluessel: 'nav.dokumente' },
-      { route: '/termine', schluessel: 'nav.termine' },
+      { route: '/start', symbol: 'house', schluessel: 'nav.start' },
+      { route: '/postfach', symbol: 'inbox', schluessel: 'nav.postfach', zaehler: () => this.ungelesen() },
+      { route: '/vorgaenge', symbol: 'list-checks', schluessel: 'nav.vorgaenge' },
+      { route: '/antraege', symbol: 'file-text', schluessel: 'nav.antraege' },
+      { route: '/dokumente', symbol: 'folder-open', schluessel: 'nav.dokumente' },
+      { route: '/termine', symbol: 'calendar-clock', schluessel: 'nav.termine' },
     ] },
     { schluessel: 'nav.gruppe.leistungen', eintraege: [
-      { route: '/erstattung', schluessel: 'nav.erstattung' },
-      { route: '/krankmeldung', schluessel: 'nav.krankmeldung' },
-      { route: '/krankengeld', schluessel: 'nav.krankengeld' },
-      { route: '/zuzahlungen', schluessel: 'nav.zuzahlungen' },
-      { route: '/pflege', schluessel: 'nav.pflege' },
-      { route: '/leistungen', schluessel: 'nav.leistungen' },
+      { route: '/erstattung', symbol: 'receipt-euro', schluessel: 'nav.erstattung' },
+      { route: '/krankmeldung', symbol: 'thermometer', schluessel: 'nav.krankmeldung' },
+      { route: '/krankengeld', symbol: 'hand-coins', schluessel: 'nav.krankengeld' },
+      { route: '/zuzahlungen', symbol: 'wallet', schluessel: 'nav.zuzahlungen' },
+      { route: '/pflege', symbol: 'heart-handshake', schluessel: 'nav.pflege' },
+      { route: '/leistungen', symbol: 'book-open-text', schluessel: 'nav.leistungen' },
     ] },
     { schluessel: 'nav.gruppe.versicherung', eintraege: [
-      { route: '/versicherung', schluessel: 'nav.versicherung' },
-      { route: '/profil', schluessel: 'nav.profil' },
-      { route: '/familie', schluessel: 'nav.familie' },
-      { route: '/gesundheitskarte', schluessel: 'nav.karte' },
-      { route: '/beitraege', schluessel: 'nav.beitraege' },
+      { route: '/versicherung', symbol: 'shield-check', schluessel: 'nav.versicherung' },
+      { route: '/profil', symbol: 'user-round', schluessel: 'nav.profil' },
+      { route: '/familie', symbol: 'users', schluessel: 'nav.familie' },
+      { route: '/gesundheitskarte', symbol: 'id-card', schluessel: 'nav.karte' },
+      { route: '/beitraege', symbol: 'piggy-bank', schluessel: 'nav.beitraege' },
     ] },
     { schluessel: 'nav.gruppe.gesundheit', eintraege: [
-      { route: '/bonus', schluessel: 'nav.bonus' },
-      { route: '/vorsorge', schluessel: 'nav.vorsorge' },
-      { route: '/kurse', schluessel: 'nav.kurse' },
-      { route: '/epa', schluessel: 'nav.epa' },
-      { route: '/digital', schluessel: 'nav.digital' },
-      { route: '/patientenquittung', schluessel: 'nav.quittung' },
-      { route: '/arztsuche', schluessel: 'nav.arztsuche' },
+      { route: '/bonus', symbol: 'trophy', schluessel: 'nav.bonus' },
+      { route: '/vorsorge', symbol: 'stethoscope', schluessel: 'nav.vorsorge' },
+      { route: '/kurse', symbol: 'dumbbell', schluessel: 'nav.kurse' },
+      { route: '/epa', symbol: 'folder-heart', schluessel: 'nav.epa' },
+      { route: '/digital', symbol: 'smartphone', schluessel: 'nav.digital' },
+      { route: '/patientenquittung', symbol: 'scroll-text', schluessel: 'nav.quittung' },
+      { route: '/arztsuche', symbol: 'map-pin', schluessel: 'nav.arztsuche' },
     ] },
     { schluessel: 'nav.gruppe.konto', eintraege: [
-      { route: '/vollmachten', schluessel: 'nav.vollmachten' },
-      { route: '/datenschutz-center', schluessel: 'nav.datenschutz' },
-      { route: '/einstellungen', schluessel: 'nav.einstellungen' },
-      { route: '/hilfe', schluessel: 'nav.hilfe' },
-      { route: '/kontakt', schluessel: 'nav.kontakt' },
+      { route: '/vollmachten', symbol: 'key-round', schluessel: 'nav.vollmachten' },
+      { route: '/datenschutz-center', symbol: 'lock', schluessel: 'nav.datenschutz' },
+      { route: '/einstellungen', symbol: 'settings', schluessel: 'nav.einstellungen' },
+      { route: '/hilfe', symbol: 'life-buoy', schluessel: 'nav.hilfe' },
+      { route: '/kontakt', symbol: 'phone', schluessel: 'nav.kontakt' },
     ] },
   ];
 
   readonly sbNavigation = [
-    { route: '/sachbearbeitung', text: 'Postkorb' },
-    { route: '/sachbearbeitung/versicherte', text: 'Versichertensuche' },
+    { route: '/sachbearbeitung', symbol: 'inbox', text: 'Postkorb' },
+    { route: '/sachbearbeitung/versicherte', symbol: 'search', text: 'Versichertensuche' },
   ];
 
   readonly adminNavigation = [
-    { route: '/admin', text: 'Betrieb & Monitoring' },
-    { route: '/admin/kennzahlen', text: 'Service-Kennzahlen' },
-    { route: '/admin/mitarbeitende', text: 'Mitarbeitende & Rollen' },
-    { route: '/admin/inhalte', text: 'Inhalte (FAQ & Meldungen)' },
-    { route: '/admin/protokolle', text: 'Protokolle' },
-    { route: '/admin/feedback', text: 'Feedback' },
-    { route: '/admin/system', text: 'System' },
+    { route: '/admin', symbol: 'activity', text: 'Betrieb & Monitoring' },
+    { route: '/admin/kennzahlen', symbol: 'gauge', text: 'Service-Kennzahlen' },
+    { route: '/admin/mitarbeitende', symbol: 'user-cog', text: 'Mitarbeitende & Rollen' },
+    { route: '/admin/inhalte', symbol: 'message-square-text', text: 'Inhalte (FAQ & Meldungen)' },
+    { route: '/admin/protokolle', symbol: 'clipboard-list', text: 'Protokolle' },
+    { route: '/admin/feedback', symbol: 'star', text: 'Feedback' },
+    { route: '/admin/system', symbol: 'server', text: 'System' },
   ];
 
   constructor() {

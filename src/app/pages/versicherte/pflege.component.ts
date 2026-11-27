@@ -12,8 +12,11 @@ import { DatumPipe, EuroPipe, TypTextPipe } from '../../shared/pipes';
   imports: [FormsModule, RouterLink, StatusComponent, DatumPipe, EuroPipe, TypTextPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="seitenkopf"><div><h1>Pflege</h1><p class="leise">VitaPlus Pflegekasse – Leistungen für Pflegebedürftige und pflegende Angehörige</p></div>
-      <a class="btn" routerLink="/termine">Pflegeberatung vereinbaren</a></div>
+    <section class="seitenbuehne">
+      <div><h1>Pflege</h1><p>VitaPlus Pflegekasse – Leistungen für Pflegebedürftige und pflegende Angehörige</p>
+        <div class="aktionen"><a class="btn" routerLink="/termine">Pflegeberatung vereinbaren</a></div></div>
+      <img src="bilder/pflege.svg" alt="" width="480" height="270" />
+    </section>
     @if (p(); as p) {
       @if (p.akte; as a) {
         <div class="raster-3">

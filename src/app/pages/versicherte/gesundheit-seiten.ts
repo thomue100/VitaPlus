@@ -9,6 +9,7 @@ import { UiService } from '../../core/services/ui.service';
 import { StatusComponent } from '../../shared/bausteine';
 import { DatumPipe, EuroPipe } from '../../shared/pipes';
 import { pdfHerunterladen } from '../../shared/pdf';
+import { SymbolComponent } from '../../shared/symbol.component';
 
 @Component({
   selector: 'vp-vorsorge',
@@ -28,7 +29,7 @@ import { pdfHerunterladen } from '../../shared/pdf';
       <div class="raster-2">
         <section class="karte"><h2>Meine Gesundheitsziele</h2>
           <ul class="liste-ohne">@for (z of d.ziele; track z.id) {
-            <li><div class="zeile"><strong>{{ z.titel }}</strong> @if (z.erreicht) { <span class="badge gruen">erreicht 🎉</span> } @else { <span class="klein leise">bis {{ z.bis | datum }}</span> }</div>
+            <li><div class="zeile"><strong>{{ z.titel }}</strong> @if (z.erreicht) { <span class="badge gruen">erreicht</span> } @else { <span class="klein leise">bis {{ z.bis | datum }}</span> }</div>
               <div class="balken"><span [style.width.%]="z.aktuell / z.zielwert * 100"></span></div>
               <div class="zeile klein"><span>{{ z.aktuell }} / {{ z.zielwert }} {{ z.einheit }}</span>
                 @if (!z.erreicht) { <span><label class="sr-only" [for]="'zf-' + z.id">Fortschritt</label><input [id]="'zf-' + z.id" type="number" min="0" style="width:6rem" [ngModel]="z.aktuell" (change)="fortschritt(z.id, $any($event.target).value)" /></span> }</div></li>

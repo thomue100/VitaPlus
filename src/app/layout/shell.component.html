@@ -3,15 +3,16 @@
 <header class="vp-kopf">
   <div class="kopf-innen">
     @if (sitzung.angemeldet()) {
-      <button class="nav-umschalter" type="button" (click)="navOffen.set(!navOffen())" [attr.aria-expanded]="navOffen()" aria-controls="hauptnavigation">☰ <span class="sr-only">Menü</span></button>
+      <button class="nav-umschalter" type="button" (click)="navOffen.set(!navOffen())" [attr.aria-expanded]="navOffen()" aria-controls="hauptnavigation"><vp-symbol name="menu" [groesse]="22" /> <span class="sr-only">Menü</span></button>
     }
     <a class="logo" [routerLink]="sitzung.istSachbearbeitung() ? '/sachbearbeitung' : sitzung.benutzer()?.rolle === 'ADMIN' ? '/admin' : '/start'" aria-label="VitaPlus – zur Startseite">
-      <span class="logo-bild" aria-hidden="true">✚</span><span class="logo-text">Vita<strong>Plus</strong></span>
+      <vp-logo />
       <span class="logo-zusatz">Online-Geschäftsstelle</span>
     </a>
 
     <form class="suche" role="search" (ngSubmit)="suchen()">
       <label for="globale-suche" class="sr-only">{{ 'kopf.suche' | t }}</label>
+      <vp-symbol name="search" [groesse]="18" class="suche-symbol" />
       <input id="globale-suche" type="search" name="q" [(ngModel)]="suchbegriff" placeholder="Leistungen, Anträge, Hilfe …" autocomplete="off" />
       <button type="submit" class="btn klein">{{ 'kopf.suche' | t }}</button>
     </form>
@@ -19,44 +20,46 @@
     <div class="kopf-aktionen">
       @if (sitzung.angemeldet()) {
         <span class="sitzung" [class.warnung]="warnen()" title="Automatische Abmeldung bei Inaktivität" aria-live="polite">
-          {{ 'kopf.sitzung' | t }} {{ restzeit() }}
+          <vp-symbol name="clock" [groesse]="15" /> {{ 'kopf.sitzung' | t }} {{ restzeit() }}
         </span>
         @if (sitzung.benutzer()?.rolle === 'VERSICHERTER') {
           <a routerLink="/benachrichtigungen" class="symbol" [attr.aria-label]="('kopf.benachrichtigungen' | t) + (benachrichtigungen() ? ', ' + benachrichtigungen() + ' neu' : '')">
-            🔔 @if (benachrichtigungen()) { <span class="zaehlpunkt">{{ benachrichtigungen() }}</span> }
+            <vp-symbol name="bell" [groesse]="22" /> @if (benachrichtigungen()) { <span class="zaehlpunkt">{{ benachrichtigungen() }}</span> }
           </a>
           <a routerLink="/postfach" class="symbol" [attr.aria-label]="'Postfach' + (ungelesen() ? ', ' + ungelesen() + ' ungelesen' : '')">
-            ✉️ @if (ungelesen()) { <span class="zaehlpunkt">{{ ungelesen() }}</span> }
+            <vp-symbol name="mail" [groesse]="22" /> @if (ungelesen()) { <span class="zaehlpunkt">{{ ungelesen() }}</span> }
           </a>
         }
         <div class="benutzermenue">
-          <button type="button" class="btn klein" (click)="menueOffen.set(!menueOffen()); $event.stopPropagation()" [attr.aria-expanded]="menueOffen()" aria-haspopup="menu">
-            {{ sitzung.benutzer()?.vorname }} {{ sitzung.benutzer()?.nachname }} ▾
+          <button type="button" class="benutzerknopf" (click)="menueOffen.set(!menueOffen()); $event.stopPropagation()" [attr.aria-expanded]="menueOffen()" aria-haspopup="menu">
+            <span class="initialen" aria-hidden="true">{{ initialen() }}</span>
+            <span class="benutzername">{{ sitzung.benutzer()?.vorname }} {{ sitzung.benutzer()?.nachname }}</span>
+            <vp-symbol name="chevron-down" [groesse]="16" />
           </button>
           @if (menueOffen()) {
             <ul class="menue" role="menu">
               @if (sitzung.benutzer()?.rolle === 'VERSICHERTER') {
-                <li role="none"><a role="menuitem" routerLink="/profil">Persönliche Daten</a></li>
-                <li role="none"><a role="menuitem" routerLink="/einstellungen">Einstellungen</a></li>
-                <li role="none"><a role="menuitem" routerLink="/vertretung">Als Bevollmächtigte/r handeln</a></li>
+                <li role="none"><a role="menuitem" routerLink="/profil"><vp-symbol name="user-round" [groesse]="17" /> Persönliche Daten</a></li>
+                <li role="none"><a role="menuitem" routerLink="/einstellungen"><vp-symbol name="settings" [groesse]="17" /> Einstellungen</a></li>
+                <li role="none"><a role="menuitem" routerLink="/vertretung"><vp-symbol name="key-round" [groesse]="17" /> Als Bevollmächtigte/r handeln</a></li>
               }
-              <li role="none"><a role="menuitem" routerLink="/einstellungen/sicherheit">Sicherheit</a></li>
-              <li role="none"><button role="menuitem" type="button" (click)="abmelden()">{{ 'kopf.abmelden' | t }}</button></li>
+              <li role="none"><a role="menuitem" routerLink="/einstellungen/sicherheit"><vp-symbol name="shield-check" [groesse]="17" /> Sicherheit</a></li>
+              <li role="none" class="trennlinie"><button role="menuitem" type="button" (click)="abmelden()"><vp-symbol name="log-out" [groesse]="17" /> {{ 'kopf.abmelden' | t }}</button></li>
             </ul>
           }
         </div>
       } @else {
         <a class="btn klein" routerLink="/mitglied-werden">Mitglied werden</a>
-        <a class="btn klein primaer" routerLink="/anmelden">Anmelden</a>
+        <a class="btn klein primaer" routerLink="/anmelden"><vp-symbol name="user-round" [groesse]="16" /> Anmelden</a>
       }
     </div>
   </div>
 </header>
 
-@if (wartung()) { <div class="banner stoerung" role="alert">🔧 {{ wartung() }}</div> }
+@if (wartung()) { <div class="banner stoerung" role="alert"><span><vp-symbol name="wrench" [groesse]="17" /> {{ wartung() }}</span></div> }
 @for (m of sichtbareMeldungen(); track m.id) {
   <div class="banner" [class.warnung]="m.typ === 'WARNUNG'" [class.stoerung]="m.typ === 'STOERUNG'" role="status">
-    <span><strong>{{ m.titel }}:</strong> {{ m.text }}</span>
+    <span><vp-symbol [name]="m.typ === 'INFO' ? 'info' : 'triangle-alert'" [groesse]="17" /> <strong>{{ m.titel }}:</strong> {{ m.text }}</span>
     <button type="button" class="btn link klein" (click)="meldungAusblenden(m.id)" aria-label="Hinweis ausblenden">Ausblenden</button>
   </div>
 }
@@ -71,7 +74,7 @@
             <ul>
               @for (e of g.eintraege; track e.route) {
                 <li><a [routerLink]="e.route" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: e.route === '/start' }">
-                  {{ e.schluessel | t }} @if (e.zaehler && e.zaehler()) { <span class="zaehlpunkt">{{ e.zaehler() }}</span> }
+                  <span class="nav-text"><vp-symbol [name]="e.symbol" [groesse]="19" /> {{ e.schluessel | t }}</span> @if (e.zaehler && e.zaehler()) { <span class="zaehlpunkt">{{ e.zaehler() }}</span> }
                 </a></li>
               }
             </ul>
@@ -79,11 +82,11 @@
         }
         @case ('SACHBEARBEITER') {
           <h2 class="nav-gruppe">Sachbearbeitung</h2>
-          <ul>@for (e of sbNavigation; track e.route) { <li><a [routerLink]="e.route" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: true }">{{ e.text }}</a></li> }</ul>
+          <ul>@for (e of sbNavigation; track e.route) { <li><a [routerLink]="e.route" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: true }"><span class="nav-text"><vp-symbol [name]="e.symbol" [groesse]="19" /> {{ e.text }}</span></a></li> }</ul>
         }
         @case ('ADMIN') {
           <h2 class="nav-gruppe">Administration</h2>
-          <ul>@for (e of adminNavigation; track e.route) { <li><a [routerLink]="e.route" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: true }">{{ e.text }}</a></li> }</ul>
+          <ul>@for (e of adminNavigation; track e.route) { <li><a [routerLink]="e.route" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: true }"><span class="nav-text"><vp-symbol [name]="e.symbol" [groesse]="19" /> {{ e.text }}</span></a></li> }</ul>
         }
       }
     </nav>
@@ -96,20 +99,36 @@
 
 <footer class="vp-fuss">
   <div class="fuss-innen">
-    <nav aria-label="Service-Links">
-      <a routerLink="/kontakt">Kontakt</a>
-      <a routerLink="/hilfe">Hilfe & FAQ</a>
-      <a routerLink="/leistungen">Leistungen A–Z</a>
-      <a routerLink="/rechner/beitrag">Beitragsrechner</a>
-      <a routerLink="/arztsuche">Arztsuche</a>
-      <a routerLink="/info/sicherheit">Sicher online</a>
-      <a routerLink="/info/datenschutz">Datenschutz</a>
-      <a routerLink="/info/barrierefreiheit">Barrierefreiheit</a>
-      <a routerLink="/info/impressum">Impressum</a>
-      <a routerLink="/info/aufsicht">Aufsicht & Schlichtung</a>
-      <a routerLink="/info/neuigkeiten">Was ist neu?</a>
-    </nav>
-    <p class="klein">© 2026 VitaPlus Krankenkasse – Körperschaft des öffentlichen Rechts</p>
+    <div class="fuss-spalten">
+      <div class="fuss-marke">
+        <vp-logo [hell]="true" />
+        <p>Ihre gesetzliche Krankenkasse – persönlich vor Ort und digital für Sie da.</p>
+        <p class="fuss-kontakt"><vp-symbol name="phone" [groesse]="17" /> 0800 848 27 58 <span>kostenfrei, Mo–Fr 8–20 Uhr</span></p>
+      </div>
+      <nav aria-label="Service">
+        <h2>Service</h2>
+        <a routerLink="/kontakt">Kontakt</a>
+        <a routerLink="/hilfe">Hilfe & FAQ</a>
+        <a routerLink="/arztsuche">Arztsuche</a>
+        <a routerLink="/kurse">Gesundheitskurse</a>
+      </nav>
+      <nav aria-label="Leistungen">
+        <h2>Leistungen</h2>
+        <a routerLink="/leistungen">Leistungen A–Z</a>
+        <a routerLink="/leistungen/finder">Leistungsfinder</a>
+        <a routerLink="/rechner/beitrag">Beitragsrechner</a>
+        <a routerLink="/info/neuigkeiten">Was ist neu?</a>
+      </nav>
+      <nav aria-label="Rechtliches">
+        <h2>Rechtliches</h2>
+        <a routerLink="/info/datenschutz">Datenschutz</a>
+        <a routerLink="/info/impressum">Impressum</a>
+        <a routerLink="/info/barrierefreiheit">Barrierefreiheit</a>
+        <a routerLink="/info/sicherheit">Sicher online</a>
+        <a routerLink="/info/aufsicht">Aufsicht & Schlichtung</a>
+      </nav>
+    </div>
+    <p class="fuss-zeile klein">© 2026 VitaPlus Krankenkasse – Körperschaft des öffentlichen Rechts</p>
   </div>
 </footer>
 

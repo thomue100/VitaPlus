@@ -80,14 +80,14 @@ export const FORMULAR_KATEGORIEN: Record<FormularKategorie, string> = {
   STAMMDATEN: 'Persönliche Daten',
 };
 
-export const LEBENSLAGEN: { code: string; titel: string; beschreibung: string }[] = [
-  { code: 'KRANK', titel: 'Ich bin krank', beschreibung: 'Krankmeldung, Krankengeld, Behandlungen und Hilfsmittel' },
-  { code: 'FAMILIE', titel: 'Familie & Nachwuchs', beschreibung: 'Schwangerschaft, Geburt, Familienversicherung, Kinderkrankengeld' },
-  { code: 'JOB', titel: 'Beruf & Ausbildung', beschreibung: 'Jobwechsel, Ausbildung, Studium, Selbstständigkeit' },
-  { code: 'RENTE', titel: 'Rente', beschreibung: 'Renteneintritt und Krankenversicherung der Rentner' },
-  { code: 'PFLEGE', titel: 'Pflege', beschreibung: 'Pflegegrad, Pflegegeld, Entlastung für Angehörige' },
-  { code: 'AUSLAND', titel: 'Ausland', beschreibung: 'Urlaub, Studium oder Arbeit im Ausland' },
-  { code: 'GELD', titel: 'Geld & Beiträge', beschreibung: 'Beiträge, Ratenzahlung, Zuzahlungen und Erstattungen' },
-  { code: 'TRAUER', titel: 'Trauerfall', beschreibung: 'Was im Todesfall zu tun ist' },
-  { code: 'GESUND', titel: 'Gesund bleiben', beschreibung: 'Vorsorge, Bonusprogramm, Kurse' },
+export const LEBENSLAGEN: { code: string; titel: string; beschreibung: string; symbol: string; ton: string }[] = [
+  { code: 'KRANK', titel: 'Ich bin krank', beschreibung: 'Krankmeldung, Krankengeld, Behandlungen und Hilfsmittel', symbol: 'thermometer', ton: '#c2507a' },
+  { code: 'FAMILIE', titel: 'Familie & Nachwuchs', beschreibung: 'Schwangerschaft, Geburt, Familienversicherung, Kinderkrankengeld', symbol: 'baby', ton: '#d9822b' },
+  { code: 'JOB', titel: 'Beruf & Ausbildung', beschreibung: 'Jobwechsel, Ausbildung, Studium, Selbstständigkeit', symbol: 'briefcase-business', ton: '#1d6fb8' },
+  { code: 'RENTE', titel: 'Rente', beschreibung: 'Renteneintritt und Krankenversicherung der Rentner', symbol: 'sun', ton: '#b8860b' },
+  { code: 'PFLEGE', titel: 'Pflege', beschreibung: 'Pflegegrad, Pflegegeld, Entlastung für Angehörige', symbol: 'heart-handshake', ton: '#7c5cc4' },
+  { code: 'AUSLAND', titel: 'Ausland', beschreibung: 'Urlaub, Studium oder Arbeit im Ausland', symbol: 'plane', ton: '#1d8fb8' },
+  { code: 'GELD', titel: 'Geld & Beiträge', beschreibung: 'Beiträge, Ratenzahlung, Zuzahlungen und Erstattungen', symbol: 'wallet', ton: '#0b6e69' },
+  { code: 'TRAUER', titel: 'Trauerfall', beschreibung: 'Was im Todesfall zu tun ist', symbol: 'flower-2', ton: '#5b6b73' },
+  { code: 'GESUND', titel: 'Gesund bleiben', beschreibung: 'Vorsorge, Bonusprogramm, Kurse', symbol: 'heart-pulse', ton: '#2a9d8f' },
 ];

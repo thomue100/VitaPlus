@@ -9,6 +9,7 @@ import { SitzungService } from '../../core/services/sitzung.service';
 import { UiService } from '../../core/services/ui.service';
 import { StatusComponent } from '../../shared/bausteine';
 import { DateigroessePipe, DatumPipe, EuroPipe, StatusTextPipe, TypTextPipe } from '../../shared/pipes';
+import { SymbolComponent } from '../../shared/symbol.component';
 
 const BETRAGS_TYPEN = ['KOSTENERSTATTUNG', 'ZAHNERSATZ', 'FAHRKOSTEN', 'KIEFERORTHOPAEDIE', 'KUENSTLICHE_BEFRUCHTUNG', 'VERHINDERUNGSPFLEGE', 'KURZZEITPFLEGE', 'WOHNUMFELD', 'ENTLASTUNGSBETRAG', 'ZUZAHLUNGSBEFREIUNG'];
 const ERWARTET: Record<string, string> = { KOSTENERSTATTUNG: 'voraussichtlich', ZAHNERSATZ: 'festzuschuss', FAHRKOSTEN: 'erstattung', KIEFERORTHOPAEDIE: 'kassenanteil', KUENSTLICHE_BEFRUCHTUNG: 'zuschuss',
@@ -84,7 +85,7 @@ export class SbEingangComponent implements OnInit {
 
 @Component({
   selector: 'vp-sb-vorgang',
-  imports: [FormsModule, RouterLink, StatusComponent, DatumPipe, EuroPipe, TypTextPipe, StatusTextPipe, DateigroessePipe],
+  imports: [FormsModule, RouterLink, StatusComponent, DatumPipe, EuroPipe, TypTextPipe, StatusTextPipe, DateigroessePipe, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p class="brotkrumen"><a routerLink="/sachbearbeitung">Postkorb</a> › {{ v()?.vorgangsnummer }}</p>
@@ -111,7 +112,7 @@ export class SbEingangComponent implements OnInit {
           @if (v.daten['antwortRueckfrage']) { <div class="hinweis info"><strong>Antwort des Versicherten:</strong> {{ v.daten['antwortRueckfrage'] }}</div> }
           @if (v.ablehnungsgrund) { <div class="hinweis fehler"><strong>Ablehnungsgrund:</strong> {{ v.ablehnungsgrund }}</div> }
           <h3>Unterlagen</h3>
-          <ul class="liste-ohne">@for (a of v.anhaenge; track a.id) { <li class="klein">📄 {{ a.name }} ({{ a.groesseBytes | groesse }}, {{ a.hochgeladenAm | datum }})</li> } @empty { <li class="leer">Keine Unterlagen</li> }</ul>
+          <ul class="liste-ohne">@for (a of v.anhaenge; track a.id) { <li class="klein"><vp-symbol name="file-text" [groesse]="15" /> {{ a.name }} ({{ a.groesseBytes | groesse }}, {{ a.hochgeladenAm | datum }})</li> } @empty { <li class="leer">Keine Unterlagen</li> }</ul>
         </section>
         <section class="karte">
           <h2>Versicherte/r</h2>

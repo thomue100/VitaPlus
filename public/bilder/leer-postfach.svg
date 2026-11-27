@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 190" role="img" aria-label="Alles erledigt">
+<title>Alles erledigt</title>
+<path d="M30 120 C 20 60, 80 20, 150 24 C 220 28, 250 70, 246 120 C 242 160, 200 176, 130 176 C 70 176, 36 160, 30 120 Z" fill="#e3f2f0"/><ellipse cx="140" cy="168" rx="90" ry="8" fill="#0b6e69" opacity=".08"/>
+<path d="M70 92 L140 60 L210 92 L210 160 L70 160 Z" fill="#cfe8e3"/>
+<rect x="86" y="56" width="108" height="78" rx="6" fill="#fff" stroke="#bfd6d2" stroke-width="2"/>
+<rect x="100" y="72" width="60" height="6" rx="3" fill="#9fbdb8"/><rect x="100" y="86" width="80" height="5" rx="2.5" fill="#d5e4e1"/><rect x="100" y="98" width="70" height="5" rx="2.5" fill="#d5e4e1"/>
+<path d="M70 92 L140 130 L210 92 L210 160 L70 160 Z" fill="#0b6e69"/><path d="M70 160 L130 118 M210 160 L150 118" stroke="#095b57" stroke-width="3"/>
+<circle cx="206" cy="58" r="16" fill="#2a9d8f"/><path d="M199 58 l5 5 l9 -10" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(36 150) rotate(-40) scale(0.5)"><path d="M0 0 C 20 -30, 60 -30, 80 0 C 60 30, 20 30, 0 0 Z" fill="#57c1ae"/><path d="M4 0 L76 0" stroke="#0b6e69" stroke-width="2" opacity=".35"/></g><g transform="translate(232 150) rotate(-140) scale(0.45)"><path d="M0 0 C 20 -30, 60 -30, 80 0 C 60 30, 20 30, 0 0 Z" fill="#2a9d8f"/><path d="M4 0 L76 0" stroke="#0b6e69" stroke-width="2" opacity=".35"/></g>
+</svg>

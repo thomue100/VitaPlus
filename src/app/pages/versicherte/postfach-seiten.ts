@@ -11,13 +11,14 @@ import { DateienComponent, FeldfehlerComponent } from '../../shared/bausteine';
 import { DateigroessePipe, DatumPipe } from '../../shared/pipes';
 import { pdfHerunterladen } from '../../shared/pdf';
 import { serverfehlerSetzen } from '../../shared/validatoren';
+import { SymbolComponent } from '../../shared/symbol.component';
 
 const ORDNER: [Ordner, string][] = [['EINGANG', 'Posteingang'], ['GESENDET', 'Gesendet'], ['ARCHIV', 'Archiv'], ['PAPIERKORB', 'Papierkorb']];
 export const KATEGORIEN: Record<string, string> = { ALLGEMEIN: 'Allgemeine Anfrage', LEISTUNG: 'Leistungen', BEITRAG: 'Beiträge', MITGLIEDSCHAFT: 'Mitgliedschaft', BONUS: 'Bonusprogramm', BESCHWERDE: 'Beschwerde', SYSTEM: 'Systemnachricht' };
 
 @Component({
   selector: 'vp-postfach',
-  imports: [FormsModule, RouterLink, DatumPipe],
+  imports: [FormsModule, RouterLink, DatumPipe, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Postfach</h1><p class="leise">Sichere Kommunikation mit der VitaPlus</p></div><a class="btn primaer" routerLink="/postfach/neu">Neue Nachricht</a></div>
@@ -35,11 +36,11 @@ export const KATEGORIEN: Record<string, string> = { ALLGEMEIN: 'Allgemeine Anfra
       <tbody>
         @for (n of liste(); track n.id) {
           <tr class="klickbar" [class.ungelesen]="!n.gelesen" (click)="oeffnen(n)" (keydown.enter)="oeffnen(n)" tabindex="0">
-            <td>{{ n.wichtig ? '❗' : '' }}{{ n.anhaenge.length ? '📎' : '' }}</td>
+            <td class="symbolspalte">@if (n.wichtig) { <span title="Wichtig" class="wichtig"><vp-symbol name="circle-alert" [groesse]="16" /></span> }@if (n.anhaenge.length) { <span title="Mit Anhang"><vp-symbol name="paperclip" [groesse]="16" /></span> }</td>
             <td>{{ ordner() === 'GESENDET' ? n.empfaenger : n.absender }}</td>
             <td>{{ n.betreff }}<br /><span class="klein leise">{{ n.text }}…</span></td>
             <td class="nowrap">{{ n.datum | datum }}</td></tr>
-        } @empty { <tr><td colspan="4" class="leer">Keine Nachrichten in diesem Ordner.</td></tr> }
+        } @empty { <tr><td colspan="4" class="leer"><img class="leer-bild" src="bilder/leer-postfach.svg" alt="" width="280" height="190" />Keine Nachrichten in diesem Ordner.</td></tr> }
       </tbody></table></div>`,
 })
 export class PostfachComponent implements OnInit {
@@ -85,7 +86,7 @@ export class PostfachComponent implements OnInit {
 
 @Component({
   selector: 'vp-nachricht',
-  imports: [RouterLink, DatumPipe, DateigroessePipe],
+  imports: [RouterLink, DatumPipe, DateigroessePipe, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p class="brotkrumen"><a routerLink="/postfach">Postfach</a> › Nachricht</p>
@@ -96,7 +97,7 @@ export class PostfachComponent implements OnInit {
         <div class="text">{{ n.text }}</div>
         @if (n.anhaenge.length) {
           <h2>Anhänge</h2>
-          <ul class="liste-ohne">@for (a of n.anhaenge; track a.id) { <li>📄 <button class="btn link" type="button" (click)="anhang(a)">{{ a.name }}</button> <span class="klein leise">({{ a.groesseBytes | groesse }})</span></li> }</ul>
+          <ul class="liste-ohne">@for (a of n.anhaenge; track a.id) { <li><vp-symbol name="file-text" [groesse]="16" /> <button class="btn link" type="button" (click)="anhang(a)">{{ a.name }}</button> <span class="klein leise">({{ a.groesseBytes | groesse }})</span></li> }</ul>
         }
         @if (n.vorgangId) { <p><a [routerLink]="['/vorgaenge', n.vorgangId]">Zum zugehörigen Vorgang</a></p> }
         <div class="aktionen">

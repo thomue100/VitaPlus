@@ -4,15 +4,28 @@ import { Router, RouterLink } from '@angular/router';
 import { fehlertext } from '../../core/services/auth.interceptor';
 import { SitzungService } from '../../core/services/sitzung.service';
 import { FeldfehlerComponent } from '../../shared/bausteine';
+import { SymbolComponent } from '../../shared/symbol.component';
 
 @Component({
   selector: 'vp-anmelden',
-  imports: [ReactiveFormsModule, RouterLink, FeldfehlerComponent],
+  imports: [ReactiveFormsModule, RouterLink, FeldfehlerComponent, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="raster-2">
-      <section class="karte">
-        <h1>Anmelden</h1>
+    <div class="anmelde-buehne">
+      <section class="buehne-text" aria-labelledby="willkommen">
+        <p class="ueberzeile">Online-Geschäftsstelle</p>
+        <h1 id="willkommen">Ihre Krankenkasse – jederzeit online.</h1>
+        <p class="einleitung">Rechnungen einreichen, Bescheinigungen herunterladen, Krankmeldungen verfolgen: Erledigen Sie Ihre Anliegen bei der VitaPlus, wann es Ihnen passt.</p>
+        <ul class="vorteile">
+          <li><span class="vorteil-symbol"><vp-symbol name="camera" [groesse]="18" /></span>Belege einfach per Foto einreichen</li>
+          <li><span class="vorteil-symbol"><vp-symbol name="file-check" [groesse]="18" /></span>Bescheinigungen sofort als PDF</li>
+          <li><span class="vorteil-symbol"><vp-symbol name="shield-check" [groesse]="18" /></span>Geschützt mit Zwei-Faktor-Anmeldung</li>
+        </ul>
+        <img class="buehne-bild" src="bilder/hero-familie.svg" alt="" width="600" height="420" />
+      </section>
+
+      <section class="karte anmelde-karte" aria-labelledby="anmelden-titel">
+        <h2 id="anmelden-titel">Anmelden</h2>
         <p class="leise">Mit Ihrer E-Mail-Adresse oder Versichertennummer</p>
         @if (grund() === 'timeout') { <div class="hinweis warnung" role="status">Sie wurden aus Sicherheitsgründen nach 15 Minuten Inaktivität abgemeldet.</div> }
         @if (grund() === 'passwort') { <div class="hinweis erfolg" role="status">Ihr Passwort wurde geändert. Bitte melden Sie sich mit dem neuen Passwort an.</div> }
@@ -26,54 +39,90 @@ import { FeldfehlerComponent } from '../../shared/bausteine';
         <form [formGroup]="form" (ngSubmit)="anmelden()" novalidate>
           <div class="feld mb">
             <label for="kennung" class="pflicht">E-Mail-Adresse oder Versichertennummer</label>
-            <input id="kennung" type="text" formControlName="kennung" autocomplete="username" />
+            <div class="eingabe-mit-symbol"><vp-symbol name="user-round" [groesse]="18" /><input id="kennung" type="text" formControlName="kennung" autocomplete="username" /></div>
             <vp-feldfehler [control]="form.controls.kennung" />
           </div>
           <div class="feld mb">
             <label for="passwort" class="pflicht">Passwort</label>
             <div class="passwort">
-              <input id="passwort" [type]="zeigen() ? 'text' : 'password'" formControlName="passwort" autocomplete="current-password" />
+              <div class="eingabe-mit-symbol"><vp-symbol name="lock" [groesse]="18" /><input id="passwort" [type]="zeigen() ? 'text' : 'password'" formControlName="passwort" autocomplete="current-password" /></div>
               <button type="button" class="btn link klein" (click)="zeigen.set(!zeigen())" [attr.aria-pressed]="zeigen()">{{ zeigen() ? 'Verbergen' : 'Anzeigen' }}</button>
             </div>
             <vp-feldfehler [control]="form.controls.passwort" />
           </div>
-          <div class="aktionen">
-            <button type="submit" class="btn primaer" [disabled]="laedt()">{{ laedt() ? 'Anmeldung läuft …' : 'Anmelden' }}</button>
-            <a routerLink="/passwort-vergessen">Passwort vergessen?</a>
-          </div>
+          <button type="submit" class="btn primaer breit" [disabled]="laedt()">{{ laedt() ? 'Anmeldung läuft …' : 'Anmelden' }}</button>
+          <p class="zentriert mt"><a routerLink="/passwort-vergessen">Passwort vergessen?</a></p>
         </form>
-        <hr class="mt-2" />
-        <p class="fett">Oder sicher anmelden mit</p>
-        <div class="aktionen">
-          <a class="btn" routerLink="/anmelden/identitaet" [queryParams]="{ verfahren: 'GESUNDHEITSID' }">GesundheitsID</a>
-          <a class="btn" routerLink="/anmelden/identitaet" [queryParams]="{ verfahren: 'EID' }">Online-Ausweis (eID)</a>
+        <div class="trenner"><span>oder sicher anmelden mit</span></div>
+        <div class="alternativen">
+          <a class="btn" routerLink="/anmelden/identitaet" [queryParams]="{ verfahren: 'GESUNDHEITSID' }"><vp-symbol name="fingerprint" [groesse]="18" /> GesundheitsID</a>
+          <a class="btn" routerLink="/anmelden/identitaet" [queryParams]="{ verfahren: 'EID' }"><vp-symbol name="id-card" [groesse]="18" /> Online-Ausweis</a>
+        </div>
+        <div class="neu-hier">
+          <p class="fett">Neu in der Online-Geschäftsstelle?</p>
+          <div class="aktionen"><a class="btn primaer-umriss" routerLink="/registrieren">Jetzt registrieren</a><a class="btn link" routerLink="/aktivieren">Aktivierungscode eingeben</a></div>
         </div>
       </section>
-      <section>
-        <div class="karte hervor">
-          <h2>Neu hier?</h2>
-          <p>Mit der Online-Geschäftsstelle erledigen Sie Ihre Anliegen rund um die Uhr – Rechnungen einreichen, Bescheinigungen herunterladen, Adressen ändern und vieles mehr.</p>
-          <div class="aktionen"><a class="btn primaer" routerLink="/registrieren">Jetzt registrieren</a><a class="btn" routerLink="/aktivieren">Aktivierungscode eingeben</a></div>
-        </div>
-        <div class="karte">
-          <h2>Noch nicht bei der VitaPlus?</h2>
-          <p>Werden Sie in wenigen Minuten online Mitglied – wir kümmern uns um den Wechsel.</p>
-          <a class="btn" routerLink="/mitglied-werden">Mitglied werden</a>
-        </div>
-        <div class="karte">
-          <h2>Ohne Anmeldung</h2>
-          <ul>
-            <li><a routerLink="/leistungen">Leistungen A–Z</a> und <a routerLink="/leistungen/finder">Leistungsfinder</a></li>
-            <li><a routerLink="/rechner/beitrag">Beitragsrechner</a></li>
-            <li><a routerLink="/arztsuche">Arztsuche</a> und <a routerLink="/kurse">Gesundheitskurse</a></li>
-            <li><a routerLink="/todesfall-melden">Todesfall melden</a></li>
-          </ul>
-        </div>
-      </section>
-    </div>`,
-  styles: [`.passwort{display:flex;gap:.5rem;align-items:center}.passwort input{flex:1}hr{border:none;border-top:1px solid var(--vp-rand)}`],
+    </div>
+
+    <section class="ohne-anmeldung" aria-labelledby="ohne-titel">
+      <h2 id="ohne-titel">Auch ohne Anmeldung für Sie da</h2>
+      <div class="kachelraster">
+        @for (k of kacheln; track k.route) {
+          <a class="symbolkachel" [routerLink]="k.route">
+            <span class="kachel-symbol" [style.--ton]="k.ton"><vp-symbol [name]="k.symbol" [groesse]="24" /></span>
+            <span class="kachel-titel">{{ k.titel }}</span>
+            <span class="kachel-text">{{ k.text }}</span>
+          </a>
+        }
+      </div>
+    </section>
+
+    <section class="wechsel-band" aria-labelledby="wechsel-titel">
+      <div>
+        <h2 id="wechsel-titel">Noch nicht bei der VitaPlus?</h2>
+        <p>Werden Sie in wenigen Minuten online Mitglied – wir kümmern uns um den Wechsel und informieren Ihren Arbeitgeber.</p>
+      </div>
+      <a class="btn akzent" routerLink="/mitglied-werden">Mitglied werden <vp-symbol name="arrow-right" [groesse]="18" /></a>
+    </section>`,
+  styles: [`
+    .anmelde-buehne { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(340px, 440px); gap: 2.5rem; align-items: start; }
+    .ueberzeile { text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; font-weight: 700; color: var(--vp-primaer); margin: .5rem 0 .25rem; }
+    .buehne-text h1 { font-size: clamp(1.8rem, 3vw, 2.6rem); letter-spacing: -.02em; max-width: 18ch; }
+    .einleitung { font-size: 1.1rem; color: var(--vp-text-leise); max-width: 52ch; }
+    .vorteile { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .5rem; }
+    .vorteile li { display: flex; align-items: center; gap: .6rem; font-weight: 600; }
+    .vorteil-symbol { width: 2rem; height: 2rem; border-radius: 50%; background: var(--vp-primaer-hell); color: var(--vp-primaer); display: inline-flex; align-items: center; justify-content: center; }
+    .buehne-bild { width: 100%; max-width: 560px; height: auto; display: block; margin-top: .5rem; }
+    .anmelde-karte { padding: 1.75rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(11, 60, 58, .10); position: sticky; top: 5.5rem; }
+    .anmelde-karte h2 { margin-top: 0; font-size: 1.5rem; }
+    .eingabe-mit-symbol { position: relative; flex: 1; display: flex; }
+    .eingabe-mit-symbol vp-symbol { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); color: var(--vp-text-leise); }
+    .eingabe-mit-symbol input { flex: 1; padding-left: 2.4rem; }
+    .passwort { display: flex; gap: .5rem; align-items: center; }
+    .breit { width: 100%; justify-content: center; }
+    .trenner { display: flex; align-items: center; gap: .75rem; color: var(--vp-text-leise); font-size: .85rem; margin: 1.25rem 0 1rem; }
+    .trenner::before, .trenner::after { content: ''; flex: 1; border-top: 1px solid var(--vp-rand); }
+    .alternativen { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+    .alternativen .btn { justify-content: center; }
+    .neu-hier { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--vp-rand); }
+    .ohne-anmeldung { margin-top: 2.5rem; }
+    .wechsel-band { margin-top: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding: 1.75rem 2rem; border-radius: 16px; color: #fff; background: linear-gradient(120deg, var(--vp-primaer-dunkel), #14897f); }
+    .wechsel-band h2 { margin: 0 0 .25rem; color: #fff; }
+    .wechsel-band p { margin: 0; color: #d6efeb; max-width: 60ch; }
+    @media (max-width: 960px) { .anmelde-buehne { grid-template-columns: 1fr; } .anmelde-karte { position: static; order: -1; } .buehne-bild { max-width: 420px; margin: 0 auto; } }
+  `],
 })
 export class AnmeldenComponent {
+  readonly kacheln = [
+    { route: '/leistungen', symbol: 'book-open-text', titel: 'Leistungen A–Z', text: 'Was wir für Sie übernehmen', ton: '#0b6e69' },
+    { route: '/leistungen/finder', symbol: 'sparkles', titel: 'Leistungsfinder', text: 'In drei Fragen zur passenden Leistung', ton: '#7c5cc4' },
+    { route: '/rechner/beitrag', symbol: 'calculator', titel: 'Beitragsrechner', text: 'Ihren Beitrag 2026 berechnen', ton: '#d9822b' },
+    { route: '/arztsuche', symbol: 'stethoscope', titel: 'Arztsuche', text: 'Praxen in Ihrer Nähe finden', ton: '#1d6fb8' },
+    { route: '/kurse', symbol: 'dumbbell', titel: 'Gesundheitskurse', text: 'Zertifizierte Kurse mit Zuschuss', ton: '#2a9d8f' },
+    { route: '/kontakt', symbol: 'headset', titel: 'Kontakt', text: 'Telefon, Chat und Filialen', ton: '#c2507a' },
+  ];
+
   private fb = inject(FormBuilder);
   private sitzung = inject(SitzungService);
   private router = inject(Router);

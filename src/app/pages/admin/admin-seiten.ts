@@ -6,6 +6,7 @@ import { Api } from '../../core/services/api.service';
 import { fehlertext } from '../../core/services/auth.interceptor';
 import { UiService } from '../../core/services/ui.service';
 import { DatumPipe, EuroPipe } from '../../shared/pipes';
+import { SymbolComponent } from '../../shared/symbol.component';
 
 @Component({
   selector: 'vp-admin-monitoring',
@@ -187,7 +188,7 @@ export class AdminMitarbeitendeComponent implements OnInit {
         </div>
         <div class="aktionen"><button class="btn primaer" type="submit">Speichern</button>@if (faq.id) { <button class="btn" type="button" (click)="faqNeu()">Abbrechen</button> }</div>
       </form>
-      <div class="tabelle-wrapper karte" style="padding:0"><table class="tabelle"><thead><tr><th>#</th><th>Frage</th><th>Kategorie</th><th>👍 / 👎</th><th>Status</th><th></th></tr></thead><tbody>
+      <div class="tabelle-wrapper karte" style="padding:0"><table class="tabelle"><thead><tr><th>#</th><th>Frage</th><th>Kategorie</th><th>Hilfreich / nicht</th><th>Status</th><th></th></tr></thead><tbody>
         @for (f of faqs(); track f.id) { <tr><td>{{ f.reihenfolge }}</td><td>{{ f.frage }}</td><td>{{ f.kategorie }}</td><td>{{ f.hilfreich }} / {{ f.nichtHilfreich }}</td>
           <td><span class="badge" [class.gruen]="f.sichtbar">{{ f.sichtbar ? 'online' : 'entwurf' }}</span></td>
           <td><button class="btn link klein" type="button" (click)="faq = { ...f }">Bearbeiten</button><button class="btn link klein" type="button" (click)="faqLoeschen(f)">Löschen</button></td></tr> }
@@ -288,7 +289,7 @@ export class AdminInhalteComponent implements OnInit {
     } @else {
       <div class="tabelle-wrapper karte" style="padding:0"><table class="tabelle klein"><thead><tr><th>Zeitpunkt</th><th>Quelle</th><th>Ort</th><th>Meldung</th></tr></thead><tbody>
         @for (e of fehler(); track $index) { <tr><td class="nowrap">{{ e.zeitpunkt | datum: true }}</td><td>{{ e.quelle }}</td><td>{{ e.pfad }}</td><td>{{ e.meldung }}<details><summary>Details</summary><pre class="klein">{{ e.details }}</pre></details></td></tr> }
-        @empty { <tr><td colspan="4" class="leer">Keine Fehler protokolliert. 🎉</td></tr> }
+        @empty { <tr><td colspan="4" class="leer">Keine Fehler protokolliert.</td></tr> }
       </tbody></table></div>
     }`,
 })
@@ -311,7 +312,7 @@ export class AdminProtokolleComponent implements OnInit {
 
 @Component({
   selector: 'vp-admin-feedback',
-  imports: [DatumPipe],
+  imports: [DatumPipe, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <h1>Feedback-Auswertung</h1>
@@ -324,7 +325,7 @@ export class AdminProtokolleComponent implements OnInit {
       <div class="raster-2">
         <section class="karte"><h2>Verteilung</h2>@for (v of f.verteilung; track v.sterne) {
           <div class="zeile klein"><span>{{ v.sterne }} ★</span><div class="balken" style="flex:1"><span [style.width.%]="f.anzahl ? v.anzahl / f.anzahl * 100 : 0"></span></div><span>{{ v.anzahl }}</span></div> }</section>
-        <section class="karte"><h2>FAQ mit Verbesserungsbedarf</h2><ul class="liste-ohne klein">@for (q of f.faq; track q.id) { <li class="zeile">{{ q.frage }} <span>👍 {{ q.hilfreich }} · 👎 {{ q.nichtHilfreich }}</span></li> }</ul></section>
+        <section class="karte"><h2>FAQ mit Verbesserungsbedarf</h2><ul class="liste-ohne klein">@for (q of f.faq; track q.id) { <li class="zeile">{{ q.frage }} <span><vp-symbol name="thumbs-up" [groesse]="15" /> {{ q.hilfreich }} · <vp-symbol name="thumbs-down" [groesse]="15" /> {{ q.nichtHilfreich }}</span></li> }</ul></section>
       </div>
       <section class="karte"><h2>Kommentare</h2><ul class="liste-ohne">@for (e of f.eintraege; track e.id) {
         <li><span class="badge">{{ e.art }}</span> {{ '★'.repeat(e.bewertung) }} <span class="klein leise">{{ e.zeitpunkt | datum: true }} · {{ e.seite }}</span><br />{{ e.text || '(ohne Kommentar)' }}</li> }</ul></section>

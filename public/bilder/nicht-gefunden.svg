@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 210" role="img" aria-label="Seite nicht gefunden">
+<title>Seite nicht gefunden</title>
+<path d="M30 130 C 20 60, 90 24, 160 26 C 240 28, 280 80, 270 140 C 262 190, 210 200, 150 200 C 90 200, 36 180, 30 130 Z" fill="#e3f2f0"/><ellipse cx="150" cy="196" rx="100" ry="8" fill="#0b6e69" opacity=".08"/>
+<path d="M60 70 l50 -16 l60 18 l60 -18 v110 l-60 18 l-60 -18 l-50 16 z" fill="#fff" stroke="#bfd6d2" stroke-width="3" stroke-linejoin="round"/>
+<path d="M110 54 v110 M170 72 v110" stroke="#bfd6d2" stroke-width="3"/>
+<path d="M80 130 q30 -40 60 -10 t60 -20" stroke="#f2a541" stroke-width="4" stroke-dasharray="2 9" stroke-linecap="round" fill="none"/>
+<path d="M206 66 c-14 0 -24 10 -24 23 c0 18 24 40 24 40 s24 -22 24 -40 c0 -13 -10 -23 -24 -23z" fill="#0b6e69"/><circle cx="206" cy="89" r="9" fill="#fff"/>
+<text x="78" y="110" font-family="Source Sans 3, Arial, sans-serif" font-weight="700" font-size="22" fill="#9fbdb8">?</text>
+
+</svg>

@@ -7,17 +7,19 @@ import { SitzungService } from '../core/services/sitzung.service';
 
 interface ChatNachricht { von: 'ICH' | 'BOT' | 'MITARBEITER' | 'SYSTEM'; text: string; link?: string; name?: string }
 
+import { SymbolComponent } from '../shared/symbol.component';
+
 @Component({
   selector: 'vp-chat',
-  imports: [FormsModule],
+  imports: [FormsModule, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (!offen()) {
-      <button class="chat-knopf" type="button" (click)="oeffnen()" aria-haspopup="dialog">💬 Fragen? Chatten Sie mit uns</button>
+      <button class="chat-knopf" type="button" (click)="oeffnen()" aria-haspopup="dialog"><vp-symbol name="message-circle" [groesse]="20" /> <span class="chat-text">Fragen? Chatten Sie mit uns</span></button>
     } @else {
       <section class="chat" role="dialog" aria-label="Service-Chat">
         <header><strong>{{ live() ? 'Live-Chat Kundenservice' : 'Digitaler Assistent' }}</strong>
-          <button type="button" (click)="offen.set(false)" aria-label="Chat schließen">×</button></header>
+          <button type="button" (click)="offen.set(false)" aria-label="Chat schließen"><vp-symbol name="x" [groesse]="18" /></button></header>
         <div class="verlauf" #verlauf aria-live="polite">
           @for (n of nachrichten(); track $index) {
             <div class="nachricht" [class.ich]="n.von === 'ICH'" [class.system]="n.von === 'SYSTEM'">
@@ -41,9 +43,9 @@ interface ChatNachricht { von: 'ICH' | 'BOT' | 'MITARBEITER' | 'SYSTEM'; text: s
         </form>
       </section>
     }`,
-  styles: [`
+  styles: [`@media (max-width:640px){.chat-knopf{padding:.85rem}.chat-text{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
     :host{position:fixed;right:1rem;bottom:1rem;z-index:800}
-    .chat-knopf{background:var(--vp-primaer);color:#fff;border:none;border-radius:999px;padding:.7rem 1.1rem;font:inherit;font-weight:600;cursor:pointer;box-shadow:var(--vp-schatten)}
+    .chat-knopf{display:inline-flex;align-items:center;gap:.45rem;background:var(--vp-primaer);color:#fff;border:none;border-radius:999px;padding:.7rem 1.1rem;font:inherit;font-weight:600;cursor:pointer;box-shadow:var(--vp-schatten)}
     .chat{width:min(360px,calc(100vw - 2rem));height:460px;background:#fff;border:1px solid var(--vp-rand);border-radius:12px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
     header{display:flex;justify-content:space-between;align-items:center;padding:.7rem 1rem;background:var(--vp-primaer);color:#fff;border-radius:12px 12px 0 0}
     header button{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer}

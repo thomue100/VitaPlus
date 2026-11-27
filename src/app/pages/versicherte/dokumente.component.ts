@@ -10,12 +10,13 @@ import { FamilieApi, FamilienEintrag } from '../../core/services/versicherten-ap
 import { heuteIso } from '../../core/util/datum';
 import { DatumPipe } from '../../shared/pipes';
 import { pdfHerunterladen } from '../../shared/pdf';
+import { SymbolComponent } from '../../shared/symbol.component';
 
 interface ArchivEintrag { datum: string; titel: string; kategorie: 'BESCHEINIGUNG' | 'BESCHEID' | 'UPLOAD' | 'INFORMATION'; quelle: string; link?: any[]; aktion?: () => void }
 
 @Component({
   selector: 'vp-dokumente',
-  imports: [FormsModule, RouterLink, DatumPipe],
+  imports: [FormsModule, RouterLink, DatumPipe, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Dokumente & Bescheinigungen</h1><p class="leise">Bescheinigungen sofort als PDF – und alle Ihre Dokumente an einem Ort</p></div></div>
@@ -79,7 +80,7 @@ interface ArchivEintrag { datum: string; titel: string; kategorie: 'BESCHEINIGUN
       }
       @case ('uploads') {
         <div class="tabelle-wrapper karte" style="padding:0"><table class="tabelle"><thead><tr><th>Hochgeladen</th><th>Datei</th><th>Vorgang</th><th>Status</th></tr></thead><tbody>
-          @for (u of uploads(); track u.datei + u.vorgang.id) { <tr><td>{{ u.datum | datum: true }}</td><td>📄 {{ u.datei }}</td><td><a [routerLink]="['/vorgaenge', u.vorgang.id]">{{ u.vorgang.vorgangsnummer }}</a></td><td class="klein">Eingang bestätigt</td></tr> }
+          @for (u of uploads(); track u.datei + u.vorgang.id) { <tr><td>{{ u.datum | datum: true }}</td><td><vp-symbol name="file-text" [groesse]="16" /> {{ u.datei }}</td><td><a [routerLink]="['/vorgaenge', u.vorgang.id]">{{ u.vorgang.vorgangsnummer }}</a></td><td class="klein">Eingang bestätigt</td></tr> }
           @empty { <tr><td colspan="4" class="leer">Sie haben noch keine Dokumente hochgeladen.</td></tr> }
         </tbody></table></div>
       }

@@ -19,8 +19,11 @@ const KATEGORIEN: Record<string, string> = { VORSORGE: 'Vorsorge', BEWEGUNG: 'Be
   imports: [FormsModule, RouterLink, DateienComponent, StatusComponent, DatumPipe, EuroPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="seitenkopf"><div><h1>Bonusprogramm „VitaPlus aktiv“</h1><p class="leise">Gesund leben lohnt sich: 1 Punkt = 10 Cent, als Gesundheitsbudget sogar 20 % mehr.</p></div>
-      <a class="btn" routerLink="/vorsorge">Vorsorgekalender & Ziele</a></div>
+    <section class="seitenbuehne">
+      <div><h1>Bonusprogramm „VitaPlus aktiv“</h1><p>Gesund leben lohnt sich: 1 Punkt = 10 Cent, als Gesundheitsbudget sogar 20 % mehr.</p>
+        <div class="aktionen"><a class="btn" routerLink="/vorsorge">Vorsorgekalender & Ziele</a></div></div>
+      <img src="bilder/bonus-pokal.svg" alt="" width="300" height="220" style="width:200px" />
+    </section>
 
     @if (!sitzung.benutzer()?.bonusTeilnahmeSeit) {
       <section class="karte hervor">

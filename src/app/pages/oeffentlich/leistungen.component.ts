@@ -7,6 +7,7 @@ import { Leistung } from '../../core/inhalte/leistungen';
 import { Api } from '../../core/services/api.service';
 import { fehlertext } from '../../core/services/auth.interceptor';
 import { SitzungService } from '../../core/services/sitzung.service';
+import { SymbolComponent } from '../../shared/symbol.component';
 
 type LeistungMitAnspruch = Leistung & { meinAnspruch: string | null };
 
@@ -17,16 +18,20 @@ const BEREICHE: Record<string, string> = {
 
 @Component({
   selector: 'vp-leistungen',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="seitenkopf"><div><h1>Leistungen A–Z</h1><p class="leise">Was die VitaPlus für Sie übernimmt</p></div>
-      <a class="btn primaer" routerLink="/leistungen/finder">Leistungsfinder starten</a></div>
+    <section class="seitenbuehne">
+      <div><h1>Leistungen A–Z</h1><p>Was die VitaPlus für Sie übernimmt – von der Vorsorge über Zahnersatz bis zur Pflege. Wählen Sie eine Lebenslage oder suchen Sie gezielt.</p>
+        <div class="aktionen"><a class="btn primaer" routerLink="/leistungen/finder"><vp-symbol name="sparkles" [groesse]="18" /> Leistungsfinder starten</a></div></div>
+      <img src="bilder/hero-familie.svg" alt="" width="600" height="420" />
+    </section>
     <h2>Nach Lebenslage</h2>
-    <div class="raster">
+    <div class="kachelraster">
       @for (l of lebenslagen; track l.code) {
-        <button type="button" class="kachel" [class.aktiv-kachel]="lage() === l.code" (click)="lage.set(lage() === l.code ? '' : l.code)">
-          <span class="titel">{{ l.titel }}</span><br /><span class="klein leise">{{ l.beschreibung }}</span></button>
+        <button type="button" class="symbolkachel lebenslage" [class.aktiv-kachel]="lage() === l.code" [attr.aria-pressed]="lage() === l.code" (click)="lage.set(lage() === l.code ? '' : l.code)">
+          <span class="kachel-symbol" [style.--ton]="l.ton"><vp-symbol [name]="l.symbol" [groesse]="24" /></span>
+          <span class="kachel-titel">{{ l.titel }}</span><span class="kachel-text">{{ l.beschreibung }}</span></button>
       }
     </div>
     <div class="filterleiste mt">
@@ -45,7 +50,7 @@ const BEREICHE: Record<string, string> = {
         }
       </div>
     } @empty { <p class="leer">Keine Leistungen gefunden.</p> }`,
-  styles: [`button.kachel{text-align:left;font:inherit;cursor:pointer}.aktiv-kachel{border-color:var(--vp-primaer);background:var(--vp-primaer-hell)}`],
+  styles: [`button.kachel,button.symbolkachel{text-align:left;font:inherit;cursor:pointer}.aktiv-kachel{border-color:var(--vp-primaer);background:var(--vp-primaer-hell);box-shadow:inset 0 0 0 1px var(--vp-primaer)}`],
 })
 export class LeistungenComponent implements OnInit {
   private api = inject(Api);

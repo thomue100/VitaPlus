@@ -6,24 +6,25 @@ import { fehlertext } from '../../core/services/auth.interceptor';
 import { SitzungService } from '../../core/services/sitzung.service';
 import { UiService } from '../../core/services/ui.service';
 import { SterneComponent } from '../../shared/bausteine';
+import { SymbolComponent } from '../../shared/symbol.component';
 
 @Component({
   selector: 'vp-kontakt',
-  imports: [RouterLink, FormsModule, SterneComponent],
+  imports: [RouterLink, FormsModule, SterneComponent, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Kontakt</h1><p class="leise">Wir sind für Sie da – auf dem Weg, der Ihnen am liebsten ist.</p></div></div>
     @if (k(); as k) {
       <div class="raster-3">
-        <div class="karte"><h2>📞 Telefon</h2><p class="kennzahl">{{ k.telefon.nummer }}</p>
+        <div class="karte"><h2 class="mit-symbol"><vp-symbol name="phone" [groesse]="22" /> Telefon</h2><p class="kennzahl">{{ k.telefon.nummer }}</p>
           <p>{{ k.telefon.zeiten }} – kostenfrei</p>
           <span class="badge" [class.gruen]="k.telefon.offen" [class.rot]="!k.telefon.offen">{{ k.telefon.offen ? 'Jetzt erreichbar' : 'Derzeit geschlossen' }}</span>
           <p class="mt klein">Aus dem Ausland: {{ k.ausland }}</p>
           <p class="klein"><strong>{{ k.notfall.text }}:</strong> {{ k.notfall.nummer }}</p></div>
-        <div class="karte"><h2>✉️ Nachricht</h2><p>Schreiben Sie uns sicher über Ihr Postfach – mit Anhängen und Eingangsbestätigung.</p>
+        <div class="karte"><h2 class="mit-symbol"><vp-symbol name="mail" [groesse]="22" /> Nachricht</h2><p>Schreiben Sie uns sicher über Ihr Postfach – mit Anhängen und Eingangsbestätigung.</p>
           <a class="btn primaer" [routerLink]="sitzung.angemeldet() ? '/postfach/neu' : '/anmelden'">Nachricht schreiben</a>
           <p class="mt klein">Chat: {{ k.chat.zeiten }} <span class="badge" [class.gruen]="k.chat.offen">{{ k.chat.offen ? 'online' : 'offline' }}</span></p></div>
-        <div class="karte"><h2>📅 Persönlich</h2><p>Beratung in der Filiale, am Telefon oder per Video – zu Ihrem Wunschtermin.</p>
+        <div class="karte"><h2 class="mit-symbol"><vp-symbol name="calendar-check" [groesse]="22" /> Persönlich</h2><p>Beratung in der Filiale, am Telefon oder per Video – zu Ihrem Wunschtermin.</p>
           <div class="aktionen"><a class="btn" [routerLink]="sitzung.angemeldet() ? '/termine' : '/anmelden'">Termin buchen</a>
             <a class="btn" [routerLink]="sitzung.angemeldet() ? '/antraege/neu/RUECKRUF' : '/anmelden'">Rückruf anfordern</a></div></div>
       </div>
