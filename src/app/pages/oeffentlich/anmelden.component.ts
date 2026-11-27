@@ -24,6 +24,7 @@ import { laufzeit } from '../../core/laufzeit';
           <li><vp-symbol name="mail" [groesse]="20" />Bescheide und Nachrichten sicher im Postfach empfangen</li>
           <li><vp-symbol name="map-pin" [groesse]="20" />Anschrift und Bankverbindung selbst ändern</li>
         </ul>
+        <img class="buehne-bild" src="bilder/hero-familie.svg" alt="" width="600" height="420" />
       </section>
 
       <section class="karte anmelde-karte" aria-labelledby="anmelden-titel">
@@ -109,6 +110,7 @@ import { laufzeit } from '../../core/laufzeit';
     .vorteile { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .5rem; }
     .vorteile li { display: flex; align-items: flex-start; gap: .65rem; max-width: 52ch; }
     .vorteile vp-symbol { color: var(--vp-primaer); flex-shrink: 0; margin-top: .15rem; }
+    .buehne-bild { width: 100%; max-width: 560px; height: auto; display: block; margin-top: 1.5rem; }
     .anmelde-karte { padding: 1.75rem; border-top: 4px solid var(--vp-primaer); position: sticky; top: 5.5rem; }
     .anmelde-karte h2 { margin-top: 0; font-size: 1.5rem; }
     .eingabe-mit-symbol { position: relative; flex: 1; display: flex; }

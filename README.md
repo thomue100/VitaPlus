@@ -137,6 +137,6 @@ Die Datei `vercel.json` enthält Build-Befehl, Ausgabeverzeichnis (`dist/vitaplu
 
 ## Bildnachweis
 
-- Illustrationen für leere Seiten (`public/bilder/`), Logo und Kartendarstellung: eigene Gestaltung für dieses Projekt.
+- Illustrationen (`public/bilder/`), Logo und Kartendarstellung: eigene Gestaltung für dieses Projekt.
 - Symbole: [Lucide](https://lucide.dev), ISC-Lizenz (Pfade eingebettet in `src/app/shared/symbole.ts`).
 - Schrift: Fira Sans von Erik Spiekermann (SIL Open Font License) über `@fontsource/fira-sans`.
