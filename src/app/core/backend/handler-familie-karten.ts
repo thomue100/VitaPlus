@@ -1,7 +1,7 @@
 import { BEITRAG } from '../konfiguration';
 import { Familienmitglied, Gesundheitskarte } from '../models';
 import { addMonate, alterAm, heute, heuteIso, jetztIso, parseIso } from '../util/datum';
-import { Anfrage, ApiFehler, anrede, pflicht, postfachNachricht, Route, statusSetzen, voller } from './api-kontext';
+import { Anfrage, ApiFehler, anrede, pflicht, postfachNachricht, Route, statusSetzen, voller, eingangErfassen } from './api-kontext';
 import { neueId, neueVorgangsnummer } from './db';
 import { anhaengePruefen } from './handler-vorgaenge';
 
@@ -80,7 +80,7 @@ function familieAnmelden(a: Anfrage) {
   statusSetzen(v as any, 'EINGEREICHT', 'Anmeldung zur Familienversicherung eingereicht', voller(b));
   f.vorgangId = v.id;
   a.store.familie.push(f);
-  a.store.vorgaenge.push(v as any);
+  eingangErfassen(a.store, v as any);
   return { familienmitglied: f, vorgang: v };
 }
 
@@ -178,7 +178,7 @@ function ersatzBestellen(a: Anfrage) {
   };
   (v.daten as any).neueKarteId = neu.id;
   a.store.karten.push(neu);
-  a.store.vorgaenge.push(v as any);
+  eingangErfassen(a.store, v as any);
   if (gebuehr) {
     postfachNachricht(b.id, 'Gebühr für Ersatzkarte',
       `${anrede(b)},\n\nda dies bereits die zweite Ersatzkarte wegen Verlust in diesem Jahr ist, berechnen wir eine Gebühr von ${gebuehr},00 €.\n\nIhre VitaPlus`,

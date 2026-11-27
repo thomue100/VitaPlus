@@ -1,8 +1,8 @@
 import { MAX_LOGIN_FEHLVERSUCHE, SESSION_TIMEOUT_MINUTEN } from '../konfiguration';
 import { Benutzer } from '../models';
-import { addTage, jetztIso } from '../util/datum';
+import { addTage, heuteIso, jetztIso } from '../util/datum';
 import { enthaeltPersoenlicheDaten, istPasswortRegelkonform, istVersichertennummerFormal } from '../util/pruefungen';
-import { Anfrage, ApiFehler, ohnePasswort, pflicht, postfachNachricht, Route } from './api-kontext';
+import { Anfrage, ApiFehler, ohnePasswort, pflicht, postfachNachricht, Route, versenden } from './api-kontext';
 import { geraetBeschreibung, neueId, sitzungen } from './db';
 import { benachrichtigen, protokollieren } from './fachlogik';
 import { mitStandard } from './seed-erweiterung';
@@ -48,6 +48,7 @@ function login(a: Anfrage) {
   b.fehlversuche = 0;
   if (b.zweiFaktorAktiv) {
     const s = sitzungen.erstellen(b.id, true, 5);
+    smsCodeSenden(b);
     return { zweiFaktorErforderlich: true, token: s.token, ziel: maskiereNummer(b.mobil || b.telefon) || 'Ihre hinterlegte Rufnummer' };
   }
   return anmeldungAbschliessen(b);
@@ -106,9 +107,15 @@ function externeIdentitaet(a: Anfrage) {
   return anmeldungAbschliessen(b, verfahren === 'EID' ? 'Online-Ausweis' : 'GesundheitsID');
 }
 
+function smsCodeSenden(b: Benutzer) {
+  versenden('SMS', b.mobil || b.telefon || 'unbekannt', 'VitaPlus Sicherheitscode',
+    `Ihr VitaPlus-Sicherheitscode lautet ${b.zweiFaktorCode}. Er ist 5 Minuten gültig. Geben Sie ihn niemals am Telefon weiter.`);
+}
+
 function codeErneutSenden(a: Anfrage) {
   const s = sitzungen.finden(a.body?.token);
   if (!s || !s.vorlaeufig) throw new ApiFehler(401, 'Die Sitzung ist abgelaufen.', undefined, 'SITZUNG_ABGELAUFEN');
+  smsCodeSenden(a.store.benutzer.find(x => x.id === s.benutzerId)!);
   return { gesendet: true };
 }
 
@@ -134,7 +141,7 @@ function registrierungPruefen(a: Anfrage) {
   if (st.registriert || a.store.benutzer.some(b => b.versichertennummer === nr)) {
     throw new ApiFehler(409, 'Für diese Versichertennummer besteht bereits ein Online-Zugang.', undefined, 'BEREITS_REGISTRIERT');
   }
-  return { vorname: st.vorname, nachname: st.nachname, ort: st.adresse.ort };
+  return { vorname: st.vorname, nachname: st.nachname, ort: st.adresse.ort, email: st.email };
 }
 
 function registrieren(a: Anfrage) {
@@ -157,8 +164,9 @@ function registrieren(a: Anfrage) {
   st.registriert = true;
   const b: Benutzer = mitStandard({
     id: neueId('u'), rolle: 'VERSICHERTER', email: String(email).trim(), passwort, versichertennummer: nr,
-    anrede: 'DIVERS', vorname: st.vorname, nachname: st.nachname, geburtsdatum: st.geburtsdatum, mobil,
-    adresse: { ...st.adresse }, tarif: st.tarif, beschaeftigung: st.beschaeftigung, mitgliedSeit: '2020-01-01',
+    anrede: st.anrede || 'DIVERS', vorname: st.vorname, nachname: st.nachname, geburtsdatum: st.geburtsdatum, mobil, telefon: st.telefon,
+    adresse: { ...st.adresse }, tarif: st.tarif, beschaeftigung: st.beschaeftigung, mitgliedSeit: st.mitgliedSeit || '2020-01-01',
+    arbeitgeber: st.arbeitgeber, bruttoMonat: st.bruttoMonat,
     zweiFaktorAktiv: false, zweiFaktorCode: String(100000 + Math.floor(Math.random() * 899999)), gesperrt: false, fehlversuche: 0,
     kommunikation: { email: true, post: false, sms: false, newsletter: false, erinnerungVorsorge: true },
     schriftgroesse: 'NORMAL', kinderAnzahl: 0, versicherungsart: st.beschaeftigung === 'STUDENT' ? 'STUDENT' : 'PFLICHT',
@@ -168,9 +176,24 @@ function registrieren(a: Anfrage) {
     id: neueId('k'), benutzerId: b.id, inhaber: `${b.vorname} ${b.nachname}`,
     kartennummer: '80276 ' + nr.substring(1, 6) + ' ' + nr.substring(6) + '0 0', gueltigBis: '2030-12-31', status: 'AKTIV', fotoVorhanden: true,
   });
+  (st.familie || []).forEach((f, i) => {
+    const id = neueId('f');
+    a.store.familie.push({ id, hauptversicherterId: b.id, vorname: f.vorname, nachname: f.nachname, geburtsdatum: f.geburtsdatum, geschlecht: 'D',
+      beziehung: f.beziehung, status: 'AKTIV', einkommenMonat: 0, inAusbildung: false, anderweitigVersichert: false, beantragtAm: st.mitgliedSeit || heuteIso(),
+      versichertennummer: f.versichertennummer });
+    a.store.karten.push({ id: 'k' + id, benutzerId: b.id, familienmitgliedId: id, inhaber: `${f.vorname} ${f.nachname}`,
+      kartennummer: `80276 ${f.versichertennummer.substring(1, 6)} ${f.versichertennummer.substring(6)}0 ${i + 1}`, gueltigBis: '2030-12-31', status: 'VERSENDET', fotoVorhanden: false });
+  });
+  if (['FRAU', 'HERR'].includes(st.anrede || '')) b.anrede = st.anrede!;
   if (identifizierung === 'POST') {
     b.konto = 'NICHT_AKTIVIERT';
     b.aktivierungscode = 'VP' + String(Math.floor(Math.random() * 90 + 10)) + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+    versenden('BRIEF', `${b.vorname} ${b.nachname}, ${b.adresse.strasse} ${b.adresse.hausnummer}, ${b.adresse.plz} ${b.adresse.ort}`.replace(/\s+,/g, ','), 'Ihr Aktivierungscode für die Online-Geschäftsstelle',
+      `Guten Tag ${b.vorname} ${b.nachname},\n\nSie haben einen Zugang zur Online-Geschäftsstelle eingerichtet. Ihr persönlicher Aktivierungscode lautet:\n\n${b.aktivierungscode}\n\nGeben Sie den Code zusammen mit Ihrer Versichertennummer ${b.versichertennummer} unter „Aktivierungscode eingeben“ ein.\n\nIhre VitaPlus`,
+      { text: 'Zugang aktivieren', ziel: `/aktivieren?nr=${b.versichertennummer}` });
+  } else {
+    versenden('EMAIL', b.email, 'Willkommen in der Online-Geschäftsstelle', `Guten Tag ${b.vorname} ${b.nachname},\n\nIhr Online-Zugang ist eingerichtet. Sie können sich ab sofort mit Ihrer E-Mail-Adresse anmelden.\n\nIhre VitaPlus`,
+      { text: 'Jetzt anmelden', ziel: '/anmelden' });
   }
   protokollieren({ benutzerId: b.id, akteurId: b.id, ereignis: 'REGISTRIERUNG', details: `Online-Zugang eingerichtet (Identifizierung: ${identifizierung})` });
   postfachNachricht(b.id, 'Willkommen in der Online-Geschäftsstelle',
@@ -201,6 +224,8 @@ function passwortVergessen(a: Anfrage) {
     a.store.passwortResetTokens = a.store.passwortResetTokens.filter(t => t.benutzerId !== b.id);
     a.store.passwortResetTokens.push({ token, benutzerId: b.id, gueltigBis: addTage(new Date(), 1).toISOString() });
     link = `/passwort-neu?token=${token}`;
+    versenden('EMAIL', b.email, 'Passwort zurücksetzen', `Guten Tag ${b.vorname} ${b.nachname},\n\nüber die Online-Geschäftsstelle wurde ein neues Passwort angefordert. Der Link ist 24 Stunden gültig. Falls Sie das nicht waren, ignorieren Sie diese E-Mail.\n\nIhre VitaPlus`,
+      { text: 'Neues Passwort festlegen', ziel: link });
   }
   // Aus Sicherheitsgründen immer dieselbe Antwort; der Link wird nur in der Entwicklungsumgebung mitgeliefert.
   return { meldung: 'Falls die Angaben zu einem Zugang passen, haben wir Ihnen eine E-Mail mit einem Link gesendet.', entwicklerLink: link };
@@ -233,7 +258,19 @@ function passwortZuruecksetzen(a: Anfrage) {
   return { ok: true };
 }
 
+/** Postausgang der Demo-Umgebung: zeigt, was über E-Mail-, SMS- und Brief-Gateway versendet wurde. */
+function postausgang(a: Anfrage) {
+  return (a.store.postausgang || []).slice(0, 40);
+}
+
+function postausgangGelesen(a: Anfrage) {
+  (a.store.postausgang || []).forEach(n => (n.gelesen = true));
+  return { ok: true };
+}
+
 export const AUTH_ROUTEN: Route[] = [
+  { methode: 'GET', muster: '/api/demo/postausgang', handler: postausgang, oeffentlich: true },
+  { methode: 'POST', muster: '/api/demo/postausgang/gelesen', handler: postausgangGelesen, oeffentlich: true },
   { methode: 'POST', muster: '/api/auth/login', handler: login, oeffentlich: true },
   { methode: 'POST', muster: '/api/auth/zwei-faktor', handler: zweiFaktor, oeffentlich: true },
   { methode: 'POST', muster: '/api/auth/extern', handler: externeIdentitaet, oeffentlich: true },

@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal, viewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
-import { formular } from '../../core/formulare/formular-katalog';
-import { FormularDef } from '../../core/formulare/formular-typen';
 import { Anhang } from '../../core/models';
 import { HatUngespeicherteAenderungen } from '../../core/services/guards';
+import { fehlertext } from '../../core/services/auth.interceptor';
+import { FormularApi, FormularDefinition } from '../../core/services/formular-api.service';
 import { VorgangApi } from '../../core/services/vorgang-api.service';
 import { FormularRendererComponent } from '../../shared/formular-renderer.component';
 
@@ -17,7 +17,7 @@ import { FormularRendererComponent } from '../../shared/formular-renderer.compon
     @if (def(); as d) {
       <div class="seitenkopf"><div><h1>{{ d.titel }}</h1>
         <p class="leise">Zuständig: Team {{ d.zustaendig }} · Bearbeitungsdauer in der Regel bis zu {{ d.bearbeitungTage }} Tage</p></div></div>
-      @if (bereit()) { <vp-formular [def]="d" [startdaten]="daten()" [startAnhaenge]="anhaenge()" [entwurfId]="id()" (fertig)="fertig($event)" /> }
+      <vp-formular [definition]="d" [startdaten]="daten()" [startAnhaenge]="anhaenge()" [entwurfId]="id()" (fertig)="fertig($event)" />
     } @else if (fehler()) { <div class="hinweis fehler">{{ fehler() }}</div> }`,
 })
 export class AntragComponent implements OnInit, HatUngespeicherteAenderungen {
@@ -26,10 +26,10 @@ export class AntragComponent implements OnInit, HatUngespeicherteAenderungen {
   private title = inject(Title);
   readonly code = input<string>();
   readonly id = input<string>();
-  readonly def = signal<FormularDef | undefined>(undefined);
+  private formularApi = inject(FormularApi);
+  readonly def = signal<FormularDefinition | undefined>(undefined);
   readonly daten = signal<Record<string, any>>({});
   readonly anhaenge = signal<Anhang[]>([]);
-  readonly bereit = signal(false);
   readonly fehler = signal<string | null>(null);
   private renderer = viewChild(FormularRendererComponent);
 
@@ -50,14 +50,13 @@ export class AntragComponent implements OnInit, HatUngespeicherteAenderungen {
         return;
       }
     }
-    const d = formular(code || '');
-    if (!d || d.oeffentlich && d.code !== 'TODESFALL') {
-      this.fehler.set('Dieser Antrag ist nicht verfügbar.');
-      return;
+    try {
+      const d = await this.formularApi.definition(code || '');
+      this.def.set(d);
+      this.title.setTitle(`${d.kurz} – VitaPlus`);
+    } catch (e) {
+      this.fehler.set(fehlertext(e));
     }
-    this.def.set(d);
-    this.title.setTitle(`${d.kurz} – VitaPlus`);
-    this.bereit.set(true);
   }
 
   fertig(r: any) {

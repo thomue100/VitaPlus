@@ -1,0 +1,89 @@
+@if (ergebnis(); as e) {
+  <section class="karte bestaetigung" role="status" aria-live="polite">
+    <div class="bestaetigung-kopf">
+      <span class="bestaetigung-symbol" [class.erledigt]="e.status === 'GENEHMIGT'"><vp-symbol name="circle-check" [groesse]="34" /></span>
+      <div>
+        <h2>{{ e.status === 'GENEHMIGT' ? 'Erledigt – Ihr Anliegen wurde direkt bearbeitet' : 'Vielen Dank – Ihre Angaben sind bei uns eingegangen' }}</h2>
+        <p class="leise">Vorgangsnummer <strong class="vorgangsnummer">{{ e.vorgangsnummer }}</strong> · {{ definition().titel }}</p>
+      </div>
+    </div>
+
+    <h3>So geht es weiter</h3>
+    <ol class="ablauf">
+      <li class="erledigt"><span class="punkt"></span><div><strong>Eingang bestätigt</strong><span class="leise">Ihre Angaben wurden sicher übermittelt.</span></div></li>
+      <li [class.erledigt]="e.status === 'GENEHMIGT'" [class.aktiv]="e.status !== 'GENEHMIGT'"><span class="punkt"></span>
+        <div><strong>Prüfung durch das Team {{ definition().zustaendig }}</strong>
+          <span class="leise">In der Regel innerhalb von {{ definition().bearbeitungTage }} {{ definition().bearbeitungTage === 1 ? 'Tag' : 'Tagen' }}. Bei Rückfragen melden wir uns.</span></div></li>
+      <li [class.erledigt]="e.status === 'GENEHMIGT'"><span class="punkt"></span>
+        <div><strong>{{ oeffentlich() ? 'Antwort per E-Mail' : 'Bescheid in Ihrem Postfach' }}</strong>
+          <span class="leise">{{ oeffentlich() ? 'Wir schreiben Ihnen an ' + (e.kontakt || 'Ihre E-Mail-Adresse') + '.' : 'Sie erhalten eine Benachrichtigung, sobald die Entscheidung vorliegt.' }}</span></div></li>
+    </ol>
+
+    @for (h of e.hinweise || []; track h) { <div class="hinweis info">{{ h }}</div> }
+    @if (oeffentlich() && definition().code === 'MITGLIEDSANTRAG') {
+      <div class="hinweis info">Sobald wir Ihren Antrag angenommen haben, erhalten Sie Ihre Versichertennummer per E-Mail. Damit können Sie sich anschließend für die Online-Geschäftsstelle registrieren.</div>
+    }
+
+    <div class="aktionen">
+      @if (e.id && !oeffentlich()) { <a class="btn primaer" [routerLink]="['/vorgaenge', e.id]">Vorgang verfolgen</a> }
+      <button type="button" class="btn" (click)="eingangsbestaetigungHerunterladen()"><vp-symbol name="download" [groesse]="18" /> Eingangsbestätigung (PDF)</button>
+      @if (!oeffentlich()) { <a class="btn link" routerLink="/antraege">Weitere Anträge</a> }
+      @else { <a class="btn link" routerLink="/anmelden">Zur Anmeldung</a> }
+    </div>
+  </section>
+} @else {
+  <nav class="schrittleiste" aria-label="Fortschritt">
+    <div class="balken" role="progressbar" [attr.aria-valuenow]="fortschritt()" aria-valuemin="0" aria-valuemax="100"><span [style.width.%]="fortschritt()"></span></div>
+    <ol class="schritte">
+      @for (s of definition().schritte; track s.titel; let i = $index) {
+        <li [class.aktiv]="i === schritt()" [class.erledigt]="i < schritt()" [attr.aria-current]="i === schritt() ? 'step' : null">
+          @if (i <= freigegeben() && i !== schritt()) { <button type="button" class="btn link" (click)="gehe(i)">{{ s.titel }}</button> }
+          @else { <span>{{ s.titel }}</span> }
+        </li>
+      }
+      <li [class.aktiv]="zusammenfassung()" [attr.aria-current]="zusammenfassung() ? 'step' : null"><span>Prüfen &amp; Absenden</span></li>
+    </ol>
+    <p class="leise klein schritt-text">Schritt {{ Math.min(schritt() + 1, anzahl() + 1) }} von {{ anzahl() + 1 }}</p>
+  </nav>
+
+  @if (definition().hinweis && schritt() === 0) { <div class="hinweis info">{{ definition().hinweis }}</div> }
+
+  <form class="karte formular" (ngSubmit)="weiter()" novalidate>
+    @if (!zusammenfassung()) {
+      <h2>{{ kategorie().label }}</h2>
+      @if (kategorie().options?.['beschreibung']; as b) { <p class="leise">{{ b }}</p> }
+      @for (s of [schritt()]; track s) {
+        <jsonforms [schema]="definition().schema" [uischema]="schrittUi()" [data]="schrittDaten()" [renderers]="renderer" [ajv]="ajv" [i18n]="i18n"
+          [config]="konfig()" [additionalErrors]="zusatzFehler()" validationMode="ValidateAndShow"
+          (dataChange)="datenGeaendert($event)" (errors)="schemaFehlerGemeldet($event)" />
+      }
+    } @else {
+      <h2>Bitte prüfen Sie Ihre Angaben</h2>
+      @for (b of zusammenfassungsBloecke(); track b.index) {
+        <section class="pruefblock">
+          <div class="zeile"><h3>{{ b.titel }}</h3><button type="button" class="btn link klein" (click)="gehe(b.index)">Ändern</button></div>
+          @if (b.zeilen.length) {
+            <dl class="daten">@for (z of b.zeilen; track z.label) { <dt>{{ z.label }}</dt><dd>{{ z.wert }}</dd> }</dl>
+          } @else { <p class="leise klein">Keine Angaben</p> }
+        </section>
+      }
+      @if (voraussichtlich()) { <div class="hinweis info">Voraussichtliche Leistung nach Ihren Angaben: <strong>{{ voraussichtlich()!.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) }}</strong></div> }
+      @for (h of hinweise(); track h) { <div class="hinweis warnung">{{ h }}</div> }
+      @if (definition().einwilligung) {
+        <label class="auswahl mt"><input type="checkbox" name="einwilligung" [(ngModel)]="einwilligung" /> <span class="pflicht">{{ definition().einwilligung }}</span></label>
+        @if (versucht() && !einwilligung) { <span class="feldfehler" role="alert">Bitte bestätigen Sie die Erklärung.</span> }
+      }
+      <label class="auswahl mt"><input type="checkbox" name="richtigkeit" [(ngModel)]="richtigkeit" /> <span class="pflicht">Ich versichere, dass meine Angaben vollständig und richtig sind.</span></label>
+      @if (versucht() && !richtigkeit) { <span class="feldfehler" role="alert">Bitte bestätigen Sie die Richtigkeit Ihrer Angaben.</span> }
+    }
+    @if (serverFehler()) { <div class="hinweis fehler" role="alert">{{ serverFehler() }}</div> }
+    <div class="aktionen">
+      @if (schritt() > 0) { <button type="button" class="btn" (click)="zurueck()"><vp-symbol name="chevron-right" [groesse]="16" class="gespiegelt" /> Zurück</button> }
+      <button type="submit" class="btn primaer" [disabled]="sendet() || prueft()">
+        @if (zusammenfassung()) { {{ sendet() ? 'Wird gesendet …' : 'Verbindlich absenden' }} }
+        @else { {{ prueft() ? 'Wird geprüft …' : (schritt() === anzahl() - 1 ? 'Weiter zur Übersicht' : 'Weiter') }} <vp-symbol name="chevron-right" [groesse]="16" /> }
+      </button>
+      @if (definition().entwurfErlaubt && !oeffentlich()) { <button type="button" class="btn link" (click)="entwurfSpeichern()" [disabled]="sendet()">Entwurf speichern und später fortsetzen</button> }
+    </div>
+  </form>
+}

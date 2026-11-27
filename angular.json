@@ -54,6 +54,11 @@
             "styles": [
               "@fontsource-variable/source-sans-3/index.css",
               "src/styles.scss"
+            ],
+            "allowedCommonJsDependencies": [
+              "lodash",
+              "ajv",
+              "ajv-formats"
             ]
           },
           "configurations": {

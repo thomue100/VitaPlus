@@ -201,7 +201,7 @@ dl.daten dd { margin: 0; font-weight: 500; }
 .dialog h2 { margin-top: 0; }
 
 /* Toasts */
-.toasts { position: fixed; right: 1rem; bottom: 4.5rem; display: flex; flex-direction: column; gap: .5rem; z-index: 950; max-width: 420px; }
+.toasts { position: fixed; right: 1rem; bottom: 7.75rem; display: flex; flex-direction: column; gap: .5rem; z-index: 950; max-width: 420px; }
 .toast { padding: .8rem 1rem; border-radius: 8px; color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,.2); display: flex; gap: .75rem; align-items: flex-start; }
 .toast.erfolg { background: var(--vp-erfolg); }
 .toast.fehler { background: var(--vp-fehler); }
@@ -244,7 +244,7 @@ details.faq { border-bottom: 1px solid var(--vp-rand); padding: .75rem 0; }
 details.faq summary { cursor: pointer; font-weight: 600; }
 
 @media print {
-  .vp-kopf, .vp-navigation, .vp-fuss, .aktionen, .toasts, vp-chat, .reiter, .filterleiste { display: none !important; }
+  .vp-kopf, .vp-navigation, .vp-fuss, .aktionen, .toasts, vp-chat, vp-postausgang, .reiter, .filterleiste { display: none !important; }
   body { background: #fff; }
   .karte { box-shadow: none; border: none; }
 }
@@ -260,3 +260,45 @@ h2.mit-symbol vp-symbol, h3.mit-symbol vp-symbol { color: var(--vp-primaer); }
 .versandschritt.erledigt { color: var(--vp-erfolg); }
 .kartenraster { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 .kartenansicht vp-egk { margin: 0 auto; }
+
+/* JSON Forms */
+jsonforms-outlet { display: none; }
+jsonforms { display: block; }
+.feld .optionen { display: flex; flex-direction: column; gap: .4rem; margin-top: .35rem; }
+.feld legend { font-weight: 600; font-size: .95rem; margin-bottom: .2rem; padding: 0; }
+.feld legend.pflicht::after { content: ' *'; color: var(--vp-fehler); }
+.feld .zaehler { align-self: flex-end; }
+.eingabe-einheit { position: relative; display: flex; }
+.eingabe-einheit input { flex: 1; padding-right: 2rem; }
+.eingabe-einheit .einheit { position: absolute; right: .8rem; top: 50%; transform: translateY(-50%); color: var(--vp-text-leise); }
+fieldset.liste { display: flex; flex-direction: column; gap: .75rem; }
+.listeneintrag { border: 1px solid var(--vp-rand); border-radius: var(--vp-radius); padding: .9rem 1rem 1rem; background: #fafcfc; }
+.listeneintrag > .zeile { margin-bottom: .6rem; }
+.listeneintrag .feldgruppe { gap: .75rem 1rem; }
+fieldset.liste > .btn { align-self: flex-start; }
+
+/* Schritt-Assistent */
+.schrittleiste { margin-bottom: 1.25rem; }
+.schrittleiste .balken { height: 6px; border-radius: 3px; background: #e3ecec; overflow: hidden; margin-bottom: .75rem; }
+.schrittleiste .balken span { display: block; height: 100%; background: linear-gradient(90deg, var(--vp-primaer), #2fb3a0); transition: width .3s ease; }
+.schrittleiste .schritte { margin-bottom: .25rem; }
+.schrittleiste .schritte li .btn.link { padding: 0; font-size: inherit; font-weight: inherit; color: var(--vp-primaer); }
+.schritt-text { margin: 0; }
+.gespiegelt { transform: scaleX(-1); }
+.pruefblock { border-top: 1px solid var(--vp-rand); padding-top: .75rem; margin-top: .75rem; }
+.pruefblock h3 { margin: 0 0 .5rem; font-size: 1.05rem; }
+.bestaetigung { padding: 1.75rem; }
+.bestaetigung-kopf { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; }
+.bestaetigung-kopf h2 { margin: 0 0 .25rem; }
+.bestaetigung-symbol { width: 3.5rem; height: 3.5rem; border-radius: 50%; background: var(--vp-primaer-hell); color: var(--vp-primaer); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.vorgangsnummer { font-family: ui-monospace, Menlo, monospace; letter-spacing: .03em; color: var(--vp-text); }
+.ablauf { list-style: none; padding: 0; margin: .5rem 0 1.25rem; display: flex; flex-direction: column; gap: 0; }
+.ablauf li { display: flex; gap: .85rem; position: relative; padding-bottom: 1rem; }
+.ablauf li:not(:last-child)::after { content: ''; position: absolute; left: .55rem; top: 1.3rem; bottom: 0; width: 2px; background: var(--vp-rand); }
+.ablauf li > div { display: flex; flex-direction: column; }
+.ablauf .punkt { width: 1.15rem; height: 1.15rem; border-radius: 50%; border: 2px solid #b9cfcc; background: #fff; flex-shrink: 0; margin-top: .15rem; }
+.ablauf li.erledigt .punkt { background: var(--vp-primaer); border-color: var(--vp-primaer); }
+.ablauf li.aktiv .punkt { border-color: var(--vp-primaer); box-shadow: 0 0 0 4px rgba(11, 110, 105, .15); }
+.vorteile-kurz { list-style: none; padding: 0; margin: .75rem 0 0; display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; font-weight: 600; }
+.vorteile-kurz li { display: inline-flex; align-items: center; gap: .35rem; }
+.vorteile-kurz vp-symbol { color: var(--vp-primaer); }

@@ -104,6 +104,13 @@ export interface Stammdatensatz {
   beschaeftigung: Beschaeftigung;
   adresse: Adresse;
   registriert: boolean;
+  anrede?: Anrede;
+  email?: string;
+  telefon?: string;
+  mitgliedSeit?: string;
+  arbeitgeber?: string;
+  bruttoMonat?: number;
+  familie?: { vorname: string; nachname: string; geburtsdatum: string; beziehung: Beziehung; versichertennummer: string }[];
 }
 
 export type Beziehung = 'EHEPARTNER' | 'LEBENSPARTNER' | 'KIND' | 'STIEFKIND' | 'ENKELKIND';
@@ -192,6 +199,8 @@ export interface Vorgang {
   bezugVorgangId?: string;
   bescheidAm?: string;
   externKontakt?: { name: string; email: string };
+  /** Steuerung der maschinellen Weiterverarbeitung (Eingangszeitpunkt, Bearbeitungsspur) */
+  verarbeitung?: { eingang: number; spur: 'DUNKEL' | 'SACHBEARBEITUNG'; manuell?: boolean; rueckfrageGestellt?: boolean };
 }
 
 export type NachrichtKategorie =
@@ -334,7 +343,20 @@ export interface Store {
   system: { wartungsmodus: boolean; wartungstext: string; version: string };
   seitenaufrufe: { seite: string; zeitpunkt: string }[];
   passwortResetTokens: { token: string; benutzerId: string; gueltigBis: string }[];
+  /** Simulierter Versand über externe Kanäle (E-Mail-Gateway, SMS-Gateway, Druckstraße) */
+  postausgang: AusgehendeNachricht[];
   zaehler: number;
+}
+
+export interface AusgehendeNachricht {
+  id: string;
+  kanal: 'EMAIL' | 'SMS' | 'BRIEF';
+  an: string;
+  betreff: string;
+  text: string;
+  zeitpunkt: string;
+  link?: { text: string; ziel: string };
+  gelesen?: boolean;
 }
 
 export interface Buchung {

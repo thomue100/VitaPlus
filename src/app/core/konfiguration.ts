@@ -269,6 +269,25 @@ export const SERVICEZEITEN = {
 
 export const BINDUNGSFRIST_MONATE = 12;
 export const RUECKFRAGE_FRIST_TAGE = 14;
+
+/**
+ * Maschinelle Weiterverarbeitung online eingegangener Anliegen (Sekunden nach Eingang bzw. letzter Statusänderung).
+ * DUNKEL: regelbasierte Entscheidung ohne Sachbearbeitung; SACHBEARBEITUNG: Zuweisung an das zuständige Team.
+ */
+export const VERARBEITUNG = {
+  aktiv: true,
+  dunkelEntscheidungNachSek: 45,
+  zuweisungNachSek: 40,
+  sachbearbeitungEntscheidungNachSek: 150,
+  nachNachreichungSek: 60,
+  auszahlungNachSek: 90,
+  /** Vorgangstypen, die ohne Sachbearbeitung regelbasiert entschieden werden */
+  dunkelTypen: ['KOSTENERSTATTUNG', 'FAHRKOSTEN', 'ZUZAHLUNGSBEFREIUNG', 'DIGA', 'DMP', 'FAMILIENSTAND', 'STAATSANGEHOERIGKEIT', 'ARBEITGEBERWECHSEL',
+    'BESCHAEFTIGUNGSENDE', 'AUSBILDUNG', 'STUDIUM', 'AUSLAND', 'EINKOMMEN', 'LEISTUNGSAUSKUNFT', 'DATENSCHUTZANFRAGE', 'RUECKRUF', 'MITGLIEDSANTRAG',
+    'PFLEGEHILFSMITTEL', 'ENTLASTUNGSBETRAG', 'ELTERNZEIT', 'KINDERKRANKENGELD', 'HAUSHALTSHILFE', 'KRANKENTRANSPORT', 'AKTENEINSICHT', 'BONUS_AUSZAHLUNG'],
+  /** Team → Sachbearbeiter-Kennung, an die das Team neue Vorgänge verteilt */
+  teamZuweisung: { 'Leistungen': 's1', 'Mitgliedschaft & Beiträge': 's3', 'Pflegekasse': 's4', 'Beschwerdemanagement': 's2', 'Widerspruchsstelle': 's2', 'Datenschutz': 's2', 'Kundenservice': 's1' } as Record<string, string>,
+};
 export const WIDERSPRUCHSFRIST_TAGE = 31;
 export const PAPIERKORB_AUFBEWAHRUNG_TAGE = 30;
 export const SAEUMNISZUSCHLAG_PROZENT = 1;

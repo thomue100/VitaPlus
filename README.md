@@ -25,6 +25,15 @@ einem HTTP-Interceptor lokal beantwortet. Die Daten liegen im `localStorage` des
 Sitzungen in `vp_sessions`). Zum Zurücksetzen auf den Auslieferungszustand diese Einträge in den Entwicklertools
 löschen und die Seite neu laden.
 
+- **Formular-Service:** Online-Anträge werden als JSON Schema und UI Schema ausgeliefert
+  (`GET /api/formulare/{code}/definition`) und im Frontend mit [JSON Forms](https://jsonforms.io) und einem eigenen
+  Renderer-Set (`src/app/shared/json-forms`) dargestellt. Jeder Schritt wird zusätzlich serverseitig vorgeprüft
+  (`POST /api/formulare/{code}/pruefung`).
+- **Weiterverarbeitung:** Eingegangene Anliegen durchlaufen eine Hintergrundverarbeitung (`core/backend/verarbeitung.ts`,
+  Steuerung über `VERARBEITUNG` in `core/konfiguration.ts`).
+- **Versand:** E-Mails, SMS und Briefe der Kasse landen in der Demo im Postausgang, erreichbar über „E-Mail & SMS (Demo)“
+  rechts unten in der Anwendung.
+
 ## Demo-Zugänge
 
 | Rolle | Kennung | Passwort | SMS-Code (2FA) |
@@ -40,7 +49,13 @@ löschen und die Seite neu laden.
 | Teamleitung | kai.brandt@vitaplus.de | Teamleitung1! | 864200 |
 | Administration | admin@vitaplus.de | Administration1! | 102938 |
 
+Die Zugänge können auf der Anmeldeseite unter „Testzugänge für die Demo“ per Klick übernommen werden.
+SMS-Codes stehen zusätzlich im Demo-Postausgang.
+
 Anmeldung mit GesundheitsID/Online-Ausweis (simuliert): Versichertennummer und eine beliebige 6-stellige PIN.
+
+Eigenes Konto: Über „Mitglied werden“ einen Antrag stellen. Nach der Annahme kommt die Mitgliedsbestätigung mit
+Versichertennummer per E-Mail (Demo-Postausgang); der Link darin führt zur Registrierung.
 
 Für die Registrierung vorgesehene Mitgliedschaften (noch ohne Online-Zugang):
 

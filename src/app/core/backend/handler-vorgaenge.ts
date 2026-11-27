@@ -5,7 +5,8 @@ import {
 import { Anhang, Benutzer, Store, Vorgang, VorgangStatus, VorgangTyp } from '../models';
 import { berechneErstattung, festzuschussProzent } from '../util/berechnungen';
 import { addMonate, addTage, alterAm, formatDatum, heute, heuteIso, istWochenende, jetztIso, parseIso, tageZwischen, toIso } from '../util/datum';
-import { Anfrage, ApiFehler, anrede, euro, pflicht, postfachNachricht, Route, statusSetzen, voller } from './api-kontext';
+import { zahllauf } from './verarbeitung';
+import { Anfrage, ApiFehler, anrede, euro, pflicht, postfachNachricht, Route, statusSetzen, voller, eingangErfassen } from './api-kontext';
 import { neueId, neueVorgangsnummer } from './db';
 
 const AUSZAHLUNGS_TYPEN = ['KOSTENERSTATTUNG', 'BONUS_AUSZAHLUNG', 'FAHRKOSTEN', 'VERHINDERUNGSPFLEGE', 'ENTLASTUNGSBETRAG', 'ZUZAHLUNGSBEFREIUNG', 'KUENSTLICHE_BEFRUCHTUNG'];
@@ -35,6 +36,8 @@ export function zeitgesteuerteUebergaenge(s: Store) {
   const jetzt = new Date();
   for (const v of s.vorgaenge) {
     if (AUSZAHLUNGS_TYPEN.includes(v.typ) && (v.status === 'GENEHMIGT' || v.status === 'TEILWEISE_GENEHMIGT') && (v.betragErstattet || 0) > 0) {
+      if (zahllauf(s, v)) continue;
+      if (v.verarbeitung) continue;
       const seit = (jetzt.getTime() - new Date(v.geaendertAm).getTime()) / 86400000;
       if (seit >= 2) statusSetzen(v, 'AUSGEZAHLT', `${euro(v.betragErstattet || 0)} überwiesen`, 'System');
     }
@@ -178,7 +181,7 @@ function kostenerstattung(a: Anfrage) {
       `${anrede(b)},\n\nwir haben Ihren Antrag auf Kostenerstattung (${regel.bezeichnung}, ${euro(betrag)}) erhalten. Die Bearbeitung dauert in der Regel 5 bis 10 Werktage.\n\nIhre VitaPlus`,
       { kategorie: 'LEISTUNG', absender: 'VitaPlus Leistungsabteilung', vorgangId: v.id, gelesen: false });
   }
-  a.store.vorgaenge.push(v);
+  eingangErfassen(a.store, v);
   return v;
 }
 
@@ -233,7 +236,7 @@ function arbeitsunfaehigkeit(a: Anfrage) {
   if (!verspaetet && !d.arbeitsunfall) {
     statusSetzen(v, 'GENEHMIGT', b.arbeitgeber ? 'Arbeitsunfähigkeit registriert, Arbeitgeber informiert' : 'Arbeitsunfähigkeit registriert', 'System');
   }
-  a.store.vorgaenge.push(v);
+  eingangErfassen(a.store, v);
   if (krankengeld) {
     postfachNachricht(b.id, 'Ihr Anspruch auf Krankengeld',
       `${anrede(b)},\n\nIhre Arbeitsunfähigkeit dauert inzwischen ${kettenTage} Tage. Nach Ablauf der Entgeltfortzahlung (6 Wochen) zahlen wir Ihnen Krankengeld. Wir melden uns mit den nächsten Schritten.\n\nGute Besserung wünscht\nIhre VitaPlus`,

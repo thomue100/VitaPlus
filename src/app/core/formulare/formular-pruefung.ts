@@ -1,6 +1,6 @@
-import { addTage, heute, parseIso } from '../util/datum';
+import { addTage, heute, parseIso, toIso } from '../util/datum';
 import { istEmailGueltig, istIbanGueltig, istTelefonGueltig } from '../util/pruefungen';
-import { Bedingung, FeldDef, FormularDef } from './formular-typen';
+import { Bedingung, FeldDef, FormularDef, Option } from './formular-typen';
 
 export interface FeldFehler {
   feld: string;
@@ -14,6 +14,20 @@ function bedingungErfuellt(b: Bedingung, daten: Record<string, any>): boolean {
   if (b.ungleich !== undefined) return w !== b.ungleich;
   if (b.in) return b.in.includes(w);
   return true;
+}
+
+const MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+/** Liefert die Auswahlwerte eines Feldes – feste Optionen oder zur Laufzeit ermittelte. */
+export function optionenVon(feld: FeldDef): Option[] {
+  if (feld.optionenQuelle === 'MONATSERSTE') {
+    const h = heute();
+    return Array.from({ length: 6 }, (_, i) => {
+      const d = new Date(h.getFullYear(), h.getMonth() + 1 + i, 1);
+      return { wert: toIso(d), text: `1. ${MONATE[d.getMonth()]} ${d.getFullYear()}` };
+    });
+  }
+  return feld.optionen || [];
 }
 
 export function istSichtbar(feld: FeldDef, daten: Record<string, any>): boolean {
@@ -57,8 +71,22 @@ export function pruefeFeld(feld: FeldDef, wert: any, daten: Record<string, any>)
       return null;
     }
     case 'auswahl':
-    case 'radio':
-      return feld.optionen && !feld.optionen.some(o => o.wert === String(wert)) ? 'Bitte wählen Sie eine gültige Option.' : null;
+    case 'radio': {
+      const optionen = optionenVon(feld);
+      return optionen.length && !optionen.some(o => o.wert === String(wert)) ? 'Bitte wählen Sie eine gültige Option.' : null;
+    }
+    case 'liste': {
+      if (!Array.isArray(wert)) return 'Ungültige Angabe.';
+      if (feld.minEintraege && wert.length < feld.minEintraege) return `Bitte erfassen Sie mindestens ${feld.minEintraege} ${feld.eintragBezeichnung || 'Eintrag'}.`;
+      if (feld.maxEintraege && wert.length > feld.maxEintraege) return `Höchstens ${feld.maxEintraege} Einträge möglich.`;
+      for (let i = 0; i < wert.length; i++) {
+        for (const u of feld.unterfelder || []) {
+          const m = pruefeFeld(u, wert[i]?.[u.name], wert[i] || {});
+          if (m) return `${feld.eintragBezeichnung || 'Eintrag'} ${i + 1}, ${u.label}: ${m}`;
+        }
+      }
+      return null;
+    }
     case 'mehrfach':
       return !Array.isArray(wert) || wert.some(w => !feld.optionen?.some(o => o.wert === w)) ? 'Bitte wählen Sie gültige Optionen.' : null;
     case 'email':

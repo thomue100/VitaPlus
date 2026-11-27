@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { VORGANG_TYP_TEXT } from '../../core/konfiguration';
 import { formular } from '../../core/formulare/formular-katalog';
+import { optionenVon } from '../../core/formulare/formular-pruefung';
 import { Anhang, Vorgang } from '../../core/models';
 import { Api } from '../../core/services/api.service';
 import { fehlertext } from '../../core/services/auth.interceptor';
@@ -151,13 +152,19 @@ export class VorgangComponent implements OnInit {
     if (!v) return [];
     const def = formular(v.typ);
     const zeilen: [string, string][] = [];
-    const label = (k: string) => def?.schritte.flatMap(s => s.felder).find(f => f.name === k)?.label;
+    const feld = (k: string) => def?.schritte.flatMap(s => s.felder).find(f => f.name === k);
+    const label = (k: string) => feld(k)?.label;
+    const text = (k: string, w: unknown) => {
+      const f = feld(k);
+      if (f?.typ === 'person') return w === 'SELBST' ? 'Ich selbst' : v.daten['personName'] || String(w);
+      return optionenVon(f ?? { name: k, label: k, typ: 'text' }).find(o => o.wert === String(w))?.text;
+    };
     const versteckt = ['anhaenge', 'einwilligung', 'patientId', 'familienmitgliedId', 'vorgaengerId', 'notizen', 'bezugVorgangId', 'erinnert', 'neueKarteId', 'karteId', 'verstorbenerBenutzerId'];
     for (const [k, w] of Object.entries(v.daten)) {
       if (versteckt.includes(k) || w === null || w === undefined || w === '' || typeof w === 'object') continue;
       const l = label(k) || ANZEIGE[k];
       if (!l) continue;
-      zeilen.push([l, typeof w === 'boolean' ? (w ? 'Ja' : 'Nein') : /^\d{4}-\d{2}-\d{2}$/.test(String(w)) ? new DatumPipe().transform(String(w)) : String(w)]);
+      zeilen.push([l, typeof w === 'boolean' ? (w ? 'Ja' : 'Nein') : text(k, w) ?? (typeof w === 'number' ? w.toLocaleString('de-DE', { maximumFractionDigits: 2, minimumFractionDigits: Number.isInteger(w) ? 0 : 2 }) : /^\d{4}-\d{2}-\d{2}$/.test(String(w)) ? new DatumPipe().transform(String(w)) : String(w))]);
     }
     return zeilen.slice(0, 14);
   });

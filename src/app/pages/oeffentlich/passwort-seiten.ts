@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, isDevMode, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, input, isDevMode, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -119,7 +119,11 @@ export class PasswortNeuComponent implements OnInit {
       </form>
     </section>`,
 })
-export class AktivierenComponent {
+export class AktivierenComponent implements OnInit {
+  readonly nr = input<string>();
+  ngOnInit() {
+    if (this.nr()) this.form.patchValue({ versichertennummer: this.nr()!.toUpperCase() });
+  }
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private router = inject(Router);

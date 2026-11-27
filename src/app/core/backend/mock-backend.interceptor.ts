@@ -11,7 +11,9 @@ import { POSTFACH_DOKUMENT_ROUTEN } from './handler-postfach-dokumente';
 import { PROFIL_ROUTEN } from './handler-profil';
 import { SB_ROUTEN } from './handler-sachbearbeitung';
 import { VORGANG_ROUTEN, zeitgesteuerteUebergaenge } from './handler-vorgaenge';
+import { hintergrundverarbeitung } from './verarbeitung';
 import { FORMULAR_ROUTEN } from './handler-formulare';
+import { FORMULARSERVICE_ROUTEN } from './formularservice';
 import { KONTO_ROUTEN } from './handler-konto';
 import { VERSICHERUNG_ROUTEN } from './handler-versicherung';
 import { fehlerErfassen, INHALT_ADMIN_ROUTEN, messpunktErfassen } from './handler-inhalte-admin';
@@ -25,6 +27,7 @@ const ROUTEN: Route[] = [
   ...POSTFACH_DOKUMENT_ROUTEN,
   ...SB_ROUTEN,
   ...FORMULAR_ROUTEN,
+  ...FORMULARSERVICE_ROUTEN,
   ...KONTO_ROUTEN,
   ...VERSICHERUNG_ROUTEN,
   ...INHALT_ADMIN_ROUTEN,
@@ -68,7 +71,7 @@ export const mockBackendInterceptor: HttpInterceptorFn = (req, next): Observable
 
   const start = performance.now();
   const messen = (route: string, status: number) => {
-    if (url.pathname === '/api/fehler' || url.pathname === '/api/analyse') return;
+    if (url.pathname === '/api/fehler' || url.pathname === '/api/analyse' || url.pathname === '/api/takt' || url.pathname.startsWith('/api/demo/')) return;
     messpunktErfassen({ pfad: route, methode: req.method, status, dauerMs: Math.round(performance.now() - start), zeitpunkt: Date.now() });
   };
   return timer(latenz()).pipe(
@@ -97,11 +100,14 @@ export const mockBackendInterceptor: HttpInterceptorFn = (req, next): Observable
           if (treffer.route.rolle && treffer.route.rolle !== benutzer.rolle) throw new ApiFehler(403, 'Keine Berechtigung für diese Funktion.');
           anfrage.benutzer = benutzer;
           if (store.system.wartungsmodus && benutzer.rolle === 'VERSICHERTER') throw new ApiFehler(503, store.system.wartungstext, undefined, 'WARTUNG');
-          s.ablauf = Date.now() + SESSION_TIMEOUT_MINUTEN * 60000;
-          s.letzteAktivitaet = Date.now();
-          sitzungen.aktualisieren(s);
+          if (!treffer.route.hintergrund) {
+            s.ablauf = Date.now() + SESSION_TIMEOUT_MINUTEN * 60000;
+            s.letzteAktivitaet = Date.now();
+            sitzungen.aktualisieren(s);
+          }
         }
         zeitgesteuerteUebergaenge(store);
+        hintergrundverarbeitung(store);
         const ergebnis = treffer.route.handler(anfrage);
         persistieren();
         messen(treffer.route.muster, req.method === 'POST' ? 201 : 200);

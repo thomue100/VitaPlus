@@ -1,316 +1,270 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { FeldDef, FormularDef } from '../core/formulare/formular-typen';
-import { istSichtbar, pruefeFeld } from '../core/formulare/formular-pruefung';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { JsonForms } from '@jsonforms/angular';
+import { ControlElement, createAjv, isVisible, JsonSchema, UISchemaElement } from '@jsonforms/core';
+import type { ErrorObject } from 'ajv';
 import { Anhang } from '../core/models';
-import { Api } from '../core/services/api.service';
-import { fehlertext } from '../core/services/auth.interceptor';
+import { fehlertext as serverFehlertext } from '../core/services/auth.interceptor';
+import { Eingangsbestaetigung, FormularApi, FormularDefinition } from '../core/services/formular-api.service';
 import { UiService } from '../core/services/ui.service';
-import { DateienComponent } from './bausteine';
-import { DatumPipe, EuroPipe } from './pipes';
+import { DEUTSCH } from './json-forms/fehlertexte';
+import { VP_RENDERER } from './json-forms/vp-renderer';
+import { pdfHerunterladen } from './pdf';
+import { SymbolComponent } from './symbol.component';
 
-interface Auswahl { wert: string; text: string }
+interface Zeile { label: string; wert: string }
 
+const DATUM = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Feldname, auf den sich ein Prüffehler bezieht (oberste Ebene). */
+function feldVon(e: ErrorObject): string {
+  const teile = e.instancePath.split('/').filter(Boolean);
+  if (teile.length) return teile[0];
+  return e.keyword === 'required' ? String((e.params as any).missingProperty) : '';
+}
+
+/**
+ * Schritt-Assistent für Online-Anträge. Die Felder beschreibt der Formular-Service als JSON Schema / UI Schema,
+ * die Darstellung übernimmt JSON Forms mit dem VitaPlus-Renderer-Set. Jeder Schritt wird vor dem Weitergehen
+ * formal (Schema) und fachlich (Vorabprüfung im Backend) geprüft. Der aktuelle Schritt steht in der URL,
+ * damit Vor und Zurück im Browser funktionieren.
+ */
 @Component({
   selector: 'vp-formular',
-  imports: [FormsModule, RouterLink, DateienComponent],
+  imports: [FormsModule, RouterLink, JsonForms, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
-  template: `
-    @if (ergebnis(); as e) {
-      <div class="karte hervor" role="status">
-        <h2>{{ e.status === 'GENEHMIGT' ? 'Erledigt!' : 'Vielen Dank – Ihr Antrag ist eingegangen' }}</h2>
-        <p>Ihre Vorgangsnummer: <strong>{{ e.vorgangsnummer }}</strong></p>
-        @if (e.status === 'GENEHMIGT') { <p>Ihr Anliegen wurde direkt bearbeitet.</p> }
-        @else if (e.status === 'IN_BEARBEITUNG') { <p>Ihr Antrag wird bereits bearbeitet.</p> }
-        @else { <p>Wir prüfen Ihren Antrag und informieren Sie über Ihr Postfach.</p> }
-        @for (h of e.hinweise || []; track h) { <div class="hinweis info">{{ h }}</div> }
-        <div class="aktionen">
-          @if (e.id && !oeffentlich()) { <a class="btn primaer" [routerLink]="['/vorgaenge', e.id]">Zum Vorgang</a> }
-          @if (!oeffentlich()) { <a class="btn" routerLink="/antraege">Weitere Anträge</a> }
-          @else { <a class="btn" routerLink="/anmelden">Zur Anmeldung</a> }
-        </div>
-      </div>
-    } @else {
-      <ol class="schritte" aria-label="Fortschritt">
-        @for (s of def().schritte; track s.titel; let i = $index) {
-          <li [class.aktiv]="i === schritt()" [class.erledigt]="i < schritt()" [attr.aria-current]="i === schritt() ? 'step' : null">{{ s.titel }}</li>
-        }
-        <li [class.aktiv]="zusammenfassung()">Prüfen & Absenden</li>
-      </ol>
-
-      @if (def().hinweis && schritt() === 0 && !zusammenfassung()) { <div class="hinweis info">{{ def().hinweis }}</div> }
-
-      <form class="karte formular" (ngSubmit)="weiter()" novalidate>
-        @if (!zusammenfassung()) {
-          @let s = def().schritte[schritt()];
-          <h2>{{ s.titel }}</h2>
-          @if (s.beschreibung) { <p class="leise">{{ s.beschreibung }}</p> }
-          <div class="feldgruppe">
-            @for (f of s.felder; track f.name) {
-              @if (sichtbar(f)) {
-                <div class="feld" [class.breit]="f.breit || f.typ === 'textarea' || f.typ === 'mehrfach' || f.typ === 'radio' || f.typ === 'checkbox' || f.typ === 'info'">
-                  @switch (f.typ) {
-                    @case ('info') { <div class="hinweis info">{{ f.label }}</div> }
-                    @case ('checkbox') {
-                      <label class="auswahl"><input type="checkbox" [name]="f.name" [(ngModel)]="werte[f.name]" (ngModelChange)="geaendert(f)" />
-                        <span [class.pflicht]="f.pflicht">{{ f.label }}</span></label>
-                    }
-                    @case ('radio') {
-                      <fieldset><legend [class.pflicht]="f.pflicht">{{ f.label }}</legend>
-                        <div class="auswahlgruppe">
-                          @for (o of f.optionen; track o.wert) {
-                            <label class="auswahl"><input type="radio" [name]="f.name" [value]="o.wert" [(ngModel)]="werte[f.name]" (ngModelChange)="geaendert(f)" /> {{ o.text }}</label>
-                          }
-                        </div></fieldset>
-                    }
-                    @case ('mehrfach') {
-                      <fieldset><legend [class.pflicht]="f.pflicht">{{ f.label }}</legend>
-                        <div class="auswahlgruppe">
-                          @for (o of f.optionen; track o.wert) {
-                            <label class="auswahl"><input type="checkbox" [checked]="(werte[f.name] || []).includes(o.wert)" (change)="umschalten(f, o.wert)" /> {{ o.text }}</label>
-                          }
-                        </div></fieldset>
-                    }
-                    @case ('datei') {
-                      <vp-dateien [label]="f.label" [pflicht]="!!f.pflicht" [max]="f.maxDateien || 5" [hilfe]="f.hilfe" [(dateien)]="anhaenge" />
-                    }
-                    @default {
-                      <label [for]="'f-' + f.name" [class.pflicht]="f.pflicht">{{ f.label }}</label>
-                      @switch (f.typ) {
-                        @case ('textarea') {
-                          <textarea [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" [attr.maxlength]="f.maxLaenge" (blur)="beruehrt(f)"></textarea>
-                          @if (f.maxLaenge) { <span class="zaehler">{{ (werte[f.name] || '').length }} / {{ f.maxLaenge }}</span> }
-                        }
-                        @case ('auswahl') {
-                          <select [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" (ngModelChange)="geaendert(f)" (blur)="beruehrt(f)">
-                            <option [ngValue]="undefined">Bitte wählen</option>
-                            @for (o of f.optionen; track o.wert) { <option [ngValue]="o.wert">{{ o.text }}</option> }
-                          </select>
-                        }
-                        @case ('person') {
-                          <select [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" (blur)="beruehrt(f)">
-                            <option [ngValue]="undefined">Bitte wählen</option>
-                            @for (o of personen(); track o.wert) { <option [ngValue]="o.wert">{{ o.text }}</option> }
-                          </select>
-                        }
-                        @case ('kind') {
-                          <select [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" (blur)="beruehrt(f)">
-                            <option [ngValue]="undefined">Bitte wählen</option>
-                            @for (o of angehoerige(); track o.wert) { <option [ngValue]="o.wert">{{ o.text }}</option> }
-                          </select>
-                          @if (!angehoerige().length) { <span class="hilfe">Es sind keine Familienangehörigen mitversichert.</span> }
-                        }
-                        @case ('vorgang') {
-                          <select [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" (blur)="beruehrt(f)">
-                            <option [ngValue]="undefined">{{ f.pflicht ? 'Bitte wählen' : 'Kein Bezug' }}</option>
-                            @for (o of vorgangsOptionen(f); track o.wert) { <option [ngValue]="o.wert">{{ o.text }}</option> }
-                          </select>
-                        }
-                        @case ('datum') { <input type="date" [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" (blur)="beruehrt(f)" /> }
-                        @case ('zahl') { <input type="number" [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" [min]="f.min ?? null" [max]="f.max ?? null" step="1" (blur)="beruehrt(f)" /> }
-                        @case ('betrag') { <input type="number" [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" step="0.01" min="0" inputmode="decimal" (blur)="beruehrt(f)" /> }
-                        @case ('email') { <input type="email" [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" autocomplete="email" (blur)="beruehrt(f)" /> }
-                        @case ('telefon') { <input type="tel" [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" autocomplete="tel" (blur)="beruehrt(f)" /> }
-                        @default { <input type="text" [id]="'f-' + f.name" [name]="f.name" [(ngModel)]="werte[f.name]" [placeholder]="f.platzhalter || ''" [attr.maxlength]="f.maxLaenge" (blur)="beruehrt(f)" /> }
-                      }
-                      @if (f.hilfe) { <span class="hilfe">{{ f.hilfe }}</span> }
-                    }
-                  }
-                  @if (fehler()[f.name] && (angefasst[f.name] || versucht())) { <span class="feldfehler" role="alert">{{ fehler()[f.name] }}</span> }
-                </div>
-              }
-            }
-          </div>
-        } @else {
-          <h2>Bitte prüfen Sie Ihre Angaben</h2>
-          <dl class="daten">
-            @for (z of zusammenfassungsZeilen(); track z.label) { <dt>{{ z.label }}</dt><dd>{{ z.wert }}</dd> }
-            @if (anhaenge().length) { <dt>Unterlagen</dt><dd>{{ dateinamen() }}</dd> }
-          </dl>
-          @if (def().einwilligung) {
-            <label class="auswahl mt"><input type="checkbox" name="einwilligung" [(ngModel)]="werte['einwilligung']" /> <span class="pflicht">{{ def().einwilligung }}</span></label>
-            @if (versucht() && !werte['einwilligung']) { <span class="feldfehler" role="alert">Bitte bestätigen Sie die Erklärung.</span> }
-          }
-          <label class="auswahl mt"><input type="checkbox" name="richtigkeit" [(ngModel)]="richtigkeit" /> <span class="pflicht">Ich versichere, dass meine Angaben vollständig und richtig sind.</span></label>
-          @if (versucht() && !richtigkeit) { <span class="feldfehler" role="alert">Bitte bestätigen Sie die Richtigkeit Ihrer Angaben.</span> }
-        }
-        @if (serverFehler()) { <div class="hinweis fehler" role="alert">{{ serverFehler() }}</div> }
-        <div class="aktionen">
-          @if (schritt() > 0 || zusammenfassung()) { <button type="button" class="btn" (click)="zurueck()">Zurück</button> }
-          <button type="submit" class="btn primaer" [disabled]="sendet()">{{ zusammenfassung() ? (sendet() ? 'Wird gesendet …' : 'Verbindlich absenden') : 'Weiter' }}</button>
-          @if (def().entwurfErlaubt && !oeffentlich()) { <button type="button" class="btn link" (click)="entwurfSpeichern()" [disabled]="sendet()">Entwurf speichern und später fortsetzen</button> }
-        </div>
-      </form>
-    }`,
+  templateUrl: './formular-renderer.component.html',
 })
 export class FormularRendererComponent implements OnInit {
-  private api = inject(Api);
+  private formularApi = inject(FormularApi);
   private ui = inject(UiService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
-  readonly def = input.required<FormularDef>();
+  readonly definition = input.required<FormularDefinition>();
   readonly startdaten = input<Record<string, any>>({});
   readonly startAnhaenge = input<Anhang[]>([]);
   readonly entwurfId = input<string | undefined>();
   readonly oeffentlich = input(false);
-  readonly fertig = output<any>();
+  readonly fertig = output<Eingangsbestaetigung>();
 
-  werte: Record<string, any> = {};
-  angefasst: Record<string, boolean> = {};
-  richtigkeit = false;
-  readonly anhaenge = signal<Anhang[]>([]);
+  readonly Math = Math;
+  readonly renderer = VP_RENDERER;
+  readonly i18n = DEUTSCH;
+  readonly ajv = createAjv({ useDefaults: false });
+
+  /** aktueller Schritt; Index = Anzahl der Schritte bedeutet „Prüfen & Absenden“ */
   readonly schritt = signal(0);
-  readonly zusammenfassung = signal(false);
-  readonly versucht = signal(false);
+  readonly freigegeben = signal(0);
+  readonly schrittDaten = signal<Record<string, any>>({});
+  readonly fehlerZeigen = signal(false);
+  readonly zusatzFehler = signal<ErrorObject[]>([]);
+  readonly prueft = signal(false);
   readonly sendet = signal(false);
   readonly serverFehler = signal<string | null>(null);
-  readonly ergebnis = signal<any>(null);
-  readonly personen = signal<Auswahl[]>([]);
-  readonly angehoerige = signal<Auswahl[]>([]);
-  private vorgaenge = signal<{ id: string; vorgangsnummer: string; titel: string; status: string }[]>([]);
-  private serverfeldfehler = signal<Record<string, string>>({});
-  private geaendertSeitStart = false;
-  readonly dateinamen = computed(() => this.anhaenge().map(a => a.name).join(', '));
+  readonly hinweise = signal<string[]>([]);
+  readonly voraussichtlich = signal<number | undefined>(undefined);
+  readonly ergebnis = signal<Eingangsbestaetigung | null>(null);
+  readonly versucht = signal(false);
+  einwilligung = false;
+  richtigkeit = false;
 
-  async ngOnInit() {
-    this.werte = { ...this.startdaten() };
-    this.anhaenge.set([...this.startAnhaenge()]);
-    if (this.oeffentlich()) return;
-    const felder = this.def().schritte.flatMap(s => s.felder);
-    if (felder.some(f => f.typ === 'person' || f.typ === 'kind')) {
-      const p = await this.api.get<{ id: string; name: string }[]>('/api/erstattung/personen');
-      this.personen.set(p.map(x => ({ wert: x.id, text: x.id === 'SELBST' ? `${x.name} (ich)` : x.name })));
-      this.angehoerige.set(p.filter(x => x.id !== 'SELBST').map(x => ({ wert: x.id, text: x.name })));
-    }
-    if (felder.some(f => f.typ === 'vorgang')) this.vorgaenge.set(await this.api.get('/api/vorgaenge'));
+  private werte: Record<string, any> = {};
+  private schemaFehler: ErrorObject[] = [];
+  private geaendert = false;
+  private fehlerNachWechsel = false;
+
+  readonly anzahl = computed(() => this.definition().schritte.length);
+  readonly zusammenfassung = computed(() => this.schritt() >= this.anzahl());
+  readonly kategorie = computed(() => this.definition().uischema.elements[Math.min(this.schritt(), this.anzahl() - 1)]);
+  readonly schrittUi = computed<UISchemaElement>(() => ({ type: 'VerticalLayout', elements: this.kategorie().elements } as UISchemaElement));
+  readonly konfig = computed(() => ({ hideRequiredAsterisk: true, alleFehlerZeigen: this.fehlerZeigen() }));
+  readonly fortschritt = computed(() => Math.round((Math.min(this.schritt(), this.anzahl()) / this.anzahl()) * 100));
+
+  ngOnInit() {
+    this.werte = structuredClone(this.startdaten() || {});
+    const dateiFeld = this.dateiFelder()[0];
+    if (dateiFeld && this.startAnhaenge().length && !this.werte[dateiFeld]) this.werte[dateiFeld] = [...this.startAnhaenge()];
+    this.schrittDaten.set(this.werte);
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(q => {
+      const roh = q.get('schritt');
+      const ziel = roh === 'pruefen' ? this.anzahl() : Math.max(1, Number(roh) || 1) - 1;
+      this.wechseln(Math.min(ziel, this.freigegeben()));
+    });
   }
 
   ungespeichert(): boolean {
-    return this.geaendertSeitStart && !this.ergebnis();
+    return this.geaendert && !this.ergebnis();
   }
 
-  sichtbar(f: FeldDef) {
-    return istSichtbar(f, this.werte);
+  datenGeaendert(d: Record<string, any>) {
+    if (d === this.werte) return;
+    this.geaendert = true;
+    this.werte = d;
+    if (this.zusatzFehler().length) this.zusatzFehler.set([]);
   }
 
-  vorgangsOptionen(f: FeldDef): Auswahl[] {
-    return this.vorgaenge().filter(v => !f.vorgangFilter?.status || f.vorgangFilter.status.includes(v.status))
-      .map(v => ({ wert: v.id, text: `${v.vorgangsnummer} – ${v.titel}` }));
+  schemaFehlerGemeldet(fehler: ErrorObject[] | undefined) {
+    this.schemaFehler = fehler || [];
   }
 
-  fehler(): Record<string, string> {
-    const r: Record<string, string> = { ...this.serverfeldfehler() };
-    if (this.zusammenfassung()) return r;
-    for (const f of this.def().schritte[this.schritt()].felder) {
-      const wert = f.typ === 'datei' ? this.anhaenge() : this.werte[f.name];
-      const m = pruefeFeld(f, wert, this.werte);
-      if (m) r[f.name] = m;
-    }
-    return r;
+  private wechseln(i: number) {
+    if (i === this.schritt() && this.schrittDaten() === this.werte) return;
+    this.schritt.set(i);
+    this.schrittDaten.set(this.werte);
+    this.fehlerZeigen.set(this.fehlerNachWechsel);
+    if (this.fehlerNachWechsel) this.fokusAufFehler();
+    else this.zusatzFehler.set([]);
+    this.fehlerNachWechsel = false;
+    this.versucht.set(false);
+    this.serverFehler.set(null);
+    window.scrollTo({ top: 0 });
   }
 
-  beruehrt(f: FeldDef) {
-    this.angefasst[f.name] = true;
-    this.geaendertSeitStart = true;
+  private navigieren(i: number) {
+    this.freigegeben.update(f => Math.max(f, i));
+    const schritt = i >= this.anzahl() ? 'pruefen' : String(i + 1);
+    this.router.navigate([], { relativeTo: this.route, queryParams: { schritt }, queryParamsHandling: 'merge' });
   }
 
-  geaendert(f: FeldDef) {
-    this.beruehrt(f);
-    const { [f.name]: _, ...rest } = this.serverfeldfehler();
-    this.serverfeldfehler.set(rest);
-  }
-
-  umschalten(f: FeldDef, wert: string) {
-    const l: string[] = this.werte[f.name] || [];
-    this.werte[f.name] = l.includes(wert) ? l.filter(x => x !== wert) : [...l, wert];
-    this.geaendert(f);
-  }
-
-  zusammenfassungsZeilen() {
-    const zeilen: { label: string; wert: string }[] = [];
-    for (const s of this.def().schritte) {
-      for (const f of s.felder) {
-        if (f.typ === 'info' || f.typ === 'datei' || !this.sichtbar(f)) continue;
-        const w = this.werte[f.name];
-        if (w === undefined || w === null || w === '' || (Array.isArray(w) && !w.length)) continue;
-        zeilen.push({ label: f.label, wert: this.anzeige(f, w) });
-      }
-    }
-    return zeilen;
-  }
-
-  private anzeige(f: FeldDef, w: any): string {
-    switch (f.typ) {
-      case 'checkbox': return w ? 'Ja' : 'Nein';
-      case 'datum': return new DatumPipe().transform(w);
-      case 'betrag': return new EuroPipe().transform(Number(w));
-      case 'auswahl':
-      case 'radio': return f.optionen?.find(o => o.wert === String(w))?.text || String(w);
-      case 'mehrfach': return (w as string[]).map(x => f.optionen?.find(o => o.wert === x)?.text || x).join(', ');
-      case 'person': return this.personen().find(p => p.wert === w)?.text || w;
-      case 'kind': return this.angehoerige().find(p => p.wert === w)?.text || w;
-      case 'vorgang': return this.vorgangsOptionen(f).find(p => p.wert === w)?.text || w;
-      default: return String(w);
-    }
+  gehe(i: number) {
+    if (i <= this.freigegeben()) this.navigieren(i);
   }
 
   zurueck() {
-    this.versucht.set(false);
-    this.serverFehler.set(null);
-    if (this.zusammenfassung()) this.zusammenfassung.set(false);
-    else this.schritt.update(s => Math.max(0, s - 1));
-    window.scrollTo({ top: 0 });
+    if (this.schritt() > 0) this.navigieren(this.schritt() - 1);
   }
 
-  weiter() {
-    this.serverFehler.set(null);
-    if (this.zusammenfassung()) {
-      this.absenden();
-      return;
-    }
-    if (Object.keys(this.fehler()).length) {
-      this.versucht.set(true);
-      setTimeout(() => (document.querySelector('.feldfehler')?.closest('.feld')?.querySelector('input,select,textarea') as HTMLElement | null)?.focus());
-      return;
-    }
-    this.versucht.set(false);
-    if (this.schritt() < this.def().schritte.length - 1) this.schritt.update(s => s + 1);
-    else this.zusammenfassung.set(true);
-    window.scrollTo({ top: 0 });
+  /** Felder eines Schritts, die bei den aktuellen Angaben eingeblendet sind */
+  private sichtbareFelder(i: number): string[] {
+    const kat = this.definition().uischema.elements[i];
+    return kat.elements
+      .filter(e => e.type === 'Control' && isVisible(e, this.werte, '', this.ajv, undefined))
+      .map(e => (e as ControlElement).scope.split('/').at(-1)!);
   }
 
-  private datenOhneDateien() {
-    const d = { ...this.werte };
-    for (const f of this.def().schritte.flatMap(s => s.felder)) if (f.typ === 'datei') delete d[f.name];
-    return d;
+  async weiter() {
+    if (this.zusammenfassung()) return this.absenden();
+    this.serverFehler.set(null);
+    this.fehlerZeigen.set(true);
+    const felder = this.sichtbareFelder(this.schritt());
+    if (this.schemaFehler.some(e => felder.includes(feldVon(e)))) {
+      this.fokusAufFehler();
+      return;
+    }
+    this.prueft.set(true);
+    try {
+      const r = await this.formularApi.pruefen(this.definition().code, this.werte, this.schritt(), this.oeffentlich());
+      if (!r.gueltig) {
+        this.serverfehlerZeigen(r.fehler);
+        return;
+      }
+      if (this.schritt() === this.anzahl() - 1) {
+        this.hinweise.set(r.hinweise || []);
+        this.voraussichtlich.set(r.betrag);
+      }
+      this.navigieren(this.schritt() + 1);
+    } catch (e) {
+      this.serverFehler.set(serverFehlertext(e));
+    } finally {
+      this.prueft.set(false);
+    }
+  }
+
+  /** Fachliche Fehler aus dem Backend am Feld anzeigen und ggf. zum betroffenen Schritt springen */
+  private serverfehlerZeigen(liste: { feld: string; meldung: string }[]) {
+    const ohneFeld = liste.filter(f => !f.feld || !this.definition().schema.properties[f.feld]);
+    this.zusatzFehler.set(liste.filter(f => f.feld && this.definition().schema.properties[f.feld]).map(f => ({
+      instancePath: `/${f.feld}`, schemaPath: '#/fachlich', keyword: 'fachlich', params: {}, message: f.meldung,
+    })));
+    if (ohneFeld.length) this.serverFehler.set(ohneFeld.map(f => f.meldung).join(' '));
+    const schritte = this.definition().schritte;
+    const ziel = liste.map(f => schritte.findIndex(s => s.felder.includes(f.feld))).filter(i => i >= 0).sort((a, b) => a - b)[0];
+    if (ziel !== undefined && ziel !== this.schritt()) {
+      this.fehlerNachWechsel = true;
+      this.navigieren(ziel);
+    } else {
+      this.fehlerZeigen.set(true);
+      this.fokusAufFehler();
+    }
+  }
+
+  private fokusAufFehler() {
+    setTimeout(() => {
+      const feld = document.querySelector('.feldfehler')?.closest('.feld');
+      (feld?.querySelector('input,select,textarea,button') as HTMLElement | null)?.focus();
+    }, 50);
+  }
+
+  private dateiFelder(): string[] {
+    const props = this.definition().schema.properties;
+    return Object.keys(props).filter(n => props[n].type === 'array' && props[n].items?.type === 'object' && !props[n].items?.properties);
+  }
+
+  private aufteilen() {
+    const dateien = this.dateiFelder();
+    const daten: Record<string, any> = {};
+    const anhaenge: Anhang[] = [];
+    for (const [k, v] of Object.entries(this.werte)) {
+      if (dateien.includes(k)) anhaenge.push(...(v || []));
+      else if (v !== undefined) daten[k] = v;
+    }
+    if (this.definition().einwilligung) daten['einwilligung'] = this.einwilligung;
+    return { daten, anhaenge };
+  }
+
+  /** Zusammenfassung je Schritt aus Schema-Titeln und Anzeigewerten */
+  zusammenfassungsBloecke(): { titel: string; index: number; zeilen: Zeile[] }[] {
+    const props = this.definition().schema.properties;
+    return this.definition().schritte.map((s, index) => ({
+      titel: s.titel, index,
+      zeilen: this.sichtbareFelder(index)
+        .filter(n => !this.leer(this.werte[n]) && props[n])
+        .map(n => ({ label: props[n].title, wert: this.anzeige(props[n], this.werte[n]) })),
+    }));
+  }
+
+  private leer(w: any) {
+    return w === undefined || w === null || w === '' || (Array.isArray(w) && !w.length);
+  }
+
+  private anzeige(s: JsonSchema & Record<string, any>, w: any): string {
+    if (s.type === 'boolean') return w ? 'Ja' : 'Nein';
+    if (s.oneOf) return (s.oneOf as any[]).find(o => o.const === w)?.title ?? String(w);
+    if (s.type === 'number') return Number(w).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+    if (s.type === 'array') {
+      const items = s.items as any;
+      if (items?.oneOf) return (w as string[]).map(x => items.oneOf.find((o: any) => o.const === x)?.title ?? x).join(', ');
+      if (items?.properties) {
+        return (w as any[]).map(e => Object.entries(items.properties).map(([k, sub]: [string, any]) => e?.[k] === undefined ? '' : this.anzeige(sub, e[k])).filter(Boolean).join(', ')).join(' · ');
+      }
+      return (w as Anhang[]).map(a => a.name).join(', ');
+    }
+    if (typeof w === 'string' && DATUM.test(w)) return w.split('-').reverse().join('.');
+    return String(w);
   }
 
   async absenden() {
-    if ((this.def().einwilligung && !this.werte['einwilligung']) || !this.richtigkeit) {
-      this.versucht.set(true);
-      return;
-    }
+    this.versucht.set(true);
+    if ((this.definition().einwilligung && !this.einwilligung) || !this.richtigkeit) return;
     this.sendet.set(true);
+    this.serverFehler.set(null);
     try {
-      let r: any;
-      const daten = this.datenOhneDateien();
-      if (this.oeffentlich()) r = await this.api.post(`/api/oeffentlich/formulare/${this.def().code}`, { daten, anhaenge: this.anhaenge() });
-      else if (this.entwurfId()) r = await this.api.put(`/api/antraege/${this.entwurfId()}`, { daten, anhaenge: this.anhaenge(), einreichen: true });
-      else r = await this.api.post('/api/antraege', { typ: this.def().code, daten, anhaenge: this.anhaenge(), entwurf: false });
+      const { daten, anhaenge } = this.aufteilen();
+      const r = this.entwurfId()
+        ? await this.formularApi.entwurfEinreichen(this.entwurfId()!, daten, anhaenge)
+        : await this.formularApi.einreichen(this.definition().code, daten, anhaenge, this.oeffentlich());
       this.ergebnis.set(r);
+      this.geaendert = false;
       this.fertig.emit(r);
       window.scrollTo({ top: 0 });
     } catch (e: any) {
       const details: { feld: string; meldung: string }[] = e?.error?.details || (e?.error?.feld ? [{ feld: e.error.feld, meldung: e.error.meldung }] : []);
-      const felder = this.def().schritte.map(s => s.felder.map(f => f.name));
-      const ersterSchritt = details.map(d => felder.findIndex(l => l.includes(d.feld))).filter(i => i >= 0).sort()[0];
-      if (ersterSchritt !== undefined) {
-        this.serverfeldfehler.set(Object.fromEntries(details.map(d => [d.feld, d.meldung])));
-        this.zusammenfassung.set(false);
-        this.schritt.set(ersterSchritt);
-        this.versucht.set(true);
-      }
-      this.serverFehler.set(fehlertext(e));
+      if (details.length) this.serverfehlerZeigen(details);
+      else this.serverFehler.set(serverFehlertext(e));
     } finally {
       this.sendet.set(false);
     }
@@ -319,18 +273,30 @@ export class FormularRendererComponent implements OnInit {
   async entwurfSpeichern() {
     this.sendet.set(true);
     try {
-      if (this.entwurfId()) await this.api.put(`/api/antraege/${this.entwurfId()}`, { daten: this.datenOhneDateien(), anhaenge: this.anhaenge(), einreichen: false });
-      else {
-        const r = await this.api.post('/api/antraege', { typ: this.def().code, daten: this.datenOhneDateien(), anhaenge: this.anhaenge(), entwurf: true });
-        this.ergebnis.set(null);
-        this.fertig.emit({ ...r, entwurf: true });
-      }
-      this.geaendertSeitStart = false;
+      const { daten, anhaenge } = this.aufteilen();
+      const r = await this.formularApi.entwurfSpeichern(this.definition().code, this.entwurfId(), daten, anhaenge);
+      this.geaendert = false;
       this.ui.erfolg('Ihr Entwurf wurde gespeichert. Sie finden ihn unter „Anträge“.');
+      if (!this.entwurfId()) this.fertig.emit({ ...r, entwurf: true });
     } catch (e) {
-      this.ui.fehler(fehlertext(e));
+      this.ui.fehler(serverFehlertext(e));
     } finally {
       this.sendet.set(false);
     }
+  }
+
+  eingangsbestaetigungHerunterladen() {
+    const e = this.ergebnis();
+    const d = this.definition();
+    if (!e) return;
+    const zeilen = [
+      `Vorgangsnummer: ${e.vorgangsnummer}`,
+      `Eingegangen am: ${new Date().toLocaleString('de-DE')}`,
+      `Zuständig: Team ${d.zustaendig}`,
+      '',
+      ...this.zusammenfassungsBloecke().flatMap(b => [b.titel.toUpperCase(), ...b.zeilen.map(z => `${z.label}: ${z.wert}`), '']),
+      'Diese Bestätigung wurde maschinell erstellt und ist ohne Unterschrift gültig.',
+    ];
+    pdfHerunterladen(`Eingangsbestätigung – ${d.titel}`, zeilen, `Eingangsbestaetigung_${e.vorgangsnummer}.pdf`);
   }
 }

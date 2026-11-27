@@ -140,6 +140,19 @@ function benachrichtigungen(a: Anfrage) {
   return { ungelesen: l.filter(n => !n.gelesen).length, eintraege: (kat ? l.filter(n => n.kategorie === kat) : l).slice(0, 100) };
 }
 
+/** Leichtgewichtige Statusabfrage der geöffneten Anwendung (Glocke, Postfach, neue Ereignisse). */
+function takt(a: Anfrage) {
+  const b = a.benutzer!;
+  const seit = a.query.get('seit') || '';
+  const l = a.store.benachrichtigungen.filter(n => n.benutzerId === b.id);
+  return {
+    ungelesen: l.filter(n => !n.gelesen).length,
+    postfachUngelesen: a.store.nachrichten.filter(n => n.benutzerId === b.id && !n.gelesen && n.ordner === 'EINGANG').length,
+    neu: l.filter(n => !n.gelesen && n.zeitpunkt > seit).sort((x, y) => x.zeitpunkt.localeCompare(y.zeitpunkt)).slice(-3),
+    stand: l.reduce((m, n) => (n.zeitpunkt > m ? n.zeitpunkt : m), seit),
+  };
+}
+
 function benachrichtigungGelesen(a: Anfrage) {
   const id = a.params['id'];
   a.store.benachrichtigungen.filter(n => n.benutzerId === a.benutzer!.id && (id === 'alle' || n.id === id)).forEach(n => (n.gelesen = true));
@@ -310,6 +323,7 @@ export const KONTO_ROUTEN: Route[] = [
   { methode: 'PUT', muster: '/api/profil/weitere', handler: weitereAngaben, rolle: 'VERSICHERTER' },
   { methode: 'GET', muster: '/api/profil/historie', handler: aenderungshistorie, rolle: 'VERSICHERTER' },
   { methode: 'GET', muster: '/api/benachrichtigungen', handler: benachrichtigungen, rolle: 'VERSICHERTER' },
+  { methode: 'GET', muster: '/api/takt', handler: takt, rolle: 'VERSICHERTER', hintergrund: true },
   { methode: 'PUT', muster: '/api/benachrichtigungen/:id/gelesen', handler: benachrichtigungGelesen, rolle: 'VERSICHERTER' },
   { methode: 'DELETE', muster: '/api/benachrichtigungen/:id', handler: benachrichtigungLoeschen, rolle: 'VERSICHERTER' },
   { methode: 'GET', muster: '/api/einwilligungen', handler: einwilligungen, rolle: 'VERSICHERTER' },

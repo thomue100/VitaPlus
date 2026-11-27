@@ -2,7 +2,7 @@ import { Beschaeftigung } from '../models';
 
 export type FeldTyp =
   | 'text' | 'textarea' | 'zahl' | 'betrag' | 'datum' | 'uhrzeit' | 'auswahl' | 'radio' | 'checkbox' | 'mehrfach'
-  | 'person' | 'kind' | 'datei' | 'telefon' | 'email' | 'iban' | 'info' | 'vorgang';
+  | 'person' | 'kind' | 'datei' | 'telefon' | 'email' | 'iban' | 'info' | 'vorgang' | 'liste';
 
 export interface Option {
   wert: string;
@@ -39,6 +39,13 @@ export interface FeldDef {
   maxDateien?: number;
   vorgangFilter?: { status?: string[]; typen?: string[] };
   breit?: boolean;
+  /** Auswahlwerte, die erst zur Laufzeit feststehen (z. B. mögliche Beginntermine) */
+  optionenQuelle?: 'MONATSERSTE';
+  /** Wiederholbare Gruppe (typ 'liste') */
+  unterfelder?: FeldDef[];
+  minEintraege?: number;
+  maxEintraege?: number;
+  eintragBezeichnung?: string;
 }
 
 export interface SchrittDef {

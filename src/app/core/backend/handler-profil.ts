@@ -4,7 +4,7 @@ import {
   enthaeltPersoenlicheDaten, ibanLand, istIbanGueltig, istPasswortRegelkonform, istPlzGueltig, istTelefonGueltig,
   maskiereIban, normalisiereIban,
 } from '../util/pruefungen';
-import { Anfrage, ApiFehler, anrede, ohnePasswort, pflicht, postfachNachricht, Route, statusSetzen, voller } from './api-kontext';
+import { Anfrage, ApiFehler, anrede, ohnePasswort, pflicht, postfachNachricht, Route, statusSetzen, versenden, voller, eingangErfassen } from './api-kontext';
 import { neueId, neueVorgangsnummer, sitzungen } from './db';
 
 const SEPA_LAENDER = ['DE', 'AT', 'BE', 'CH', 'DK', 'ES', 'FR', 'IT', 'LU', 'NL', 'PL'];
@@ -173,6 +173,7 @@ function zweiFaktorAendern(a: Anfrage) {
     if (!b.mobil) throw new ApiFehler(409, 'Bitte hinterlegen Sie zuerst eine Mobilnummer.');
     if (!code) {
       b.zweiFaktorCode = String(100000 + Math.floor(Math.random() * 899999));
+      versenden('SMS', b.mobil, 'VitaPlus Bestätigungscode', `Ihr Code zur Aktivierung der Zwei-Faktor-Anmeldung: ${b.zweiFaktorCode}`);
       return { codeGesendet: true, entwicklerCode: b.zweiFaktorCode };
     }
     if (String(code).trim() !== b.zweiFaktorCode) throw new ApiFehler(400, 'Der Bestätigungscode ist nicht korrekt.', 'code');
@@ -208,7 +209,7 @@ function namensaenderung(a: Anfrage) {
     daten: { bisherigerName: b.nachname, neuerName: String(nachname).trim(), grund, gueltigAb }, anhaenge, historie: [],
   };
   statusSetzen(v as any, 'EINGEREICHT', 'Namensänderung online beantragt', voller(b));
-  a.store.vorgaenge.push(v as any);
+  eingangErfassen(a.store, v as any);
   return v;
 }
 

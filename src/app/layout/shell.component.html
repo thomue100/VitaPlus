@@ -133,6 +133,7 @@
 </footer>
 
 @if (sitzung.benutzer()?.rolle !== 'SACHBEARBEITER' && sitzung.benutzer()?.rolle !== 'ADMIN') { <vp-chat /> }
+<vp-postausgang />
 
 <div class="toasts" aria-live="assertive">
   @for (h of ui.hinweise(); track h.id) {

@@ -9,6 +9,7 @@ import { SitzungService } from '../core/services/sitzung.service';
 import { UiService } from '../core/services/ui.service';
 import { UebersetzungPipe } from '../shared/pipes';
 import { ChatComponent } from './chat.component';
+import { PostausgangComponent } from './postausgang.component';
 import { SymbolComponent } from '../shared/symbol.component';
 import { LogoComponent } from '../shared/logo.component';
 
@@ -17,7 +18,7 @@ interface NavGruppe { schluessel: string; eintraege: NavEintrag[] }
 
 @Component({
   selector: 'vp-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, UebersetzungPipe, ChatComponent, SymbolComponent, LogoComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, UebersetzungPipe, ChatComponent, SymbolComponent, LogoComponent, PostausgangComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
@@ -112,8 +113,27 @@ export class ShellComponent implements OnInit {
     });
   }
 
+  private taktStand = '';
+  private taktTimer?: ReturnType<typeof setInterval>;
+
+  /** Regelmäßiger Abgleich bei geöffneter Anwendung: neue Bescheide, Rückfragen und Zahlungen sofort sichtbar machen. */
+  private async takt() {
+    if (this.sitzung.benutzer()?.rolle !== 'VERSICHERTER' || document.hidden) return;
+    try {
+      const r = await this.api.get<{ ungelesen: number; postfachUngelesen: number; neu: { titel: string; text: string }[]; stand: string }>('/api/takt', { seit: this.taktStand || undefined });
+      if (this.taktStand) for (const n of r.neu) this.ui.info(`${n.titel}: ${n.text}`);
+      this.taktStand = r.stand || this.taktStand || new Date().toISOString().substring(0, 19);
+      this.benachrichtigung.ungelesen.set(r.ungelesen);
+      this.postfach.ungelesen.set(r.postfachUngelesen);
+    } catch {
+      /* Hintergrundabfrage – Fehler ignorieren */
+    }
+  }
+
   ngOnInit() {
     this.meldungenLaden();
+    this.takt();
+    this.taktTimer = setInterval(() => this.takt(), 15000);
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(e => {
       this.navOffen.set(false);
       this.menueOffen.set(false);

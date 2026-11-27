@@ -1,8 +1,8 @@
 import { VORGANG_TYP_TEXT } from '../konfiguration';
-import { Vorgang } from '../models';
-import { alterAm, heute, parseIso, tageZwischen } from '../util/datum';
-import { Anfrage, ApiFehler, anrede, euro, ohnePasswort, postfachNachricht, Route, statusSetzen, voller } from './api-kontext';
-import { sitzungen } from './db';
+import { Benutzer, Vorgang } from '../models';
+import { alterAm, formatDatum, heute, parseIso, tageZwischen } from '../util/datum';
+import { Anfrage, ApiFehler, anrede, euro, ohnePasswort, postfachNachricht, Route, statusSetzen, versenden, voller } from './api-kontext';
+import { db, sitzungen } from './db';
 import { OFFENE_STATUS } from './handler-vorgaenge';
 import { protokollieren } from './fachlogik';
 import { RUECKFRAGE_FRIST_TAGE } from '../konfiguration';
@@ -100,6 +100,7 @@ function uebernehmen(a: Anfrage) {
   }
   const vorher = v.bearbeiterId;
   v.bearbeiterId = a.benutzer!.id;
+  if (v.verarbeitung) v.verarbeitung.manuell = true;
   if (v.status === 'EINGEREICHT') statusSetzen(v, 'IN_BEARBEITUNG', 'Vorgang übernommen', voller(a.benutzer!));
   else v.historie.push({ zeitpunkt: new Date().toISOString().substring(0, 19), status: v.status, text: vorher ? 'Vorgang neu zugewiesen' : 'Vorgang übernommen', von: voller(a.benutzer!) });
   return detail(a);
@@ -113,7 +114,7 @@ function freigeben(a: Anfrage) {
 }
 
 /** Vorgangstypen mit Geldleistung: Feld in v.daten, das den maximalen Anspruch enthält. */
-const BETRAGS_TYPEN: Record<string, string> = {
+export const BETRAGS_TYPEN: Record<string, string> = {
   KOSTENERSTATTUNG: 'voraussichtlich', ZAHNERSATZ: 'festzuschuss', FAHRKOSTEN: 'erstattung', KIEFERORTHOPAEDIE: 'kassenanteil',
   KUENSTLICHE_BEFRUCHTUNG: 'zuschuss', VERHINDERUNGSPFLEGE: 'erstattbar', KURZZEITPFLEGE: 'erstattbar', WOHNUMFELD: 'zuschuss',
   ENTLASTUNGSBETRAG: 'erstattbar', ZUZAHLUNGSBEFREIUNG: 'erstattung',
@@ -131,24 +132,44 @@ function entscheiden(a: Anfrage) {
   if (v.status === 'RUECKFRAGE') throw new ApiFehler(409, 'Es besteht eine offene Rückfrage an den Versicherten.');
   if (v.status !== 'IN_BEARBEITUNG') throw new ApiFehler(409, 'Der Vorgang kann in diesem Status nicht entschieden werden.');
   if (v.benutzerId === sb.id) throw new ApiFehler(403, 'Eigene Vorgänge dürfen nicht selbst entschieden werden.');
+  entscheidungTreffen(a, v, { entscheidung, betrag, begruendung, zusatz }, { name: voller(sb), sb });
+  return detail(a, false);
+}
+
+export interface Entscheidung {
+  entscheidung: 'GENEHMIGT' | 'ABGELEHNT' | string;
+  betrag?: number;
+  begruendung?: string;
+  zusatz?: Record<string, any>;
+}
+
+/** Fachliche Entscheidung über einen Vorgang – durch Sachbearbeitung oder die automatisierte Prüfung (Dunkelverarbeitung). */
+export function entscheidungTreffen(a: Anfrage, v: Vorgang, e: Entscheidung, akteur: { name: string; absender?: string; sb?: Benutzer }) {
+  const { entscheidung, betrag, begruendung, zusatz } = e;
+  const sb = akteur.sb;
   const vers = a.store.benutzer.find(b => b.id === v.benutzerId);
+  const extern = !vers && v.externKontakt?.email ? v.externKontakt : undefined;
 
   if (entscheidung === 'ABGELEHNT') {
     if (!begruendung || String(begruendung).trim().length < 20) throw new ApiFehler(400, 'Bitte begründen Sie die Ablehnung (mindestens 20 Zeichen).', 'begruendung');
     v.ablehnungsgrund = String(begruendung).trim();
     v.bescheidAm = new Date().toLocaleDateString('sv-SE');
-    statusSetzen(v, 'ABGELEHNT', v.typ === 'WIDERSPRUCH' ? 'Widerspruch zurückgewiesen' : 'Antrag abgelehnt', voller(sb));
+    statusSetzen(v, 'ABGELEHNT', v.typ === 'WIDERSPRUCH' ? 'Widerspruch zurückgewiesen' : 'Antrag abgelehnt', akteur.name);
     folgenAblehnung(a, v);
+    if (extern) {
+      versenden('EMAIL', extern.email, `Ihr Anliegen ${v.vorgangsnummer}`,
+        `Guten Tag ${extern.name},\n\nleider können wir Ihrem Anliegen „${v.titel}“ nicht entsprechen.\n\nBegründung: ${v.ablehnungsgrund}\n\nGegen diese Entscheidung können Sie innerhalb eines Monats schriftlich Widerspruch einlegen.\n\nIhre VitaPlus`);
+    }
     if (vers) {
       const rechtsbehelf = v.typ === 'WIDERSPRUCH'
         ? 'Gegen diesen Widerspruchsbescheid können Sie innerhalb eines Monats Klage beim zuständigen Sozialgericht erheben.'
         : 'Gegen diese Entscheidung können Sie innerhalb eines Monats nach Bekanntgabe Widerspruch einlegen – direkt online in Ihrem Vorgang.';
       postfachNachricht(vers.id, `${v.typ === 'WIDERSPRUCH' ? 'Widerspruchsbescheid' : 'Bescheid'} zu ${v.vorgangsnummer}`,
-        `${anrede(vers)},\n\nleider können wir Ihrem Antrag „${v.titel}“ nicht entsprechen.\n\nBegründung: ${v.ablehnungsgrund}\n\n${rechtsbehelf}\n\nMit freundlichen Grüßen\n${voller(sb)}`,
+        `${anrede(vers)},\n\nleider können wir Ihrem Antrag „${v.titel}“ nicht entsprechen.\n\nBegründung: ${v.ablehnungsgrund}\n\n${rechtsbehelf}\n\nMit freundlichen Grüßen\n${akteur.absender || akteur.name}`,
         { kategorie: 'LEISTUNG', absender: 'VitaPlus ' + (v.zustaendig || 'Leistungsabteilung'), vorgangId: v.id, wichtig: true,
           anhaenge: [{ id: 'bs' + v.id, name: `Bescheid_${v.vorgangsnummer}.pdf`, groesseBytes: 52000, mimeType: 'application/pdf', hochgeladenAm: new Date().toISOString() }] });
     }
-    return detail(a, false);
+    return;
   }
   if (entscheidung !== 'GENEHMIGT') throw new ApiFehler(400, 'Ungültige Entscheidung', 'entscheidung');
 
@@ -158,9 +179,9 @@ function entscheiden(a: Anfrage) {
     const b = Number(betrag);
     if (!(b > 0)) throw new ApiFehler(400, 'Bitte geben Sie den Erstattungsbetrag an.', 'betrag');
     if (b > (v.betragBeantragt || 0)) throw new ApiFehler(400, 'Der Betrag darf den beantragten Betrag nicht übersteigen.', 'betrag');
-    if (b > (sb.freigabeLimit ?? 0)) throw new ApiFehler(403, `Beträge über ${euro(sb.freigabeLimit ?? 0)} müssen von der Teamleitung freigegeben werden.`, 'betrag', 'FREIGABELIMIT');
+    if (sb && b > (sb.freigabeLimit ?? 0)) throw new ApiFehler(403, `Beträge über ${euro(sb.freigabeLimit ?? 0)} müssen von der Teamleitung freigegeben werden.`, 'betrag', 'FREIGABELIMIT');
     const erwartet = Number(v.daten[BETRAGS_TYPEN[v.typ]]) || b;
-    if (b > erwartet + 0.005 && !sb.teamleitung) {
+    if (b > erwartet + 0.005 && sb && !sb.teamleitung) {
       throw new ApiFehler(400, `Der Betrag übersteigt den berechneten Leistungsanspruch von ${euro(erwartet)}. Kulanzentscheidungen trifft die Teamleitung.`, 'betrag', 'KULANZ');
     }
     if (b < erwartet - 0.005) {
@@ -176,19 +197,44 @@ function entscheiden(a: Anfrage) {
   if (r.status) status = r.status;
   if (r.text) text = r.text;
   v.bescheidAm = new Date().toLocaleDateString('sv-SE');
-  statusSetzen(v, status, text, voller(sb));
+  statusSetzen(v, status, text, akteur.name);
   if (begruendung) v.historie[v.historie.length - 1].text += ` – ${String(begruendung).trim()}`;
+  if (extern) externeBestaetigung(a, v, extern, r.nachricht);
   if (vers) {
     postfachNachricht(vers.id, `Entscheidung zu Ihrem Antrag ${v.vorgangsnummer}`,
       `${anrede(vers)},\n\nwir haben Ihren Antrag „${v.titel}“ geprüft. ` +
       (v.betragErstattet !== undefined && istBetragsTyp(v.typ)
         ? `Wir übernehmen ${euro(v.betragErstattet)}.` + (status === 'TEILWEISE_GENEHMIGT' ? `\n\nBegründung: ${begruendung}\n\nGegen diese Entscheidung können Sie innerhalb eines Monats Widerspruch einlegen.` : '')
         : r.nachricht || 'Wir freuen uns, Ihnen mitteilen zu können, dass wir Ihren Antrag genehmigt haben.') +
-      `\n\nMit freundlichen Grüßen\n${voller(sb)}`,
+      `\n\nMit freundlichen Grüßen\n${akteur.absender || akteur.name}`,
       { kategorie: v.typ === 'PFLEGEGRAD' ? 'LEISTUNG' : 'LEISTUNG', absender: 'VitaPlus ' + (v.zustaendig || 'Leistungsabteilung'), vorgangId: v.id,
         anhaenge: [{ id: 'bs' + v.id, name: `Bescheid_${v.vorgangsnummer}.pdf`, groesseBytes: 48000, mimeType: 'application/pdf', hochgeladenAm: new Date().toISOString() }] });
   }
-  return detail(a, false);
+}
+
+function neueVersichertennummer(nachname: string): string {
+  const buchstabe = (nachname.normalize('NFD').replace(/[^A-Za-z]/g, '').charAt(0) || 'X').toUpperCase();
+  let nr: string;
+  do nr = buchstabe + String(100000000 + Math.floor(Math.random() * 899999990));
+  while (db().stammdaten.some(s => s.versichertennummer === nr) || db().benutzer.some(b => b.versichertennummer === nr));
+  return nr;
+}
+
+/** Bestätigung an Antragstellende ohne Online-Zugang (E-Mail). */
+function externeBestaetigung(a: Anfrage, v: Vorgang, an: { name: string; email: string }, nachricht?: string) {
+  if (v.typ === 'MITGLIEDSANTRAG') {
+    const nr = v.daten['versichertennummer'];
+    const st = a.store.stammdaten.find(s => s.versichertennummer === nr);
+    const familie = st?.familie?.length ? `\n\nMitversichert sind ab demselben Tag:\n${st.familie.map(f => `- ${f.vorname} ${f.nachname} (Versichertennummer ${f.versichertennummer})`).join('\n')}` : '';
+    versenden('EMAIL', an.email, 'Willkommen bei der VitaPlus – Ihre Mitgliedsbestätigung',
+      `Guten Tag ${an.name},\n\nherzlich willkommen! Ihre Mitgliedschaft bei der VitaPlus beginnt am ${formatDatum(v.daten['beginn'])}.\n\nIhre Versichertennummer: ${nr}${familie}\n\n` +
+      `Ihre Gesundheitskarte erhalten Sie in den nächsten Tagen per Post. ${v.daten['arbeitgeber'] ? `Ihren Arbeitgeber (${v.daten['arbeitgeber']}) haben wir über den Wechsel informiert. ` : ''}` +
+      `Mit Ihrer Versichertennummer und Ihrem Geburtsdatum können Sie sich jetzt in der Online-Geschäftsstelle registrieren.\n\nIhre VitaPlus`,
+      { text: 'Jetzt registrieren', ziel: `/registrieren?versichertennummer=${nr}&geburtsdatum=${v.daten['geburtsdatum']}` });
+    return;
+  }
+  versenden('EMAIL', an.email, `Ihr Anliegen ${v.vorgangsnummer}`,
+    `Guten Tag ${an.name},\n\n${nachricht || `wir haben Ihr Anliegen „${v.titel}“ bearbeitet.`}\n\nIhre VitaPlus`);
 }
 
 interface Folge { status?: 'GENEHMIGT' | 'VERSENDET'; text?: string; nachricht?: string }
@@ -309,17 +355,23 @@ function nachGenehmigung(a: Anfrage, v: Vorgang, zusatz: Record<string, any>): F
       }
       return { text: 'Familienversicherung besteht fort' };
     case 'MITGLIEDSANTRAG': {
-      const nr = String.fromCharCode(65 + Math.floor(Math.random() * 26)) + String(Math.floor(Math.random() * 1e9)).padStart(9, '0');
+      const nr = neueVersichertennummer(String(d['nachname'] || 'X'));
+      const [strasse, hausnummer] = String(d['strasse'] || '').match(/^(.*?)\s+(\d+\s*[a-zA-Z]?)$/)?.slice(1) ?? [d['strasse'], ''];
+      const familie = (d['familieMitversichern'] && Array.isArray(d['familie']) ? d['familie'] : []).map((f: any, i: number) => ({
+        vorname: f.vorname, nachname: f.nachname, geburtsdatum: f.geburtsdatum, beziehung: f.beziehung,
+        versichertennummer: nr.substring(0, 1) + String(Number(nr.substring(1)) + i + 1).padStart(9, '0'),
+      }));
       a.store.stammdaten.push({ versichertennummer: nr, vorname: d['vorname'], nachname: d['nachname'], geburtsdatum: d['geburtsdatum'], tarif: d['tarif'] || 'BASIS',
-        beschaeftigung: ['ANGESTELLT', 'STUDENT', 'SELBSTSTAENDIG', 'RENTNER'].includes(d['status']) ? d['status'] : 'ANGESTELLT',
-        adresse: { strasse: d['strasse'], hausnummer: '', plz: d['plz'], ort: d['ort'], land: 'Deutschland' }, registriert: false });
+        beschaeftigung: ['ANGESTELLT', 'STUDENT', 'SELBSTSTAENDIG', 'RENTNER'].includes(d['status']) ? d['status'] : d['status'] === 'AUSZUBILDEND' ? 'ANGESTELLT' : 'ANGESTELLT',
+        adresse: { strasse, hausnummer, plz: d['plz'], ort: d['ort'], land: 'Deutschland' }, registriert: false,
+        anrede: d['anrede'], email: d['email'], telefon: d['telefon'], mitgliedSeit: d['beginn'], arbeitgeber: d['arbeitgeber'], bruttoMonat: Number(d['brutto']) || undefined, familie });
       v.daten['versichertennummer'] = nr;
-      return { text: `Mitgliedschaft angelegt, Versichertennummer ${nr}` };
+      return { text: `Mitgliedschaft zum ${formatDatum(d['beginn'])} angelegt, Versichertennummer ${nr}` };
     }
     case 'TODESFALL': {
       const verstorben = a.store.benutzer.find(b => b.id === d['verstorbenerBenutzerId']);
       if (verstorben) { verstorben.mitgliedBis = d['sterbedatum']; verstorben.konto = 'GELOESCHT'; sitzungen.alleEntfernenFuer(verstorben.id); }
-      return { text: 'Todesfall erfasst, Mitgliedschaft beendet' };
+      return { text: 'Todesfall erfasst, Mitgliedschaft beendet', nachricht: 'unser herzliches Beileid. Wir haben die Mitgliedschaft beendet. Zu Sterbegeld-Ansprüchen und offenen Erstattungen melden wir uns gesondert bei Ihnen.' };
     }
     case 'DIGA': {
       const code = 'VP' + Math.random().toString(36).substring(2, 10).toUpperCase();

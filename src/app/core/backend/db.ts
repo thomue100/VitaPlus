@@ -3,9 +3,16 @@ import { erzeugeStartdaten } from './seed';
 
 const SPEICHER_SCHLUESSEL = 'vp_db';
 const SITZUNG_SCHLUESSEL = 'vp_sessions';
-const AKTUELLE_VERSION = 4;
+export const AKTUELLE_VERSION = 5;
 
 let cache: Store | null = null;
+
+// Mehrere geöffnete Tabs teilen sich den Datenbestand: Änderungen aus anderen Tabs neu einlesen
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', e => {
+    if (e.key === SPEICHER_SCHLUESSEL) cache = null;
+  });
+}
 
 export function db(): Store {
   if (cache) return cache;

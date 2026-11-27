@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, isDevMode, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, input, isDevMode, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -89,7 +89,7 @@ import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
       }
     }`,
 })
-export class RegistrierenComponent {
+export class RegistrierenComponent implements OnInit {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   readonly schritt = signal(1);
@@ -113,6 +113,14 @@ export class RegistrierenComponent {
     datenschutz: [false, Validators.requiredTrue],
   }, { validators: VpValidatoren.gleich('passwort', 'passwort2') });
 
+  /** Vorbelegung aus dem Link in der Willkommens-E-Mail */
+  readonly versichertennummer = input<string>();
+  readonly geburtsdatum = input<string>();
+
+  ngOnInit() {
+    if (this.versichertennummer()) this.pruefung.patchValue({ versichertennummer: this.versichertennummer()!.toUpperCase(), geburtsdatum: this.geburtsdatum() || '' });
+  }
+
   grossschreiben() {
     const c = this.pruefung.controls.versichertennummer;
     c.setValue(c.value.toUpperCase(), { emitEvent: false });
@@ -124,7 +132,9 @@ export class RegistrierenComponent {
     this.laedt.set(true);
     this.fehler.set(null);
     try {
-      this.person.set(await firstValueFrom(this.http.post<any>('/api/registrierung/pruefen', this.pruefung.getRawValue())));
+      const person = await firstValueFrom(this.http.post<any>('/api/registrierung/pruefen', this.pruefung.getRawValue()));
+      this.person.set(person);
+      if (person.email && !this.zugang.controls.email.value) this.zugang.patchValue({ email: person.email });
       this.schritt.set(2);
     } catch (e) {
       if (!serverfehlerSetzen(this.pruefung, e)) this.fehler.set(fehlertext(e));

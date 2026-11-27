@@ -58,6 +58,18 @@ import { SymbolComponent } from '../../shared/symbol.component';
           <a class="btn" routerLink="/anmelden/identitaet" [queryParams]="{ verfahren: 'GESUNDHEITSID' }"><vp-symbol name="fingerprint" [groesse]="18" /> GesundheitsID</a>
           <a class="btn" routerLink="/anmelden/identitaet" [queryParams]="{ verfahren: 'EID' }"><vp-symbol name="id-card" [groesse]="18" /> Online-Ausweis</a>
         </div>
+        <details class="testzugaenge">
+          <summary><vp-symbol name="users" [groesse]="18" /> Testzugänge für die Demo</summary>
+          <p class="leise klein">Ein Klick trägt die Zugangsdaten ein. Sicherheitscodes per SMS finden Sie unten links unter „E-Mail &amp; SMS (Demo)“.</p>
+          <ul>
+            @for (t of testzugaenge; track t.kennung) {
+              <li><button type="button" class="testzugang" (click)="eintragen(t.kennung, t.passwort)">
+                <span class="initialen klein-initialen" [style.background]="t.farbe">{{ t.kuerzel }}</span>
+                <span><strong>{{ t.name }}</strong><span class="leise klein">{{ t.rolle }}</span></span>
+              </button></li>
+            }
+          </ul>
+        </details>
         <div class="neu-hier">
           <p class="fett">Neu in der Online-Geschäftsstelle?</p>
           <div class="aktionen"><a class="btn primaer-umriss" routerLink="/registrieren">Jetzt registrieren</a><a class="btn link" routerLink="/aktivieren">Aktivierungscode eingeben</a></div>
@@ -105,6 +117,13 @@ import { SymbolComponent } from '../../shared/symbol.component';
     .trenner::before, .trenner::after { content: ''; flex: 1; border-top: 1px solid var(--vp-rand); }
     .alternativen { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
     .alternativen .btn { justify-content: center; }
+    .testzugaenge { margin-top: 1.25rem; border: 1px dashed #9fb7b3; border-radius: 12px; padding: .6rem .9rem; background: #fbfdfc; }
+    .testzugaenge summary { cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: .4rem; color: var(--vp-primaer); }
+    .testzugaenge ul { list-style: none; padding: 0; margin: .5rem 0 0; display: grid; gap: .35rem; }
+    .testzugang { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left; background: #fff; border: 1px solid var(--vp-rand); border-radius: 10px; padding: .45rem .6rem; font: inherit; cursor: pointer; }
+    .testzugang:hover { border-color: var(--vp-primaer); }
+    .testzugang > span:last-child { display: flex; flex-direction: column; line-height: 1.25; }
+    .klein-initialen { width: 2rem; height: 2rem; border-radius: 50%; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
     .neu-hier { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--vp-rand); }
     .ohne-anmeldung { margin-top: 2.5rem; }
     .wechsel-band { margin-top: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding: 1.75rem 2rem; border-radius: 16px; color: #fff; background: linear-gradient(120deg, var(--vp-primaer-dunkel), #14897f); }
@@ -114,6 +133,22 @@ import { SymbolComponent } from '../../shared/symbol.component';
   `],
 })
 export class AnmeldenComponent {
+  readonly testzugaenge = [
+    { name: 'Anna Schmidt', rolle: 'Angestellte, Tarif Komfort, Familie mitversichert', kennung: 'anna.schmidt@example.de', passwort: 'VitaPlus2026!', kuerzel: 'AS', farbe: '#0b6e69' },
+    { name: 'Max Mustermann', rolle: 'Selbstständig, Zwei-Faktor-Anmeldung per SMS', kennung: 'max.mustermann@example.de', passwort: 'Sicher#2026', kuerzel: 'MM', farbe: '#1d6fb8' },
+    { name: 'Dr. Erika Weber', rolle: 'Rentnerin, Pflegegrad 2', kennung: 'erika.weber@example.de', passwort: 'Erika!Weber1', kuerzel: 'EW', farbe: '#7c5cc4' },
+    { name: 'Paul Weber', rolle: 'Bevollmächtigter für Erika Weber', kennung: 'paul.weber@example.de', passwort: 'Paul#Weber90', kuerzel: 'PW', farbe: '#c2507a' },
+    { name: 'Jonas Klein', rolle: 'Student, Zugang gesperrt', kennung: 'jonas.klein@example.de', passwort: 'Jonas#Klein9', kuerzel: 'JK', farbe: '#d9822b' },
+    { name: 'Sabine Müller', rolle: 'Sachbearbeitung Leistungen (mit SMS-Code)', kennung: 'sabine.mueller@vitaplus.de', passwort: 'Sachbearbeitung1!', kuerzel: 'SM', farbe: '#5b6b73' },
+    { name: 'Administration', rolle: 'Betrieb und Monitoring (mit SMS-Code)', kennung: 'admin@vitaplus.de', passwort: 'Administration1!', kuerzel: 'AD', farbe: '#1d3b4a' },
+  ];
+
+  eintragen(kennung: string, passwort: string) {
+    this.form.setValue({ kennung, passwort });
+    this.fehler.set(null);
+    document.getElementById('passwort')?.focus();
+  }
+
   readonly kacheln = [
     { route: '/leistungen', symbol: 'book-open-text', titel: 'Leistungen A–Z', text: 'Was wir für Sie übernehmen', ton: '#0b6e69' },
     { route: '/leistungen/finder', symbol: 'sparkles', titel: 'Leistungsfinder', text: 'In drei Fragen zur passenden Leistung', ton: '#7c5cc4' },

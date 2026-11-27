@@ -2,7 +2,7 @@ import { BERATUNGSTHEMEN, BONUS, BONUS_KATALOG, FILIALEN, MAX_OFFENE_TERMINE } f
 import { BonusEintrag, Termin } from '../models';
 import { bonusEuro } from '../util/berechnungen';
 import { addTage, alterAm, formatDatum, heute, istFeiertag, istWochenende, jetztIso, parseIso, toIso } from '../util/datum';
-import { Anfrage, ApiFehler, anrede, euro, pflicht, postfachNachricht, Route, statusSetzen, voller } from './api-kontext';
+import { Anfrage, ApiFehler, anrede, euro, pflicht, postfachNachricht, Route, statusSetzen, voller, eingangErfassen } from './api-kontext';
 import { neueId, neueVorgangsnummer } from './db';
 import { anhaengePruefen } from './handler-vorgaenge';
 
@@ -102,7 +102,7 @@ function bonusAuszahlen(a: Anfrage) {
   };
   statusSetzen(v as any, 'EINGEREICHT', `Prämie für ${punkte} Punkte angefordert`, voller(b));
   statusSetzen(v as any, 'GENEHMIGT', `Prämie über ${euro(betrag)} freigegeben`, 'System');
-  a.store.vorgaenge.push(v as any);
+  eingangErfassen(a.store, v as any);
   postfachNachricht(b.id, `Ihre Bonusprämie ${jahr}`,
     `${anrede(b)},\n\nherzlichen Glückwunsch! Für ${punkte} Punkte erhalten Sie ${euro(betrag)}` +
     (art === 'GESUNDHEITSBUDGET' ? ' als Gesundheitsbudget, das Sie für zusätzliche Gesundheitsleistungen einsetzen können.' : '. Der Betrag wird in den nächsten Tagen überwiesen.') +

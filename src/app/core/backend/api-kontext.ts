@@ -1,8 +1,8 @@
-import { Benutzer, Nachricht, Store, Vorgang, VorgangStatus } from '../models';
+import { AusgehendeNachricht, Benutzer, Nachricht, Store, Vorgang, VorgangStatus } from '../models';
 import { jetztIso } from '../util/datum';
 import { db, neueId } from './db';
 import { benachrichtigen } from './fachlogik';
-import { STATUS_TEXT } from '../konfiguration';
+import { STATUS_TEXT, VERARBEITUNG } from '../konfiguration';
 
 export class ApiFehler extends Error {
   constructor(public status: number, public meldung: string, public feld?: string, public code?: string, public details?: any) {
@@ -19,6 +19,8 @@ export interface Anfrage {
   benutzer?: Benutzer;
   token: string | null;
   store: Store;
+  /** Probelauf ohne dauerhafte Wirkung (Vorabprüfung von Formularen) */
+  trocken?: boolean;
 }
 
 export type Handler = (a: Anfrage) => any;
@@ -29,6 +31,8 @@ export interface Route {
   handler: Handler;
   oeffentlich?: boolean;
   rolle?: 'VERSICHERTER' | 'SACHBEARBEITER' | 'ADMIN';
+  /** Hintergrundabfrage: verlängert die Sitzung nicht */
+  hintergrund?: boolean;
 }
 
 export function pflicht(wert: any, feld: string, meldung = 'Pflichtfeld'): void {
@@ -56,6 +60,16 @@ export function statusSetzen(v: Vorgang, status: VorgangStatus, text: string, vo
     benachrichtigen(v.benutzerId, status === 'RUECKFRAGE' ? 'FRIST' : 'STATUS', `Vorgang ${v.vorgangsnummer}`,
       `Neuer Status: ${STATUS_TEXT[status] || status}`, `/vorgaenge/${v.id}`);
   }
+}
+
+/** Übergabe an das Versand-Gateway (E-Mail, SMS, Brief). In der Demo landet alles im Postausgang. */
+export function versenden(kanal: AusgehendeNachricht['kanal'], an: string, betreff: string, text: string, link?: AusgehendeNachricht['link']): AusgehendeNachricht {
+  const s = db();
+  s.postausgang ??= [];
+  const n: AusgehendeNachricht = { id: neueId('out'), kanal, an, betreff, text, zeitpunkt: jetztIso(), link };
+  s.postausgang.unshift(n);
+  s.postausgang = s.postausgang.slice(0, 60);
+  return n;
 }
 
 export function postfachNachricht(
@@ -93,4 +107,16 @@ export function ohnePasswort(b: Benutzer) {
 
 export function euro(n: number): string {
   return n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+
+/** Startet die maschinelle Weiterverarbeitung eines online eingegangenen Anliegens. */
+export function verarbeitungStarten(v: Vorgang): void {
+  if (v.status === 'ENTWURF' || v.verarbeitung) return;
+  v.verarbeitung = { eingang: Date.now(), spur: VERARBEITUNG.dunkelTypen.includes(v.typ) ? 'DUNKEL' : 'SACHBEARBEITUNG' };
+}
+
+/** Legt einen neuen Vorgang im Bestand an (Posteingang Online-Kanal). */
+export function eingangErfassen(s: Store, v: Vorgang): void {
+  s.vorgaenge.push(v);
+  verarbeitungStarten(v);
 }

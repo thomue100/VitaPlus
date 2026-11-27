@@ -2,7 +2,7 @@ import { BEITRAG, BONUS_KATALOG, CHALLENGES, DIGA_LISTE, DMP_PROGRAMME, KRANKENG
 import { Gesundheitskarte } from '../models';
 import { berechneBeitrag } from '../util/berechnungen';
 import { addMonate, addTage, alterAm, formatDatum, heute, heuteIso, istWochenende, jetztIso, parseIso, toIso } from '../util/datum';
-import { Anfrage, ApiFehler, anrede, pflicht, postfachNachricht, Route, statusSetzen, voller } from './api-kontext';
+import { Anfrage, ApiFehler, anrede, pflicht, postfachNachricht, Route, statusSetzen, voller, eingangErfassen } from './api-kontext';
 import { neueId, neueVorgangsnummer } from './db';
 import { belastungsgrenze, entlastungVerfuegbar, gemeinsamesBudget, kontostand, pflegeakte, protokollieren, zuzahlungenSumme } from './fachlogik';
 import { anhaengePruefen } from './handler-vorgaenge';
@@ -240,7 +240,7 @@ function pinAnfordern(a: Anfrage) {
     status: 'EINGEREICHT' as const, erstelltAm: jetztIso(), geaendertAm: jetztIso(), daten: { karteId: k.id, verfahren }, anhaenge: [], historie: [], zustaendig: 'Mitgliedschaft & Beiträge' };
   statusSetzen(v as any, 'EINGEREICHT', 'PIN angefordert', voller(a.benutzer!));
   if (verfahren === 'EID') statusSetzen(v as any, 'VERSENDET', 'Identität per Online-Ausweis bestätigt, PIN-Brief versendet', 'System');
-  a.store.vorgaenge.push(v as any);
+  eingangErfassen(a.store, v as any);
   return v;
 }
 

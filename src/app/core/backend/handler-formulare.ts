@@ -5,7 +5,7 @@ import { FormularDef } from '../formulare/formular-typen';
 import { Benutzer, Familienmitglied, Vorgang } from '../models';
 import { berechneBeitrag } from '../util/berechnungen';
 import { addMonate, addTage, alterAm, formatDatum, heute, heuteIso, istFeiertag, istWochenende, jetztIso, parseIso, tageZwischen, toIso } from '../util/datum';
-import { Anfrage, ApiFehler, anrede, euro, postfachNachricht, Route, statusSetzen, voller } from './api-kontext';
+import { Anfrage, ApiFehler, anrede, euro, postfachNachricht, Route, statusSetzen, voller, eingangErfassen, verarbeitungStarten, versenden } from './api-kontext';
 import { neueId, neueVorgangsnummer } from './db';
 import { belastungsgrenze, entlastungVerfuegbar, gemeinsamesBudget, kontostand, pflegeakte, protokollieren, zuzahlungenSumme } from './fachlogik';
 import { anhaengePruefen, ANTRAG_TYPEN, antragValidieren, detail, neuerVorgang } from './handler-vorgaenge';
@@ -361,7 +361,7 @@ const SONDERREGELN: Record<string, (k: Kontext) => Ergebnis | void> = {
     const grenze = k.d['status'] === 'MINIJOB' ? BEITRAG.familienEinkommensgrenzeMinijob : BEITRAG.familienEinkommensgrenze;
     const ende = Number(k.d['einkommen']) > grenze || ['BESCHAEFTIGT', 'SELBSTSTAENDIG'].includes(k.d['status']) || !!k.d['anderweitigVersichert'];
     const offen = k.a.store.vorgaenge.find(v => v.benutzerId === k.b.id && v.typ === 'FAMILIE_FRAGEBOGEN' && v.status === 'RUECKFRAGE');
-    if (offen) statusSetzen(offen, 'IN_BEARBEITUNG', `Fragebogen für ${f.vorname} beantwortet`, voller(k.b));
+    if (offen && !k.a.trocken) statusSetzen(offen, 'IN_BEARBEITUNG', `Fragebogen für ${f.vorname} beantwortet`, voller(k.b));
     return { titel: `Fragebogen Familienversicherung – ${f.vorname} ${f.nachname}`, daten: { familienmitgliedId: f.id, voraussetzungEntfallen: ende },
       hinweise: ende ? ['Nach Ihren Angaben sind die Voraussetzungen der Familienversicherung möglicherweise entfallen. Wir prüfen das und melden uns.'] : [] };
   },
@@ -509,7 +509,7 @@ function antragAnlegen(a: Anfrage) {
     statusSetzen(v, 'EINGEREICHT', 'Antrag online eingereicht', voller(b));
     nachEinreichen(a, b, v, def, e);
   }
-  a.store.vorgaenge.push(v);
+  eingangErfassen(a.store, v);
   return { ...v, hinweise: e.hinweise || [] };
 }
 
@@ -533,6 +533,7 @@ function entwurfAktualisieren(a: Anfrage) {
   v.zustaendig = def.zustaendig;
   statusSetzen(v, 'EINGEREICHT', 'Antrag online eingereicht', voller(a.benutzer!));
   nachEinreichen(a, a.benutzer!, v, def, e);
+  verarbeitungStarten(v);
   return { ...v, hinweise: e.hinweise || [] };
 }
 
@@ -542,6 +543,42 @@ function formulareListe(a: Anfrage) {
     code: f.code, titel: f.titel, kurz: f.kurz, kategorie: f.kategorie, lebenslagen: f.lebenslagen, suchbegriffe: f.suchbegriffe,
     verfuegbar: !f.nurFuer || f.nurFuer.includes(b.beschaeftigung), bearbeitungTage: f.bearbeitungTage,
   }));
+}
+
+/** Fachliche Prüfung des Mitgliedsantrags (Beginn, Fristen, Vorversicherung, Angehörige). Liefert Hinweise oder wirft Fehler. */
+export function mitgliedsantragPruefen(a: Anfrage, d: Record<string, any>): string[] {
+  const hinweise: string[] = [];
+  const alter = d['geburtsdatum'] ? alterAm(d['geburtsdatum']) : 30;
+  if (d['geburtsdatum'] && alter < 15) throw fehler('Kinder und Jugendliche unter 15 Jahren werden in der Regel über die Familienversicherung eines Elternteils versichert.', 'geburtsdatum');
+  if (d['vorversicherung'] === 'PKV' && alter >= 55) throw fehler('Eine Rückkehr aus der privaten in die gesetzliche Krankenversicherung ist ab 55 Jahren in der Regel nicht möglich.', 'vorversicherung');
+  if (d['beginn']) {
+    const beginn = parseIso(d['beginn']);
+    if (beginn.getDate() !== 1) throw fehler('Die Mitgliedschaft kann nur zum Monatsersten beginnen.', 'beginn');
+    if (beginn < new Date(heute().getFullYear(), heute().getMonth(), 1)) throw fehler('Ein rückwirkender Beginn ist nicht möglich.', 'beginn');
+    if (d['vorversicherung'] === 'GKV' && d['versichertSeit']) {
+      const fruehestens = addMonate(parseIso(d['versichertSeit']), BINDUNGSFRIST_MONATE);
+      const ersterNachBindung = fruehestens.getDate() === 1 ? fruehestens : new Date(fruehestens.getFullYear(), fruehestens.getMonth() + 1, 1);
+      if (beginn < ersterNachBindung) throw fehler(`Wegen der Bindungsfrist von ${BINDUNGSFRIST_MONATE} Monaten ist ein Wechsel frühestens zum ${formatDatum(toIso(ersterNachBindung))} möglich.`, 'beginn');
+      const kuendigungsfrist = new Date(heute().getFullYear(), heute().getMonth() + 3, 1);
+      if (beginn < kuendigungsfrist) throw fehler(`Wegen der Kündigungsfrist von 2 Monaten zum Monatsende ist der früheste Beginn der ${formatDatum(toIso(kuendigungsfrist))}.`, 'beginn');
+    }
+  }
+  if (d['status'] === 'ANGESTELLT' && Number(d['brutto']) * 12 > BEITRAG.versicherungspflichtgrenzeJahr) hinweise.push('Ihr Einkommen liegt über der Versicherungspflichtgrenze – Sie werden als freiwilliges Mitglied versichert.');
+  if (d['status'] === 'STUDENT' && alter >= 30) hinweise.push('Ab 30 Jahren ist eine studentische Versicherung nur in Ausnahmefällen möglich.');
+  if (d['status'] === 'ARBEITSLOS') hinweise.push('Bitte teilen Sie der Agentur für Arbeit bzw. dem Jobcenter mit, dass Sie zur VitaPlus wechseln.');
+  if (d['email'] && a.store.benutzer.some(b => b.email.toLowerCase() === String(d['email']).toLowerCase())) throw fehler('Zu dieser E-Mail-Adresse besteht bereits eine Mitgliedschaft. Bitte melden Sie sich an.', 'email', 409);
+  if (d['familieMitversichern'] && Array.isArray(d['familie'])) {
+    const partner = d['familie'].filter((f: any) => ['EHEPARTNER', 'LEBENSPARTNER'].includes(f?.beziehung));
+    if (partner.length > 1) throw fehler('Es kann nur ein Ehe- oder Lebenspartner mitversichert werden.', 'familie');
+    for (const f of d['familie']) {
+      if (!f?.geburtsdatum) continue;
+      const fa = alterAm(f.geburtsdatum);
+      if (['KIND', 'STIEFKIND', 'ENKELKIND'].includes(f.beziehung) && fa >= 25) throw fehler(`${f.vorname} ist ${fa} Jahre alt. Kinder ab 25 Jahren können nur bei einer Behinderung mitversichert werden – bitte sprechen Sie uns an.`, 'familie');
+      if (['KIND', 'STIEFKIND', 'ENKELKIND'].includes(f.beziehung) && fa >= 18) hinweise.push(`Für ${f.vorname} benötigen wir eine Schul- oder Ausbildungsbescheinigung. Wir melden uns dazu.`);
+    }
+  }
+  if (d['iban'] && !d['kontoinhaber']) throw fehler('Bitte geben Sie den Kontoinhaber an.', 'kontoinhaber');
+  return hinweise;
 }
 
 function oeffentlichEinreichen(a: Anfrage) {
@@ -558,20 +595,7 @@ function oeffentlichEinreichen(a: Anfrage) {
   const daten: Record<string, any> = bereinige(def, d);
   let titel = def.kurz;
   if (code === 'MITGLIEDSANTRAG') {
-    const alter = alterAm(d['geburtsdatum']);
-    const beginn = parseIso(d['beginn']);
-    if (beginn.getDate() !== 1) throw fehler('Die Mitgliedschaft kann nur zum Monatsersten beginnen.', 'beginn', 400);
-    if (beginn < new Date(heute().getFullYear(), heute().getMonth(), 1)) throw fehler('Ein rückwirkender Beginn ist nicht möglich.', 'beginn', 400);
-    if (d['vorversicherung'] === 'PKV' && alter >= 55) throw fehler('Eine Rückkehr aus der privaten in die gesetzliche Krankenversicherung ist ab 55 Jahren in der Regel nicht möglich.', 'vorversicherung');
-    if (d['vorversicherung'] === 'GKV' && d['versichertSeit']) {
-      const fruehestens = addMonate(parseIso(d['versichertSeit']), BINDUNGSFRIST_MONATE);
-      if (beginn < fruehestens) throw fehler(`Wegen der Bindungsfrist ist ein Wechsel frühestens zum ${formatDatum(toIso(new Date(fruehestens.getFullYear(), fruehestens.getMonth() + 1, 1)))} möglich.`, 'beginn');
-      const kuendigungsfrist = new Date(heute().getFullYear(), heute().getMonth() + 3, 1);
-      if (beginn < kuendigungsfrist) throw fehler(`Wegen der Kündigungsfrist von 2 Monaten zum Monatsende ist der früheste Beginn der ${formatDatum(toIso(kuendigungsfrist))}.`, 'beginn');
-    }
-    if (d['status'] === 'ANGESTELLT' && Number(d['brutto']) * 12 > BEITRAG.versicherungspflichtgrenzeJahr) hinweise.push('Sie werden als freiwilliges Mitglied versichert.');
-    if (d['status'] === 'STUDENT' && alter >= 30) hinweise.push('Ab 30 Jahren ist eine studentische Versicherung nur in Ausnahmefällen möglich.');
-    if (a.store.benutzer.some(b => b.email.toLowerCase() === String(d['email']).toLowerCase())) throw fehler('Zu dieser E-Mail-Adresse besteht bereits eine Mitgliedschaft. Bitte melden Sie sich an.', 'email', 409);
+    hinweise.push(...mitgliedsantragPruefen(a, d));
     titel = `Mitgliedsantrag ${d['vorname']} ${d['nachname']}`;
   }
   if (code === 'TODESFALL') titel = `Todesfallmeldung ${d['name']}`;
@@ -582,8 +606,14 @@ function oeffentlichEinreichen(a: Anfrage) {
     fristBis: toIso(addTage(heute(), def.bearbeitungTage)),
   };
   v.historie.push({ zeitpunkt: v.erstelltAm, status: 'EINGEREICHT', text: 'Über die Website eingereicht', von: v.externKontakt!.name });
-  a.store.vorgaenge.push(v);
-  return { vorgangsnummer: v.vorgangsnummer, hinweise };
+  eingangErfassen(a.store, v);
+  if (v.externKontakt?.email) {
+    versenden('EMAIL', v.externKontakt.email, `Eingangsbestätigung ${v.vorgangsnummer}`,
+      `Guten Tag ${v.externKontakt.name},\n\nvielen Dank – wir haben Ihre Angaben „${def.titel}“ erhalten. Ihre Vorgangsnummer lautet ${v.vorgangsnummer}.\n\n` +
+      (code === 'MITGLIEDSANTRAG' ? 'Wir prüfen Ihren Antrag und senden Ihnen Ihre Mitgliedsbestätigung mit Ihrer Versichertennummer per E-Mail. Danach können Sie sich in der Online-Geschäftsstelle registrieren.' : 'Wir melden uns, sobald wir Ihr Anliegen bearbeitet haben.') +
+      (hinweise.length ? `\n\nBitte beachten Sie:\n- ${hinweise.join('\n- ')}` : '') + '\n\nIhre VitaPlus');
+  }
+  return { vorgangsnummer: v.vorgangsnummer, status: v.status, hinweise, kontakt: v.externKontakt?.email };
 }
 
 export const FORMULAR_ROUTEN: Route[] = [

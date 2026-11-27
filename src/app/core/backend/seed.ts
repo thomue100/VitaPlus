@@ -53,7 +53,7 @@ export const AERZTE: Arzt[] = aerzte();
 
 export function erzeugeStartdaten(): Store {
   return ergaenzeStartdaten({
-    version: 4,
+    version: 5,
     zaehler: 1200,
     benutzer: ([
       {
@@ -253,5 +253,6 @@ export function erzeugeStartdaten(): Store {
     dokumente: [],
     arztFavoriten: { u1: ['A1002', 'A1015'] },
     passwortResetTokens: [],
+    postausgang: [],
   } as any);
 }
