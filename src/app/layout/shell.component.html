@@ -1,0 +1,135 @@
+<a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+
+<header class="vp-kopf">
+  <div class="kopf-innen">
+    @if (sitzung.angemeldet()) {
+      <button class="nav-umschalter" type="button" (click)="navOffen.set(!navOffen())" [attr.aria-expanded]="navOffen()" aria-controls="hauptnavigation">☰ <span class="sr-only">Menü</span></button>
+    }
+    <a class="logo" [routerLink]="sitzung.istSachbearbeitung() ? '/sachbearbeitung' : sitzung.benutzer()?.rolle === 'ADMIN' ? '/admin' : '/start'" aria-label="VitaPlus – zur Startseite">
+      <span class="logo-bild" aria-hidden="true">✚</span><span class="logo-text">Vita<strong>Plus</strong></span>
+      <span class="logo-zusatz">Online-Geschäftsstelle</span>
+    </a>
+
+    <form class="suche" role="search" (ngSubmit)="suchen()">
+      <label for="globale-suche" class="sr-only">{{ 'kopf.suche' | t }}</label>
+      <input id="globale-suche" type="search" name="q" [(ngModel)]="suchbegriff" placeholder="Leistungen, Anträge, Hilfe …" autocomplete="off" />
+      <button type="submit" class="btn klein">{{ 'kopf.suche' | t }}</button>
+    </form>
+
+    <div class="kopf-aktionen">
+      @if (sitzung.angemeldet()) {
+        <span class="sitzung" [class.warnung]="warnen()" title="Automatische Abmeldung bei Inaktivität" aria-live="polite">
+          {{ 'kopf.sitzung' | t }} {{ restzeit() }}
+        </span>
+        @if (sitzung.benutzer()?.rolle === 'VERSICHERTER') {
+          <a routerLink="/benachrichtigungen" class="symbol" [attr.aria-label]="('kopf.benachrichtigungen' | t) + (benachrichtigungen() ? ', ' + benachrichtigungen() + ' neu' : '')">
+            🔔 @if (benachrichtigungen()) { <span class="zaehlpunkt">{{ benachrichtigungen() }}</span> }
+          </a>
+          <a routerLink="/postfach" class="symbol" [attr.aria-label]="'Postfach' + (ungelesen() ? ', ' + ungelesen() + ' ungelesen' : '')">
+            ✉️ @if (ungelesen()) { <span class="zaehlpunkt">{{ ungelesen() }}</span> }
+          </a>
+        }
+        <div class="benutzermenue">
+          <button type="button" class="btn klein" (click)="menueOffen.set(!menueOffen()); $event.stopPropagation()" [attr.aria-expanded]="menueOffen()" aria-haspopup="menu">
+            {{ sitzung.benutzer()?.vorname }} {{ sitzung.benutzer()?.nachname }} ▾
+          </button>
+          @if (menueOffen()) {
+            <ul class="menue" role="menu">
+              @if (sitzung.benutzer()?.rolle === 'VERSICHERTER') {
+                <li role="none"><a role="menuitem" routerLink="/profil">Persönliche Daten</a></li>
+                <li role="none"><a role="menuitem" routerLink="/einstellungen">Einstellungen</a></li>
+                <li role="none"><a role="menuitem" routerLink="/vertretung">Als Bevollmächtigte/r handeln</a></li>
+              }
+              <li role="none"><a role="menuitem" routerLink="/einstellungen/sicherheit">Sicherheit</a></li>
+              <li role="none"><button role="menuitem" type="button" (click)="abmelden()">{{ 'kopf.abmelden' | t }}</button></li>
+            </ul>
+          }
+        </div>
+      } @else {
+        <a class="btn klein" routerLink="/mitglied-werden">Mitglied werden</a>
+        <a class="btn klein primaer" routerLink="/anmelden">Anmelden</a>
+      }
+    </div>
+  </div>
+</header>
+
+@if (wartung()) { <div class="banner stoerung" role="alert">🔧 {{ wartung() }}</div> }
+@for (m of sichtbareMeldungen(); track m.id) {
+  <div class="banner" [class.warnung]="m.typ === 'WARNUNG'" [class.stoerung]="m.typ === 'STOERUNG'" role="status">
+    <span><strong>{{ m.titel }}:</strong> {{ m.text }}</span>
+    <button type="button" class="btn link klein" (click)="meldungAusblenden(m.id)" aria-label="Hinweis ausblenden">Ausblenden</button>
+  </div>
+}
+
+<div class="rahmen" [class.mit-nav]="sitzung.angemeldet()">
+  @if (sitzung.angemeldet()) {
+    <nav id="hauptnavigation" class="vp-navigation" [class.offen]="navOffen()" aria-label="Hauptnavigation">
+      @switch (sitzung.benutzer()?.rolle) {
+        @case ('VERSICHERTER') {
+          @for (g of versichertenNavigation; track g.schluessel) {
+            <h2 class="nav-gruppe">{{ g.schluessel | t }}</h2>
+            <ul>
+              @for (e of g.eintraege; track e.route) {
+                <li><a [routerLink]="e.route" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: e.route === '/start' }">
+                  {{ e.schluessel | t }} @if (e.zaehler && e.zaehler()) { <span class="zaehlpunkt">{{ e.zaehler() }}</span> }
+                </a></li>
+              }
+            </ul>
+          }
+        }
+        @case ('SACHBEARBEITER') {
+          <h2 class="nav-gruppe">Sachbearbeitung</h2>
+          <ul>@for (e of sbNavigation; track e.route) { <li><a [routerLink]="e.route" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: true }">{{ e.text }}</a></li> }</ul>
+        }
+        @case ('ADMIN') {
+          <h2 class="nav-gruppe">Administration</h2>
+          <ul>@for (e of adminNavigation; track e.route) { <li><a [routerLink]="e.route" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: true }">{{ e.text }}</a></li> }</ul>
+        }
+      }
+    </nav>
+  }
+  <main id="inhalt" tabindex="-1">
+    @if (sitzung.benutzer()?.sprache === 'en') { <p class="hinweis info klein">{{ 'hinweis.nurDeutsch' | t }}</p> }
+    <router-outlet />
+  </main>
+</div>
+
+<footer class="vp-fuss">
+  <div class="fuss-innen">
+    <nav aria-label="Service-Links">
+      <a routerLink="/kontakt">Kontakt</a>
+      <a routerLink="/hilfe">Hilfe & FAQ</a>
+      <a routerLink="/leistungen">Leistungen A–Z</a>
+      <a routerLink="/rechner/beitrag">Beitragsrechner</a>
+      <a routerLink="/arztsuche">Arztsuche</a>
+      <a routerLink="/info/sicherheit">Sicher online</a>
+      <a routerLink="/info/datenschutz">Datenschutz</a>
+      <a routerLink="/info/barrierefreiheit">Barrierefreiheit</a>
+      <a routerLink="/info/impressum">Impressum</a>
+      <a routerLink="/info/aufsicht">Aufsicht & Schlichtung</a>
+      <a routerLink="/info/neuigkeiten">Was ist neu?</a>
+    </nav>
+    <p class="klein">© 2026 VitaPlus Krankenkasse – Körperschaft des öffentlichen Rechts</p>
+  </div>
+</footer>
+
+@if (sitzung.benutzer()?.rolle !== 'SACHBEARBEITER' && sitzung.benutzer()?.rolle !== 'ADMIN') { <vp-chat /> }
+
+<div class="toasts" aria-live="assertive">
+  @for (h of ui.hinweise(); track h.id) {
+    <div class="toast {{ h.art }}" role="status"><span>{{ h.text }}</span><button type="button" (click)="ui.schliessen(h.id)" aria-label="Hinweis schließen">×</button></div>
+  }
+</div>
+
+@if (ui.dialog(); as d) {
+  <div class="dialog-hintergrund" (click)="d.aufloesen(false)">
+    <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dialog-titel" (click)="$event.stopPropagation()">
+      <h2 id="dialog-titel">{{ d.titel }}</h2>
+      <p>{{ d.text }}</p>
+      <div class="aktionen rechts">
+        <button type="button" class="btn" (click)="d.aufloesen(false)">{{ d.abbrechen }}</button>
+        <button type="button" class="btn primaer" [class.gefahr]="d.gefaehrlich" (click)="d.aufloesen(true)" autofocus>{{ d.bestaetigen }}</button>
+      </div>
+    </div>
+  </div>
+}
