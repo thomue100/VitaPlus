@@ -60,7 +60,7 @@ const EREIGNIS: Record<string, string> = {
         <section class="karte"><h2>Aktive Sitzungen</h2>
           <ul class="liste-ohne">@for (s of sitzungen(); track s.id) {
             <li class="zeile"><span><strong>{{ s.geraet }}</strong> @if (s.aktuell) { <span class="badge gruen">diese Sitzung</span> }<br />
-              <span class="klein leise">angemeldet {{ s.angemeldetSeit | datum: true }} · zuletzt aktiv {{ s.letzteAktivitaet | datum: true }}</span></span>
+              <span class="klein leise">angemeldet {{ s.angemeldetSeit | datum: true }}, zuletzt aktiv {{ s.letzteAktivitaet | datum: true }}</span></span>
               @if (!s.aktuell) { <button class="btn klein" type="button" (click)="sitzungBeenden(s.id)">Abmelden</button> }</li>
           }</ul>
           @if (sitzungen().length > 1) { <button class="btn" type="button" (click)="alleAbmelden()">Alle anderen Sitzungen beenden</button> }

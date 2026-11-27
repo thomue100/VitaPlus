@@ -27,9 +27,9 @@ import { DatumPipe, EuroPipe } from '../../shared/pipes';
       @for (k of kurse(); track k.id) {
         <article class="karte">
           <h3>{{ k.titel }}</h3>
-          <p class="klein leise">{{ k.anbieter }} · {{ k.online ? 'Online' : k.plz + ' ' + k.ort }}</p>
+          <p class="klein leise">{{ k.anbieter }}, {{ k.online ? 'Online' : k.plz + ' ' + k.ort }}</p>
           <p class="klein">{{ k.beschreibung }}</p>
-          <p class="klein">Start: {{ k.start | datum }} · {{ k.termine }} Termine · {{ k.preis ? (k.preis | euro) : 'kostenfrei' }}</p>
+          <p class="klein">Start: {{ k.start | datum }}, {{ k.termine }} Termine, {{ k.preis ? (k.preis | euro) : 'kostenfrei' }}</p>
           @if (k.zertifiziert) { <span class="badge gruen">zertifiziert</span> } @else { <span class="badge">nicht bezuschussungsfähig</span> }
           <span class="badge" [class.rot]="k.frei === 0">{{ k.frei === 0 ? 'ausgebucht' : k.frei + ' Plätze frei' }}</span>
           <div class="aktionen">

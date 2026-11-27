@@ -14,15 +14,16 @@ import { laufzeit } from '../../core/laufzeit';
   template: `
     <div class="anmelde-buehne">
       <section class="buehne-text" aria-labelledby="willkommen">
-        <p class="ueberzeile">Online-Geschäftsstelle</p>
-        <h1 id="willkommen">Ihre Krankenkasse – jederzeit online.</h1>
-        <p class="einleitung">Rechnungen einreichen, Bescheinigungen herunterladen, Krankmeldungen verfolgen: Erledigen Sie Ihre Anliegen bei der VitaPlus, wann es Ihnen passt.</p>
+        <h1 id="willkommen">Online-Geschäftsstelle der VitaPlus</h1>
+        <p class="einleitung">Reichen Sie Rechnungen ein, laden Sie Bescheinigungen herunter und verfolgen Sie Ihre Anträge, wann es Ihnen passt.</p>
+        <h2 class="vorteile-titel">Nach der Anmeldung können Sie</h2>
         <ul class="vorteile">
-          <li><span class="vorteil-symbol"><vp-symbol name="camera" [groesse]="18" /></span>Belege einfach per Foto einreichen</li>
-          <li><span class="vorteil-symbol"><vp-symbol name="file-check" [groesse]="18" /></span>Bescheinigungen sofort als PDF</li>
-          <li><span class="vorteil-symbol"><vp-symbol name="shield-check" [groesse]="18" /></span>Geschützt mit Zwei-Faktor-Anmeldung</li>
+          <li><vp-symbol name="camera" [groesse]="20" />Rechnungen und Belege als Foto oder PDF einreichen</li>
+          <li><vp-symbol name="file-check" [groesse]="20" />Mitglieds- und Versicherungsbescheinigungen sofort herunterladen</li>
+          <li><vp-symbol name="clock" [groesse]="20" />den Bearbeitungsstand Ihrer Anträge verfolgen</li>
+          <li><vp-symbol name="mail" [groesse]="20" />Bescheide und Nachrichten sicher im Postfach empfangen</li>
+          <li><vp-symbol name="map-pin" [groesse]="20" />Anschrift und Bankverbindung selbst ändern</li>
         </ul>
-        <img class="buehne-bild" src="bilder/hero-familie.svg" alt="" width="600" height="420" />
       </section>
 
       <section class="karte anmelde-karte" aria-labelledby="anmelden-titel">
@@ -98,18 +99,17 @@ import { laufzeit } from '../../core/laufzeit';
         <h2 id="wechsel-titel">Noch nicht bei der VitaPlus?</h2>
         <p>Werden Sie in wenigen Minuten online Mitglied – wir kümmern uns um den Wechsel und informieren Ihren Arbeitgeber.</p>
       </div>
-      <a class="btn akzent" routerLink="/mitglied-werden">Mitglied werden <vp-symbol name="arrow-right" [groesse]="18" /></a>
+      <a class="btn akzent" routerLink="/mitglied-werden">Mitglied werden</a>
     </section>`,
   styles: [`
     .anmelde-buehne { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(340px, 440px); gap: 2.5rem; align-items: start; }
-    .ueberzeile { text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; font-weight: 700; color: var(--vp-primaer); margin: .5rem 0 .25rem; }
-    .buehne-text h1 { font-size: clamp(1.8rem, 3vw, 2.6rem); letter-spacing: -.02em; max-width: 18ch; }
+    .buehne-text h1 { font-size: clamp(1.777rem, 3vw, 2.369rem); max-width: 20ch; margin-top: .5rem; }
+    .vorteile-titel { font-size: 1.125rem; margin: 1.5rem 0 .5rem; }
     .einleitung { font-size: 1.1rem; color: var(--vp-text-leise); max-width: 52ch; }
     .vorteile { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .5rem; }
-    .vorteile li { display: flex; align-items: center; gap: .6rem; font-weight: 600; }
-    .vorteil-symbol { width: 2rem; height: 2rem; border-radius: 50%; background: var(--vp-primaer-hell); color: var(--vp-primaer); display: inline-flex; align-items: center; justify-content: center; }
-    .buehne-bild { width: 100%; max-width: 560px; height: auto; display: block; margin-top: .5rem; }
-    .anmelde-karte { padding: 1.75rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(11, 60, 58, .10); position: sticky; top: 5.5rem; }
+    .vorteile li { display: flex; align-items: flex-start; gap: .65rem; max-width: 52ch; }
+    .vorteile vp-symbol { color: var(--vp-primaer); flex-shrink: 0; margin-top: .15rem; }
+    .anmelde-karte { padding: 1.75rem; border-top: 4px solid var(--vp-primaer); position: sticky; top: 5.5rem; }
     .anmelde-karte h2 { margin-top: 0; font-size: 1.5rem; }
     .eingabe-mit-symbol { position: relative; flex: 1; display: flex; }
     .eingabe-mit-symbol vp-symbol { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); color: var(--vp-text-leise); }
@@ -120,16 +120,16 @@ import { laufzeit } from '../../core/laufzeit';
     .trenner::before, .trenner::after { content: ''; flex: 1; border-top: 1px solid var(--vp-rand); }
     .alternativen { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
     .alternativen .btn { justify-content: center; }
-    .testzugaenge { margin-top: 1.25rem; border: 1px dashed #9fb7b3; border-radius: 12px; padding: .6rem .9rem; background: #fbfdfc; }
+    .testzugaenge { margin-top: 1.25rem; border: 1px dashed #9fb7b3; border-radius: var(--vp-radius); padding: .6rem .9rem; background: #fbfdfc; }
     .testzugaenge summary { cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: .4rem; color: var(--vp-primaer); }
     .testzugaenge ul { list-style: none; padding: 0; margin: .5rem 0 0; display: grid; gap: .35rem; }
-    .testzugang { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left; background: #fff; border: 1px solid var(--vp-rand); border-radius: 10px; padding: .45rem .6rem; font: inherit; cursor: pointer; }
+    .testzugang { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left; background: #fff; border: 1px solid var(--vp-rand); border-radius: var(--vp-radius-klein); padding: .45rem .6rem; font: inherit; cursor: pointer; }
     .testzugang:hover { border-color: var(--vp-primaer); }
     .testzugang > span:last-child { display: flex; flex-direction: column; line-height: 1.25; }
     .klein-initialen { width: 2rem; height: 2rem; border-radius: 50%; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
     .neu-hier { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--vp-rand); }
     .ohne-anmeldung { margin-top: 2.5rem; }
-    .wechsel-band { margin-top: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding: 1.75rem 2rem; border-radius: 16px; color: #fff; background: linear-gradient(120deg, var(--vp-primaer-dunkel), #14897f); }
+    .wechsel-band { margin-top: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding: 1.5rem 1.75rem; border-radius: var(--vp-radius); color: #fff; background: var(--vp-primaer-dunkel); }
     .wechsel-band h2 { margin: 0 0 .25rem; color: #fff; }
     .wechsel-band p { margin: 0; color: #d6efeb; max-width: 60ch; }
     @media (max-width: 960px) { .anmelde-buehne { grid-template-columns: 1fr; } .anmelde-karte { position: static; order: -1; } .buehne-bild { max-width: 420px; margin: 0 auto; } }

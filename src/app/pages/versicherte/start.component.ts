@@ -8,107 +8,111 @@ import { SitzungService } from '../../core/services/sitzung.service';
 import { KartenApi } from '../../core/services/versicherten-api.service';
 import { VorgangApi, VorgangUebersicht } from '../../core/services/vorgang-api.service';
 import { heuteIso } from '../../core/util/datum';
-import { StatusComponent } from '../../shared/bausteine';
-import { DatumPipe, EuroPipe, UebersetzungPipe } from '../../shared/pipes';
+import { DatumPipe, UebersetzungPipe } from '../../shared/pipes';
 import { SymbolComponent } from '../../shared/symbol.component';
 import { EgkComponent } from '../../shared/egk.component';
+import { BearbeitungsstandComponent } from '../../shared/bearbeitungsstand.component';
 
 @Component({
   selector: 'vp-start',
-  imports: [RouterLink, StatusComponent, DatumPipe, EuroPipe, UebersetzungPipe, SymbolComponent, EgkComponent],
+  imports: [RouterLink, DatumPipe, UebersetzungPipe, SymbolComponent, EgkComponent, BearbeitungsstandComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @let b = sitzung.benutzer()!;
-    <div class="startbuehne">
-      <section class="begruessung">
-        <div>
-          <p class="datum-zeile">{{ heute }}</p>
-          <h1>{{ gruss() | t }}, {{ b.anrede === 'FRAU' ? 'Frau' : b.anrede === 'HERR' ? 'Herr' : '' }} {{ b.titel ? b.titel + ' ' : '' }}{{ b.nachname }}</h1>
-          <p class="leise">Schön, dass Sie da sind. Hier sehen Sie auf einen Blick, was gerade wichtig ist.</p>
-          @if (sitzung.letzterLogin()) { <p class="leise klein letzte"><vp-symbol name="shield-check" [groesse]="15" /> Letzte Anmeldung: {{ sitzung.letzterLogin() | datum: true }}</p> }
-        </div>
-        <img src="bilder/dashboard-morgen.svg" alt="" width="520" height="230" />
-      </section>
-      <section class="kartenbereich" aria-label="Ihre Gesundheitskarte">
-        <vp-egk [name]="(b.titel ? b.titel + ' ' : '') + b.vorname + ' ' + b.nachname" [versichertennummer]="b.versichertennummer || ''" [kartennummer]="tarifName()"
-                [gueltigBis]="karte()?.gueltigBis" [status]="karte()?.status || 'AKTIV'" [foto]="karte()?.fotoVorhanden ?? true" />
-        <a class="klein" routerLink="/gesundheitskarte">Karte verwalten <vp-symbol name="chevron-right" [groesse]="15" /></a>
-      </section>
+    <div class="startkopf">
+        <h1>{{ gruss() | t }}, {{ b.anrede === 'FRAU' ? 'Frau' : b.anrede === 'HERR' ? 'Herr' : '' }} {{ b.titel ? b.titel + ' ' : '' }}{{ b.nachname }}</h1>
+        @if (sitzung.letzterLogin()) { <p class="leise klein">Ihre letzte Anmeldung war am {{ sitzung.letzterLogin() | datum: true }}. Waren Sie das nicht? <a routerLink="/einstellungen/sicherheit">Sitzungen prüfen</a></p> }
     </div>
 
-    @for (h of hinweise(); track h.text) {
-      <div class="hinweis {{ h.art }} mit-symbol" role="status"><vp-symbol [name]="h.art === 'info' ? 'info' : h.art === 'fehler' ? 'circle-alert' : 'triangle-alert'" [groesse]="20" />
-        <span>{{ h.text }} @if (h.link) { <a [routerLink]="h.link">{{ h.linkText }}</a> }</span></div>
-    }
-
-    <div class="kennzahlen">
-      <a class="kennzahl-kachel" routerLink="/postfach">
-        <span class="kachel-symbol" style="--ton:#1d6fb8"><vp-symbol name="inbox" [groesse]="22" /></span>
-        <span><span class="kennzahl">{{ postfach.ungelesen() }}</span><span class="leise">ungelesene Nachrichten</span></span>
-      </a>
-      <a class="kennzahl-kachel" routerLink="/vorgaenge">
-        <span class="kachel-symbol" style="--ton:#d9822b"><vp-symbol name="list-checks" [groesse]="22" /></span>
-        @if (uebersicht(); as u) {
-          <span><span class="kennzahl">{{ u.offen }}</span><span class="leise">offene Vorgänge{{ u.rueckfragen ? ', ' + u.rueckfragen + ' mit Rückfrage' : '' }}</span>
-            @if (u.entwuerfe) { <span class="klein leise">{{ u.entwuerfe }} Entwurf/Entwürfe gespeichert</span> }</span>
-        }
-      </a>
-      <a class="kennzahl-kachel" routerLink="/bonus">
-        <span class="kachel-symbol" style="--ton:#2a9d8f"><vp-symbol name="trophy" [groesse]="22" /></span>
-        <span><span class="kennzahl">{{ bonusJahr()?.bestaetigt ?? 0 }}</span><span class="leise">Bonuspunkte {{ jahr }}</span></span>
-      </a>
-    </div>
-
-    <h2>Was möchten Sie erledigen?</h2>
-    <div class="kachelraster">
-      @for (k of schnellzugriff; track k.titel) {
-        <a class="symbolkachel" [routerLink]="k.route">
-          <span class="kachel-symbol" [style.--ton]="k.ton"><vp-symbol [name]="k.symbol" [groesse]="24" /></span>
-          <span class="kachel-titel">{{ k.titel }}</span><span class="kachel-text">{{ k.text }}</span>
-        </a>
-      }
-    </div>
-
-    <div class="raster-2 mt-2">
-      <section class="karte">
-        <h2>Zuletzt geändert</h2>
-        <ul class="liste-ohne">
-          @for (v of uebersicht()?.letzte || []; track v.id) {
-            <li class="zeile"><a [routerLink]="['/vorgaenge', v.id]">{{ v.titel }}</a> <span><span class="klein leise">{{ v.geaendertAm | datum }}</span> <vp-status [wert]="v.status" /></span></li>
-          } @empty { <li class="leer">Keine Vorgänge vorhanden.</li> }
+    <div class="startraster">
+      <section class="karte aufgaben" aria-labelledby="aufgaben-titel">
+        <h2 id="aufgaben-titel">Für Sie zu erledigen</h2>
+        <ul class="aufgabenliste">
+          @for (a of aufgaben(); track a.text) {
+            <li [class]="a.art">
+              <vp-symbol [name]="a.symbol" [groesse]="20" />
+              <span class="aufgabe-text">{{ a.text }}@if (a.frist) { <span class="klein leise">Frist: {{ a.frist | datum }}</span> }</span>
+              <a class="btn klein" [class.primaer]="a.art === 'dringend'" [routerLink]="a.link">{{ a.linkText }}</a>
+            </li>
+          } @empty {
+            <li class="erledigt"><vp-symbol name="circle-check" [groesse]="20" /><span class="aufgabe-text">Zurzeit ist nichts zu erledigen.</span></li>
+          }
         </ul>
       </section>
-      <section class="karte">
-        <h2>Bonusprogramm {{ jahr }}</h2>
-        @if (bonusJahr(); as j) {
-          <p class="kennzahl">{{ j.bestaetigt }} Punkte</p>
-          <div class="balken" role="progressbar" [attr.aria-valuenow]="j.bestaetigt" aria-valuemin="0" [attr.aria-valuemax]="bonus()?.regeln?.mindestpunkteAuszahlung"><span [style.width.%]="bonusProzent()"></span></div>
-          <p class="klein leise">{{ j.bestaetigt >= 500 ? 'Prämie verfügbar' : 'Noch ' + (500 - j.bestaetigt) + ' Punkte bis zur Prämie' }}{{ j.offen ? ' · ' + j.offen + ' Punkte in Prüfung' : '' }}</p>
-        } @else if (!b.bonusTeilnahmeSeit) { <p>Sie nehmen noch nicht teil. Sammeln Sie Punkte für bis zu {{ 250 | euro }} Prämie im Jahr.</p> }
-        <a routerLink="/bonus">Zum Bonusprogramm</a>
-        @if (termin(); as t) {
-          <h3>Nächster Termin</h3>
-          <p>{{ t.datum | datum }} um {{ t.uhrzeit }} Uhr – {{ t.thema }} ({{ t.kanal === 'FILIALE' ? 'Filiale' : t.kanal === 'TELEFON' ? 'Telefon' : 'Video' }})</p>
-        }
+
+      <section class="karte versicherung" aria-labelledby="vers-titel">
+        <h2 id="vers-titel">Ihre Versicherung</h2>
+        <div class="kartenbereich">
+          <vp-egk [name]="(b.titel ? b.titel + ' ' : '') + b.vorname + ' ' + b.nachname" [versichertennummer]="b.versichertennummer || ''" [kartennummer]="tarifName()"
+                  [gueltigBis]="karte()?.gueltigBis" [status]="karte()?.status || 'AKTIV'" [foto]="karte()?.fotoVorhanden ?? true" />
+        </div>
+        <dl class="daten kompakt">
+          <dt>Tarif</dt><dd>{{ tarifName() }}</dd>
+          <dt>Versichertennummer</dt><dd>{{ b.versichertennummer }}</dd>
+          @if (bonusJahr(); as j) { <dt>Bonuspunkte {{ jahr }}</dt><dd>{{ j.bestaetigt }}@if (j.offen) { <span class="leise">, {{ j.offen }} in Prüfung</span> }</dd> }
+          @if (termin(); as t) { <dt>Nächster Termin</dt><dd>{{ t.datum | datum }}, {{ t.uhrzeit }} Uhr<br /><span class="leise">{{ t.thema }} ({{ t.kanal === 'FILIALE' ? 'Filiale' : t.kanal === 'TELEFON' ? 'Telefon' : 'Video' }})</span></dd> }
+        </dl>
+        <p class="klein verweise"><a routerLink="/versicherung">Versicherungsdetails</a> <a routerLink="/gesundheitskarte">Gesundheitskarte verwalten</a></p>
       </section>
-    </div>`,
+    </div>
+
+    <section class="karte" aria-labelledby="vorgaenge-titel">
+      <div class="zeile abschnittskopf"><h2 id="vorgaenge-titel">Ihre Vorgänge</h2><a routerLink="/vorgaenge">Alle Vorgänge anzeigen</a></div>
+      <ul class="vorgangsliste">
+        @for (v of uebersicht()?.letzte || []; track v.id) {
+          <li>
+            <a [routerLink]="['/vorgaenge', v.id]" class="vorgang-titel">{{ v.titel }}</a>
+            <span class="klein leise">{{ v.vorgangsnummer }}, zuletzt geändert am {{ v.geaendertAm | datum }}</span>
+            <vp-bearbeitungsstand [vorgang]="v" [kompakt]="true" />
+          </li>
+        } @empty { <li class="leer">Sie haben noch keine Anträge gestellt.</li> }
+      </ul>
+    </section>
+
+    <section aria-labelledby="anliegen-titel">
+      <h2 id="anliegen-titel">Häufige Anliegen</h2>
+      <ul class="anliegen">
+        @for (k of schnellzugriff; track k.titel) {
+          <li><a [routerLink]="k.route"><vp-symbol [name]="k.symbol" [groesse]="20" /><span><span class="anliegen-titel">{{ k.titel }}</span><span class="klein leise">{{ k.text }}</span></span></a></li>
+        }
+      </ul>
+    </section>`,
   styles: [`
-    .startbuehne { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 360px); gap: 1.25rem; margin-bottom: 1.25rem; }
-    .begruessung { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 260px); align-items: center; gap: 1rem; padding: 1.5rem 1.75rem; border-radius: 16px;
-      background: linear-gradient(115deg, #e3f3f0 0%, #f3faf8 65%, #fff 100%); border: 1px solid #d3ebe6; }
-    .begruessung img { width: 100%; height: auto; }
-    .datum-zeile { text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; font-weight: 700; color: var(--vp-primaer); margin: 0 0 .3rem; }
-    .letzte { display: inline-flex; align-items: center; gap: .35rem; margin: 0; }
-    .kartenbereich { display: flex; flex-direction: column; gap: .6rem; justify-content: center; align-items: flex-start; }
-    .kartenbereich a { display: inline-flex; align-items: center; gap: .2rem; }
-    .kennzahlen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: .5rem 0 1rem; }
-    .kennzahl-kachel { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 1.25rem; background: #fff; border: 1px solid var(--vp-rand); border-radius: var(--vp-radius);
-      text-decoration: none; color: var(--vp-text); box-shadow: var(--vp-schatten); transition: box-shadow .15s, transform .15s; }
-    .kennzahl-kachel:hover { box-shadow: var(--vp-schatten-hoch); transform: translateY(-1px); color: var(--vp-text); }
-    .kennzahl-kachel .kachel-symbol { margin: 0; }
-    .kennzahl-kachel > span:last-child { display: flex; flex-direction: column; }
-    @media (max-width: 1100px) { .startbuehne { grid-template-columns: 1fr; } }
-    @media (max-width: 760px) { .begruessung { grid-template-columns: 1fr; } .begruessung img { display: none; } .kennzahlen { grid-template-columns: 1fr; } }
+    .startkopf { margin-bottom: 1.5rem; }
+    .startkopf h1 { margin-bottom: .4rem; }
+    .kartenbereich { width: min(320px, 100%); margin-bottom: 1rem; }
+    .verweise { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 0; }
+    .startraster { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 1rem; }
+    .aufgabenliste { list-style: none; margin: 0; padding: 0; }
+    .aufgabenliste li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .75rem; align-items: center; padding: .75rem 0; border-top: 1px solid var(--vp-rand); }
+    .aufgabenliste li:first-child { border-top: none; padding-top: 0; }
+    .aufgabe-text { display: flex; flex-direction: column; }
+    .aufgabenliste .dringend vp-symbol { color: var(--vp-warnung); }
+    .aufgabenliste .fehler vp-symbol { color: var(--vp-fehler); }
+    .aufgabenliste .normal vp-symbol, .aufgabenliste .erledigt vp-symbol { color: var(--vp-primaer); }
+    .aufgabenliste .erledigt { grid-template-columns: auto 1fr; }
+    dl.kompakt { grid-template-columns: minmax(0, 11rem) 1fr; }
+    .abschnittskopf h2 { margin: 0; }
+    .abschnittskopf { margin-bottom: .75rem; }
+    .vorgangsliste { list-style: none; margin: 0; padding: 0; }
+    .vorgangsliste li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); grid-template-rows: auto auto; column-gap: 1.5rem; padding: .85rem 0; border-top: 1px solid var(--vp-rand); }
+    .vorgangsliste li:first-child { border-top: none; }
+    .vorgangsliste vp-bearbeitungsstand { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+    .vorgang-titel { font-weight: 700; }
+    .anliegen { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 2rem; }
+    .anliegen a { display: flex; gap: .75rem; align-items: flex-start; padding: .75rem 0; border-bottom: 1px solid var(--vp-rand); text-decoration: none; color: var(--vp-text); }
+    .anliegen a vp-symbol { color: var(--vp-primaer); margin-top: .1rem; }
+    .anliegen a > span { display: flex; flex-direction: column; }
+    .anliegen-titel { font-weight: 700; color: var(--vp-primaer); }
+    .anliegen a:hover .anliegen-titel { text-decoration: underline; }
+    @media (max-width: 1100px) { .startraster { grid-template-columns: 1fr; } .anliegen { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 700px) {
+      .anliegen { grid-template-columns: 1fr; }
+      .vorgangsliste li { grid-template-columns: 1fr; }
+      .vorgangsliste vp-bearbeitungsstand { grid-column: 1; grid-row: auto; margin-top: .5rem; }
+      .aufgabenliste li { grid-template-columns: auto 1fr; }
+      .aufgabenliste li .btn { grid-column: 2; justify-self: start; }
+    }
   `],
 })
 export class StartComponent implements OnInit {
@@ -121,14 +125,13 @@ export class StartComponent implements OnInit {
   private api = inject(Api);
 
   readonly jahr = String(new Date().getFullYear());
-  readonly heute = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   readonly schnellzugriff = [
-    { route: '/erstattung', symbol: 'receipt-euro', titel: 'Rechnung einreichen', text: 'Zahnreinigung, Osteopathie, Impfungen …', ton: '#0b6e69' },
-    { route: '/krankmeldung', symbol: 'thermometer', titel: 'Krankmeldung', text: 'Arbeitsunfähigkeit mitteilen', ton: '#c2507a' },
-    { route: '/dokumente', symbol: 'file-check', titel: 'Bescheinigung herunterladen', text: 'Mitgliedsbescheinigung, EHIC-Ersatz …', ton: '#1d6fb8' },
-    { route: '/profil', symbol: 'map-pin', titel: 'Adresse ändern', text: 'Umzug, Telefon, Bankverbindung', ton: '#7c5cc4' },
-    { route: '/gesundheitskarte', symbol: 'id-card', titel: 'Karte verloren?', text: 'Sperren und Ersatz bestellen', ton: '#d9822b' },
-    { route: '/antraege', symbol: 'file-text', titel: 'Antrag stellen', text: 'Über 40 Anträge online', ton: '#2a9d8f' },
+    { route: '/erstattung', symbol: 'receipt-euro', titel: 'Rechnung einreichen', text: 'Zum Beispiel Zahnreinigung, Osteopathie, Reiseimpfung' },
+    { route: '/krankmeldung', symbol: 'thermometer', titel: 'Krankmeldung übermitteln', text: 'Arbeitsunfähigkeit mitteilen und Krankengeld verfolgen' },
+    { route: '/dokumente', symbol: 'file-check', titel: 'Bescheinigung anfordern', text: 'Mitgliedsbescheinigung, Versicherungsnachweis, EHIC-Ersatz' },
+    { route: '/profil', symbol: 'map-pin', titel: 'Persönliche Daten ändern', text: 'Anschrift, Telefon, Bankverbindung' },
+    { route: '/gesundheitskarte', symbol: 'id-card', titel: 'Gesundheitskarte sperren', text: 'Bei Verlust sperren und Ersatz bestellen' },
+    { route: '/antraege', symbol: 'file-text', titel: 'Antrag stellen', text: 'Alle Anträge und Meldungen im Überblick' },
   ];
   readonly uebersicht = signal<VorgangUebersicht | null>(null);
   readonly karte = signal<Gesundheitskarte | null>(null);
@@ -137,22 +140,27 @@ export class StartComponent implements OnInit {
   readonly beitrag = signal<any>(null);
   readonly tarifName = computed(() => TARIFE[this.sitzung.benutzer()!.tarif].name);
   readonly bonusJahr = computed(() => this.bonus()?.jahre.find(j => j.jahr === this.jahr));
-  readonly bonusProzent = computed(() => Math.min(100, ((this.bonusJahr()?.bestaetigt || 0) / 500) * 100));
 
   readonly gruss = computed(() => {
     const h = new Date().getHours();
     return h < 11 ? 'start.hallo.morgen' : h < 18 ? 'start.hallo.tag' : 'start.hallo.abend';
   });
 
-  readonly hinweise = computed(() => {
+  /** Was die versicherte Person tun sollte, dringendes zuerst */
+  readonly aufgaben = computed(() => {
     const b = this.sitzung.benutzer()!;
-    const l: { art: string; text: string; link?: string; linkText?: string }[] = [];
-    if (!b.bank) l.push({ art: 'warnung', text: 'Sie haben noch keine Bankverbindung hinterlegt. Ohne Bankverbindung können wir keine Erstattungen auszahlen.', link: '/profil', linkText: 'Jetzt hinterlegen' });
-    if (this.uebersicht()?.rueckfragen) l.push({ art: 'warnung', text: 'Zu einem Ihrer Vorgänge gibt es eine Rückfrage.', link: '/vorgaenge', linkText: 'Unterlagen nachreichen' });
-    if (this.karte() && !this.karte()!.fotoVorhanden) l.push({ art: 'info', text: 'Für Ihre nächste Gesundheitskarte benötigen wir ein Lichtbild.', link: '/gesundheitskarte', linkText: 'Foto hochladen' });
-    if (this.karte()?.status === 'ABGELAUFEN') l.push({ art: 'fehler', text: 'Ihre Gesundheitskarte ist abgelaufen.', link: '/gesundheitskarte', linkText: 'Neue Karte anfordern' });
-    if (!b.zweiFaktorAktiv) l.push({ art: 'info', text: 'Schützen Sie Ihr Konto zusätzlich mit der Zwei-Faktor-Anmeldung.', link: '/einstellungen/sicherheit', linkText: 'Einrichten' });
-    if (this.beitrag()?.kontostand?.mahnstufe > 0) l.push({ art: 'fehler', text: `Auf Ihrem Beitragskonto ist ein Betrag überfällig (Mahnstufe ${this.beitrag().kontostand.mahnstufe}).`, link: '/beitraege', linkText: 'Zum Beitragskonto' });
+    const l: { art: 'dringend' | 'fehler' | 'normal'; symbol: string; text: string; link: string; linkText: string; frist?: string }[] = [];
+    for (const r of this.uebersicht()?.offeneRueckfragen || []) {
+      l.push({ art: 'dringend', symbol: 'triangle-alert', text: `Für „${r.titel}“ (${r.vorgangsnummer}) fehlen noch Unterlagen.`, link: '/vorgaenge/' + r.id, linkText: 'Unterlagen nachreichen', frist: r.frist });
+    }
+    if (this.karte()?.status === 'ABGELAUFEN') l.push({ art: 'fehler', symbol: 'circle-alert', text: 'Ihre Gesundheitskarte ist abgelaufen.', link: '/gesundheitskarte', linkText: 'Neue Karte anfordern' });
+    if (this.beitrag()?.kontostand?.mahnstufe > 0) l.push({ art: 'fehler', symbol: 'circle-alert', text: `Auf Ihrem Beitragskonto ist ein Betrag überfällig (Mahnstufe ${this.beitrag().kontostand.mahnstufe}).`, link: '/beitraege', linkText: 'Beitragskonto öffnen' });
+    if (!b.bank) l.push({ art: 'dringend', symbol: 'triangle-alert', text: 'Hinterlegen Sie eine Bankverbindung, damit wir Erstattungen auszahlen können.', link: '/profil', linkText: 'Bankverbindung hinterlegen' });
+    const ungelesen = this.postfach.ungelesen();
+    if (ungelesen) l.push({ art: 'normal', symbol: 'mail', text: ungelesen === 1 ? 'Sie haben 1 ungelesene Nachricht.' : `Sie haben ${ungelesen} ungelesene Nachrichten.`, link: '/postfach', linkText: 'Postfach öffnen' });
+    if (this.uebersicht()?.entwuerfe) l.push({ art: 'normal', symbol: 'file-text', text: 'Sie haben einen angefangenen Antrag gespeichert.', link: '/vorgaenge', linkText: 'Antrag fortsetzen' });
+    if (this.karte() && !this.karte()!.fotoVorhanden) l.push({ art: 'normal', symbol: 'camera', text: 'Für Ihre nächste Gesundheitskarte benötigen wir ein Lichtbild.', link: '/gesundheitskarte', linkText: 'Foto hochladen' });
+    if (!b.zweiFaktorAktiv) l.push({ art: 'normal', symbol: 'shield-check', text: 'Schützen Sie Ihr Konto zusätzlich mit einem SMS-Code bei der Anmeldung.', link: '/einstellungen/sicherheit', linkText: 'Zwei-Faktor-Anmeldung einrichten' });
     return l;
   });
 

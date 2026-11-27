@@ -22,6 +22,7 @@ export interface Budget {
 export interface VorgangUebersicht {
   offen: number;
   rueckfragen: number;
+  offeneRueckfragen: { id: string; vorgangsnummer: string; titel: string; frist?: string }[];
   entwuerfe: number;
   erstattetImJahr: number;
   letzte: Vorgang[];

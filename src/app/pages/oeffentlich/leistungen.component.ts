@@ -24,7 +24,6 @@ const BEREICHE: Record<string, string> = {
     <section class="seitenbuehne">
       <div><h1>Leistungen A–Z</h1><p>Was die VitaPlus für Sie übernimmt – von der Vorsorge über Zahnersatz bis zur Pflege. Wählen Sie eine Lebenslage oder suchen Sie gezielt.</p>
         <div class="aktionen"><a class="btn primaer" routerLink="/leistungen/finder"><vp-symbol name="sparkles" [groesse]="18" /> Leistungsfinder starten</a></div></div>
-      <img src="bilder/hero-familie.svg" alt="" width="600" height="420" />
     </section>
     <h2>Nach Lebenslage</h2>
     <div class="kachelraster">

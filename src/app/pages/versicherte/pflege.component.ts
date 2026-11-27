@@ -15,23 +15,22 @@ import { DatumPipe, EuroPipe, TypTextPipe } from '../../shared/pipes';
     <section class="seitenbuehne">
       <div><h1>Pflege</h1><p>VitaPlus Pflegekasse – Leistungen für Pflegebedürftige und pflegende Angehörige</p>
         <div class="aktionen"><a class="btn" routerLink="/termine">Pflegeberatung vereinbaren</a></div></div>
-      <img src="bilder/pflege.svg" alt="" width="480" height="270" />
     </section>
     @if (p(); as p) {
       @if (p.akte; as a) {
         <div class="raster-3">
-          <section class="karte hervor"><h2>Pflegegrad {{ a.pflegegrad }}</h2><p>seit {{ a.seit | datum }} · {{ leistungsart[a.leistungsart] }}</p>
+          <section class="karte hervor"><h2>Pflegegrad {{ a.pflegegrad }}</h2><p>seit {{ a.seit | datum }}, {{ leistungsart[a.leistungsart] }}</p>
             <p class="kennzahl">{{ (a.leistungsart === 'SACHLEISTUNG' ? p.sachleistung : p.pflegegeld) | euro }}</p><p class="klein leise">monatlich</p>
             @if (a.pflegegrad < 5) { <a class="klein" routerLink="/antraege/neu/PFLEGEGRAD">Höherstufung beantragen</a> }</section>
           <section class="karte"><h2>Entlastungsbetrag {{ jahr }}</h2><p class="kennzahl">{{ p.entlastung.verfuegbar | euro }}</p>
-            <p class="klein leise">verfügbar · Anspruch {{ p.entlastung.anspruch | euro }}, genutzt {{ p.entlastung.genutzt | euro }}{{ p.entlastung.uebertrag ? ', Übertrag Vorjahr ' + (p.entlastung.uebertrag | euro) : '' }}</p>
+            <p class="klein leise">verfügbar, Anspruch {{ p.entlastung.anspruch | euro }}, genutzt {{ p.entlastung.genutzt | euro }}{{ p.entlastung.uebertrag ? ', Übertrag Vorjahr ' + (p.entlastung.uebertrag | euro) : '' }}</p>
             <a class="klein" routerLink="/antraege/neu/ENTLASTUNGSBETRAG">Rechnung einreichen</a></section>
           <section class="karte"><h2>Verhinderungs- & Kurzzeitpflege</h2><p class="kennzahl">{{ p.budget.rest | euro }}</p>
             <div class="balken"><span [style.width.%]="p.budget.genutzt / p.budget.gesamt * 100"></span></div>
             <p class="klein leise">von {{ p.budget.gesamt | euro }} Jahresbetrag verfügbar</p></section>
         </div>
         <section class="karte"><h2>Pflegepersonen</h2>
-          <ul class="liste-ohne">@for (pp of a.pflegepersonen; track pp.name) { <li class="zeile">{{ pp.name }} <span class="klein">{{ pp.stundenProWoche }} Std./Woche · {{ pp.rentenversichert ? 'rentenversichert über die Pflegekasse' : 'nicht rentenversichert' }}</span></li> }
+          <ul class="liste-ohne">@for (pp of a.pflegepersonen; track pp.name) { <li class="zeile">{{ pp.name }} <span class="klein">{{ pp.stundenProWoche }} Std./Woche, {{ pp.rentenversichert ? 'rentenversichert über die Pflegekasse' : 'nicht rentenversichert' }}</span></li> }
             @empty { <li class="leer">Keine Pflegeperson gemeldet.</li> }</ul>
           <a class="btn klein" routerLink="/antraege/neu/PFLEGEPERSON">Pflegeperson melden</a></section>
       } @else {
@@ -59,7 +58,7 @@ import { DatumPipe, EuroPipe, TypTextPipe } from '../../shared/pipes';
           @for (g of [2, 3, 4, 5]; track g) { <tr [class.fett]="p.akte?.pflegegrad === g"><td>{{ g }}</td><td class="betrag">{{ p.werte.pflegegeld[g] | euro }}</td><td class="betrag">{{ p.werte.sachleistung[g] | euro }}</td></tr> }
         </tbody></table><p class="klein leise">Pflegegrad 1: Entlastungsbetrag, Pflegehilfsmittel, Wohnumfeldverbesserung und Beratung.</p></section>
       <section class="karte"><h2>Ihre Pflege-Vorgänge</h2>
-        <ul class="liste-ohne">@for (v of p.antraege; track v.id) { <li class="zeile"><a [routerLink]="['/vorgaenge', v.id]">{{ v.titel }}</a><span class="klein">{{ v.typ | typText }} · {{ v.erstelltAm | datum }} <vp-status [wert]="v.status" /></span></li> }
+        <ul class="liste-ohne">@for (v of p.antraege; track v.id) { <li class="zeile"><a [routerLink]="['/vorgaenge', v.id]">{{ v.titel }}</a><span class="klein">{{ v.typ | typText }}, {{ v.erstelltAm | datum }} <vp-status [wert]="v.status" /></span></li> }
           @empty { <li class="leer">Keine</li> }</ul></section>
     }`,
 })

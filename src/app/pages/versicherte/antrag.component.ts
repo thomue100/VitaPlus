@@ -16,7 +16,7 @@ import { FormularRendererComponent } from '../../shared/formular-renderer.compon
     <p class="brotkrumen"><a routerLink="/antraege">Anträge</a> › {{ def()?.kurz }}</p>
     @if (def(); as d) {
       <div class="seitenkopf"><div><h1>{{ d.titel }}</h1>
-        <p class="leise">Zuständig: Team {{ d.zustaendig }} · Bearbeitungsdauer in der Regel bis zu {{ d.bearbeitungTage }} Tage</p></div></div>
+        <p class="leise">Zuständig: Team {{ d.zustaendig }}, Bearbeitungsdauer in der Regel bis zu {{ d.bearbeitungTage }} Tage</p></div></div>
       <vp-formular [definition]="d" [startdaten]="daten()" [startAnhaenge]="anhaenge()" [entwurfId]="id()" (fertig)="fertig($event)" />
     } @else if (fehler()) { <div class="hinweis fehler">{{ fehler() }}</div> }`,
 })

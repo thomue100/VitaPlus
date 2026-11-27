@@ -30,7 +30,7 @@ import { SymbolComponent } from '../../shared/symbol.component';
       </div>
       @if (k.ansprechpartner; as a) {
         <div class="karte hervor"><h2>Ihr persönlicher Ansprechpartner</h2>
-          <p><strong>{{ a.name }}</strong>, Team {{ a.team }}<br />Telefon {{ a.telefon }} · {{ a.email }}</p></div>
+          <p><strong>{{ a.name }}</strong>, Team {{ a.team }}<br />Telefon {{ a.telefon }}, {{ a.email }}</p></div>
       }
       <div class="raster-2">
         <div class="karte"><h2>Beschwerde</h2><p>Etwas ist nicht gut gelaufen? Sagen Sie es uns – wir kümmern uns innerhalb von 2 Werktagen.</p>

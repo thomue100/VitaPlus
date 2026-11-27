@@ -38,7 +38,9 @@ export class ShellComponent implements OnInit {
 
   readonly meldungen = signal<Meldung[]>([]);
   readonly wartung = signal<string | null>(null);
-  readonly ausgeblendet = signal<string[]>(JSON.parse(sessionStorage.getItem('vp_meldungen_aus') || '[]'));
+  readonly ausgeblendet = signal<string[]>(JSON.parse(localStorage.getItem('vp_meldungen_aus') || '[]'));
+  /** Aktueller Pfad: allgemeine Hinweise erscheinen nur auf Einstiegsseiten, Störungen überall */
+  readonly pfad = signal(location.pathname);
   readonly menueOffen = signal(false);
   readonly navOffen = signal(false);
   suchbegriff = '';
@@ -51,7 +53,10 @@ export class ShellComponent implements OnInit {
   });
   readonly initialen = computed(() => { const b = this.sitzung.benutzer(); return b ? `${b.vorname?.[0] ?? ''}${b.nachname?.[0] ?? ''}`.toUpperCase() : ''; });
   readonly warnen = computed(() => this.sitzung.angemeldet() && this.sitzung.restSekunden() <= 120);
-  readonly sichtbareMeldungen = computed(() => this.meldungen().filter(m => !this.ausgeblendet().includes(m.id)));
+  readonly sichtbareMeldungen = computed(() => {
+    const einstieg = ['/', '/start', '/anmelden'].includes(this.pfad());
+    return this.meldungen().filter(m => !this.ausgeblendet().includes(m.id) && (m.typ !== 'INFO' || einstieg)).slice(0, 2);
+  });
 
   readonly versichertenNavigation: NavGruppe[] = [
     { schluessel: 'nav.gruppe.service', eintraege: [
@@ -140,6 +145,7 @@ export class ShellComponent implements OnInit {
     this.takt();
     this.taktTimer = setInterval(() => this.takt(), 15000);
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(e => {
+      this.pfad.set((e as NavigationEnd).urlAfterRedirects.split('?')[0]);
       this.navOffen.set(false);
       this.menueOffen.set(false);
       if (this.sitzung.benutzer()?.rolle === 'VERSICHERTER') {
@@ -163,7 +169,7 @@ export class ShellComponent implements OnInit {
 
   meldungAusblenden(id: string) {
     this.ausgeblendet.update(l => [...l, id]);
-    sessionStorage.setItem('vp_meldungen_aus', JSON.stringify(this.ausgeblendet()));
+    localStorage.setItem('vp_meldungen_aus', JSON.stringify(this.ausgeblendet()));
   }
 
   suchen() {

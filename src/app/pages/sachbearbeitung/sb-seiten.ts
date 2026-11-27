@@ -21,8 +21,8 @@ import { anhangOeffner } from '../../shared/dokumente/anhang-oeffnen';
   imports: [FormsModule, StatusComponent, DatumPipe, EuroPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="seitenkopf"><div><h1>Postkorb</h1><p class="leise">{{ sitzung.benutzer()?.vorname }} {{ sitzung.benutzer()?.nachname }} · Team {{ sitzung.benutzer()?.team || '–' }}{{ sitzung.benutzer()?.teamleitung ? ' (Teamleitung)' : '' }}
-      · Freigabelimit {{ sitzung.benutzer()?.freigabeLimit | euro }}</p></div></div>
+    <div class="seitenkopf"><div><h1>Postkorb</h1><p class="leise">{{ sitzung.benutzer()?.vorname }} {{ sitzung.benutzer()?.nachname }}, Team {{ sitzung.benutzer()?.team || '–' }}{{ sitzung.benutzer()?.teamleitung ? ' (Teamleitung)' : '' }}
+     , Freigabelimit {{ sitzung.benutzer()?.freigabeLimit | euro }}</p></div></div>
     @if (stat(); as s) {
       <div class="raster">
         <div class="karte"><span class="leise">Offen gesamt</span><p class="kennzahl">{{ s['offen'] }}</p></div>
@@ -91,7 +91,7 @@ export class SbEingangComponent implements OnInit {
   template: `
     <p class="brotkrumen"><a routerLink="/sachbearbeitung">Postkorb</a> › {{ v()?.vorgangsnummer }}</p>
     @if (v(); as v) {
-      <div class="seitenkopf"><div><h1>{{ v.titel }}</h1><p class="leise">{{ v.typ | typText }} · {{ v.vorgangsnummer }} · Team {{ v.zustaendig }} · Eingang {{ v.erstelltAm | datum: true }}</p></div>
+      <div class="seitenkopf"><div><h1>{{ v.titel }}</h1><p class="leise">{{ v.typ | typText }}, {{ v.vorgangsnummer }}, Team {{ v.zustaendig }}, Eingang {{ v.erstelltAm | datum: true }}</p></div>
         <div><vp-status [wert]="v.status" /> @if (v.ueberfaellig) { <span class="badge rot">überfällig</span> }</div></div>
       <div class="aktionen mb">
         @if (offen()) {
@@ -120,7 +120,7 @@ export class SbEingangComponent implements OnInit {
           @if (v.versicherterDetails; as p) {
             <dl class="daten">
               <dt>Name</dt><dd>{{ p.titel }} {{ p.vorname }} {{ p.nachname }}</dd><dt>Versichertennummer</dt><dd>{{ p.versichertennummer }}</dd>
-              <dt>Geburtsdatum</dt><dd>{{ p.geburtsdatum | datum }}</dd><dt>Tarif</dt><dd>{{ p.tarif }}</dd><dt>Status</dt><dd>{{ p.beschaeftigung }} · {{ p.versicherungsart }}</dd>
+              <dt>Geburtsdatum</dt><dd>{{ p.geburtsdatum | datum }}</dd><dt>Tarif</dt><dd>{{ p.tarif }}</dd><dt>Status</dt><dd>{{ p.beschaeftigung }}, {{ p.versicherungsart }}</dd>
               <dt>Anschrift</dt><dd>{{ p.adresse.strasse }} {{ p.adresse.hausnummer }}, {{ p.adresse.plz }} {{ p.adresse.ort }}</dd>
               <dt>Bankverbindung</dt><dd>{{ p.bank ? p.bank.iban + ' (' + p.bank.kontoinhaber + ')' : 'keine' }}</dd>
             </dl>
@@ -152,9 +152,9 @@ export class SbEingangComponent implements OnInit {
 
       <div class="raster-2">
         <section class="karte"><h2>Verlauf</h2>
-          <ul class="zeitleiste">@for (h of verlauf(); track $index) { <li><strong>{{ h.status | statusText }}</strong> · <span class="klein leise">{{ h.zeitpunkt | datum: true }} · {{ h.von }}</span><br />{{ h.text }}</li> }</ul></section>
+          <ul class="zeitleiste">@for (h of verlauf(); track $index) { <li><strong>{{ h.status | statusText }}</strong>, <span class="klein leise">{{ h.zeitpunkt | datum: true }}, {{ h.von }}</span><br />{{ h.text }}</li> }</ul></section>
         <section class="karte"><h2>Interne Notizen</h2>
-          <ul class="liste-ohne klein">@for (n of v.daten['notizen'] || []; track n.zeitpunkt) { <li><strong>{{ n.von }}</strong> · {{ n.zeitpunkt | datum: true }}<br />{{ n.text }}</li> } @empty { <li class="leer">Keine Notizen</li> }</ul>
+          <ul class="liste-ohne klein">@for (n of v.daten['notizen'] || []; track n.zeitpunkt) { <li><strong>{{ n.von }}</strong>, {{ n.zeitpunkt | datum: true }}<br />{{ n.text }}</li> } @empty { <li class="leer">Keine Notizen</li> }</ul>
           <div class="feld mt"><label for="sb-notiz">Neue Notiz (für Versicherte nicht sichtbar)</label><textarea id="sb-notiz" rows="2" [(ngModel)]="notiz"></textarea></div>
           <button class="btn klein mt" type="button" (click)="notizSpeichern()" [disabled]="!notiz.trim()">Notiz speichern</button></section>
       </div>

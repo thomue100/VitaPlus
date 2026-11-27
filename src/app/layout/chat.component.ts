@@ -26,7 +26,7 @@ const SPEICHER = 'vp_chat';
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (!offen()) {
-      <button class="chat-knopf" type="button" (click)="oeffnen()" aria-haspopup="dialog"><vp-symbol name="message-circle" [groesse]="20" /> <span class="chat-text">Fragen? Chatten Sie mit uns</span>
+      <button class="chat-knopf" type="button" (click)="oeffnen()" aria-haspopup="dialog" aria-label="Chat öffnen: Fragen an den VitaPlus-Assistenten"><vp-symbol name="message-circle" [groesse]="20" /> <span class="chat-text">Chat</span>
         @if (nachrichten().length > 1) { <span class="punkt" aria-label="laufendes Gespräch"></span> }</button>
     } @else {
       <section class="chat" role="dialog" aria-label="Service-Chat">
@@ -44,7 +44,7 @@ const SPEICHER = 'vp_chat';
               @if (n.name) { <span class="klein leise">{{ n.name }}</span> }
               <span class="text">{{ n.text }}</span>
               @if (n.links?.length) {
-                <span class="links">@for (l of n.links; track l.ziel) { <button type="button" class="btn klein" (click)="gehe(l.ziel)">{{ l.text }} <vp-symbol name="arrow-right" [groesse]="14" /></button> }</span>
+                <span class="links">@for (l of n.links; track l.ziel) { <button type="button" class="btn klein" (click)="gehe(l.ziel)">{{ l.text }}</button> }</span>
               }
               @if (n.uebergabe && !live()) { <button type="button" class="btn klein primaer" (click)="liveStarten()">Mit Mitarbeiter/in chatten</button> }
               @if (letzte && n.vorschlaege?.length) {
@@ -69,10 +69,10 @@ const SPEICHER = 'vp_chat';
     }`,
   styles: [`@media (max-width:640px){.chat-knopf{padding:.85rem}.chat-text{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
     :host{position:fixed;right:1rem;bottom:1rem;z-index:800}
-    .chat-knopf{position:relative;display:inline-flex;align-items:center;gap:.45rem;background:var(--vp-primaer);color:#fff;border:none;border-radius:999px;padding:.7rem 1.1rem;font:inherit;font-weight:600;cursor:pointer;box-shadow:var(--vp-schatten-hoch)}
+    .chat-knopf{position:relative;display:inline-flex;align-items:center;gap:.45rem;background:var(--vp-primaer);color:#fff;border:none;border-radius:var(--vp-radius);padding:.6rem 1rem;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(16,40,44,.25)}
     .chat-knopf .punkt{position:absolute;top:2px;right:2px;width:10px;height:10px;border-radius:50%;background:var(--vp-akzent);border:2px solid #fff}
-    .chat{width:min(380px,calc(100vw - 2rem));height:min(540px,calc(100vh - 6rem));background:#fff;border:1px solid var(--vp-rand);border-radius:16px;display:flex;flex-direction:column;box-shadow:0 12px 36px rgba(0,0,0,.2);overflow:hidden}
-    header{display:flex;justify-content:space-between;align-items:center;padding:.65rem .8rem;background:linear-gradient(120deg,var(--vp-primaer-dunkel),var(--vp-primaer));color:#fff}
+    .chat{width:min(380px,calc(100vw - 2rem));height:min(540px,calc(100vh - 6rem));background:#fff;border:1px solid var(--vp-rand);border-radius:var(--vp-radius);display:flex;flex-direction:column;box-shadow:0 12px 36px rgba(0,0,0,.2);overflow:hidden}
+    header{display:flex;justify-content:space-between;align-items:center;padding:.65rem .8rem;background:var(--vp-primaer-dunkel);color:#fff}
     header .kopf{display:flex;gap:.6rem;align-items:center}
     header .kopf > span:last-child{display:flex;flex-direction:column;line-height:1.2}
     header .status{font-size:.75rem;opacity:.85}

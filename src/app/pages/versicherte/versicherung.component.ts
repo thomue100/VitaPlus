@@ -27,7 +27,7 @@ const BESCHAEFTIGUNG: Record<string, string> = { ANGESTELLT: 'Beschäftigt', SEL
           <dt>Krankengeld</dt><dd>{{ v.krankengeldanspruch ? 'mit Anspruch' : 'ohne Anspruch' }}</dd>
         </dl></section>
         <section class="karte"><h2>Versicherungszeiten</h2>
-          <ul class="zeitleiste">@for (z of v.zeiten; track z.von) { <li><strong>{{ z.von | datum }} – {{ z.bis ? (z.bis | datum) : 'heute' }}</strong><br />{{ z.art }} · {{ z.kasse }}</li> }</ul>
+          <ul class="zeitleiste">@for (z of v.zeiten; track z.von) { <li><strong>{{ z.von | datum }} – {{ z.bis ? (z.bis | datum) : 'heute' }}</strong><br />{{ z.art }}, {{ z.kasse }}</li> }</ul>
           @if (v.kundenberater; as k) { <h3>Ihr Ansprechpartner</h3><p>{{ k.name }} (Team {{ k.team }})<br />Telefon {{ k.telefon }}</p> }
         </section>
       </div>

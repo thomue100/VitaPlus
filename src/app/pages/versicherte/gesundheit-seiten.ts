@@ -20,7 +20,7 @@ import { SymbolComponent } from '../../shared/symbol.component';
       <a class="btn" routerLink="/bonus">Zum Bonusprogramm</a></div>
     <section class="karte"><h2>Ihr Vorsorgekalender</h2>
       <ul class="liste-ohne">@for (v of vorsorge(); track v.code) {
-        <li class="zeile"><span><strong>{{ v.titel }}</strong><br /><span class="klein leise">{{ v.intervall }}{{ v.bonuspunkte ? ' · ' + v.bonuspunkte + ' Bonuspunkte' : '' }}</span></span>
+        <li class="zeile"><span><strong>{{ v.titel }}</strong><br /><span class="klein leise">{{ v.intervall }}{{ v.bonuspunkte ? ', ' + v.bonuspunkte + ' Bonuspunkte' : '' }}</span></span>
           @if (v.erledigtImJahr) { <span class="badge gruen">in diesem Jahr erledigt</span> } @else { <span class="badge">offen</span> }</li>
       }</ul>
       <p class="klein">Impfungen: Alle von der STIKO empfohlenen Impfungen sind kostenfrei. <a routerLink="/leistungen/IMPFUNGEN">Mehr erfahren</a></p>
@@ -47,7 +47,7 @@ import { SymbolComponent } from '../../shared/symbol.component';
         </section>
         <section class="karte"><h2>Aktuelle Challenges</h2>
           <ul class="liste-ohne">@for (c of d.challenges; track c.id) {
-            <li><strong>{{ c.titel }}</strong> <span class="klein leise">bis {{ c.bis | datum }} · {{ c.punkte }} Bonuspunkte</span>
+            <li><strong>{{ c.titel }}</strong> <span class="klein leise">bis {{ c.bis | datum }}, {{ c.punkte }} Bonuspunkte</span>
               @if (c.teilnahme) {
                 <div class="balken mt"><span [style.width.%]="c.teilnahme.fortschritt / c.zielwert * 100"></span></div>
                 <div class="zeile klein"><span>{{ c.teilnahme.fortschritt }} / {{ c.zielwert }} {{ c.einheit }}</span>
@@ -147,7 +147,7 @@ export class VorsorgeComponent implements OnInit {
             <ul class="liste-ohne klein">@for (z of e.zugriffe; track z.zeitpunkt) { <li>{{ z.zeitpunkt | datum: true }} – {{ z.einrichtung }}: {{ z.aktion }}</li> } @empty { <li class="leer">Keine Zugriffe</li> }</ul></section>
         </div>
       }
-      <p class="klein"><a routerLink="/hilfe" [queryParams]="{ faq: 'faq16' }">Häufige Fragen zur ePA</a> · <a routerLink="/kontakt">ePA-Support kontaktieren</a></p>
+      <p class="klein"><a routerLink="/hilfe" [queryParams]="{ faq: 'faq16' }">Häufige Fragen zur ePA</a>, <a routerLink="/kontakt">ePA-Support kontaktieren</a></p>
     }`,
 })
 export class EpaComponent implements OnInit {

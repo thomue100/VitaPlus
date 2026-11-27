@@ -52,7 +52,10 @@
               }
             ],
             "styles": [
-              "@fontsource-variable/source-sans-3/index.css",
+              "@fontsource/fira-sans/400.css",
+              "@fontsource/fira-sans/400-italic.css",
+              "@fontsource/fira-sans/500.css",
+              "@fontsource/fira-sans/700.css",
               "src/styles.scss"
             ],
             "allowedCommonJsDependencies": [

@@ -284,7 +284,7 @@ export function ergaenzeStartdaten(s: Store): Store {
   const vorgaengeNeu: Vorgang[] = [
     { id: 'v20', vorgangsnummer: 'VP-2026-001190', benutzerId: 'u1', typ: 'KOSTENERSTATTUNG', titel: 'Brille / Kontaktlinsen', status: 'AUSGEZAHLT',
       erstelltAm: t(12), geaendertAm: t(8, '06:30:00'), betragBeantragt: 389, betragErstattet: 120, bescheidAm: t(9).substring(0, 10), zustaendig: 'Leistungen', bearbeiterId: 's1',
-      daten: { leistung: 'BRILLE', rechnungsdatum: t(20).substring(0, 10), rechnungsnummer: 'OP-55120', leistungserbringer: 'Optik Sehwerk Berlin', patient: 'Anna Schmidt', voraussichtlich: 120 },
+      daten: { leistung: 'SEHHILFE', rechnungsdatum: t(20).substring(0, 10), rechnungsnummer: 'OP-55120', leistungserbringer: 'Optik Sehwerk Berlin', patient: 'Anna Schmidt', voraussichtlich: 120 },
       anhaenge: [{ id: 'a20', name: 'Rechnung_Optik_Sehwerk.pdf', groesseBytes: 182400, mimeType: 'application/pdf', hochgeladenAm: t(12) }],
       historie: [
         { zeitpunkt: t(12), status: 'EINGEREICHT', text: 'Antrag online eingereicht', von: 'Anna Schmidt' },

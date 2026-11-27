@@ -105,7 +105,7 @@ function bankSpeichern(a: Anfrage) {
   pflicht(iban, 'iban');
   const n = normalisiereIban(iban);
   if (!istIbanGueltig(n)) throw new ApiFehler(400, 'Die IBAN ist ungültig.', 'iban');
-  if (!SEPA_LAENDER.includes(ibanLand(n))) throw new ApiFehler(422, 'Konten aus diesem Land können wir leider nicht verwenden.', 'iban');
+  if (!SEPA_LAENDER.includes(ibanLand(n))) throw new ApiFehler(422, 'Wir können nur Konten aus dem SEPA-Raum verwenden. Bitte geben Sie eine andere IBAN an.', 'iban');
   if (ibanLand(n) !== 'DE' && !bic) throw new ApiFehler(400, 'Für ausländische Konten ist die BIC erforderlich.', 'bic');
   const eigenerName = `${b.vorname} ${b.nachname}`.toLowerCase();
   const inhaber = String(kontoinhaber).trim().toLowerCase().replace(/^dr\.?\s+/, '');

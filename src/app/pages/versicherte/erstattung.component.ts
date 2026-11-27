@@ -29,7 +29,7 @@ import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
     @if (ergebnis(); as v) {
       <div class="karte hervor" role="status">
         <h2>{{ v.status === 'GENEHMIGT' ? 'Ihre Erstattung ist genehmigt!' : 'Vielen Dank – Ihre Rechnung ist eingegangen' }}</h2>
-        <p>Vorgangsnummer <strong>{{ v.vorgangsnummer }}</strong> · <vp-status [wert]="v.status" /></p>
+        <p>Vorgangsnummer <strong>{{ v.vorgangsnummer }}</strong>, <vp-status [wert]="v.status" /></p>
         @if (v.status === 'GENEHMIGT') { <p>Wir überweisen Ihnen {{ v.betragErstattet | euro }} in den nächsten Tagen.</p> }
         @else { <p>Voraussichtliche Erstattung: {{ v.daten['voraussichtlich'] | euro }}. Die Bearbeitung dauert in der Regel 5 bis 10 Werktage.</p> }
         <div class="aktionen"><a class="btn primaer" [routerLink]="['/vorgaenge', v.id]">Zum Vorgang</a><button class="btn" type="button" (click)="neu()">Weitere Rechnung einreichen</button></div>

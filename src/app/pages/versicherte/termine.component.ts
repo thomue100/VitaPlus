@@ -49,7 +49,7 @@ import { DatumPipe } from '../../shared/pipes';
               @for (s of slots(); track s.uhrzeit) {
                 <button type="button" class="btn klein" [class.primaer]="t.uhrzeit === s.uhrzeit" [disabled]="!s.frei" (click)="t.uhrzeit = s.uhrzeit" [attr.aria-pressed]="t.uhrzeit === s.uhrzeit">{{ s.uhrzeit }}</button>
               }</div></fieldset>
-            @if (!freieSlots()) { <p class="hinweis info">An diesem Tag sind leider alle Termine vergeben.</p> }
+            @if (!freieSlots()) { <p class="hinweis info">An diesem Tag ist kein Termin mehr frei. Bitte wählen Sie einen anderen Tag.</p> }
           }
           <div class="aktionen"><button class="btn" type="button" (click)="schritt.set(1)">Zurück</button><button class="btn primaer" type="button" [disabled]="!t.uhrzeit" (click)="schritt.set(3)">Weiter</button></div>
         }
@@ -65,7 +65,7 @@ import { DatumPipe } from '../../shared/pipes';
     <section class="karte"><h2>Ihre Termine</h2>
       <ul class="liste-ohne">@for (x of termine(); track x.id) {
         <li class="zeile"><span><strong>{{ wochentag(x.datum) }}, {{ x.datum | datum }}, {{ x.uhrzeit }} Uhr</strong> – {{ x.thema }}<br />
-          <span class="klein leise">{{ kanalText[x.kanal] }}{{ x.filiale ? ' · ' + x.filiale : '' }}</span></span>
+          <span class="klein leise">{{ kanalText[x.kanal] }}{{ x.filiale ? ', ' + x.filiale : '' }}</span></span>
           <span><vp-status [wert]="x.status" /> @if (x.status === 'GEBUCHT') { <button class="btn link klein" type="button" (click)="stornieren(x)">Stornieren</button> }</span></li>
       } @empty { <li class="leer">Keine Termine.</li> }</ul>
     </section>`,

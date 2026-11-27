@@ -16,14 +16,13 @@ import { SymbolComponent } from '../../shared/symbol.component';
       @if (d.code === 'MITGLIEDSANTRAG') {
         <section class="seitenbuehne">
           <div><h1>{{ d.titel }}</h1>
-            <p>In wenigen Minuten online Mitglied werden – den Wechsel und die Meldung an Ihren Arbeitgeber übernehmen wir. Bereits versichert? <a routerLink="/anmelden">Hier anmelden</a>.</p>
+            <p>In wenigen Minuten online Mitglied werden – den Wechsel und die Meldung an Ihren Arbeitgeber übernehmen wir. Sie sind schon bei uns versichert? <a routerLink="/anmelden">Zur Anmeldung</a></p>
             <ul class="vorteile-kurz">
               <li><vp-symbol name="circle-check" [groesse]="18" /> Zusatzbeitrag 2,49 %</li>
               <li><vp-symbol name="circle-check" [groesse]="18" /> Familie beitragsfrei mitversichert</li>
               <li><vp-symbol name="circle-check" [groesse]="18" /> Bonusprogramm bis 250 € im Jahr</li>
             </ul>
           </div>
-          <img src="bilder/hero-familie.svg" alt="" width="600" height="420" />
         </section>
       } @else {
         <div class="seitenkopf"><div><h1>{{ d.titel }}</h1></div></div>

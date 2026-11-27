@@ -43,7 +43,7 @@ const UMFANG: Record<string, string> = { POSTFACH: 'Postfach lesen', ANTRAEGE: '
       <section class="karte"><h2>Von Ihnen erteilte Vollmachten</h2>
         <ul class="liste-ohne">@for (v of d.erteilt; track v.id) {
           <li class="zeile"><span><strong>{{ v.vorname }} {{ v.nachname }}</strong> ({{ v.beziehung }}) <vp-status [wert]="v.status" /><br />
-            <span class="klein leise">{{ umfangText(v.umfang) }} · seit {{ v.gueltigAb | datum }}{{ v.gueltigBis ? ' bis ' + (v.gueltigBis | datum) : '' }}{{ v.onlineZugriff ? ' · Online-Zugriff' : '' }}</span></span>
+            <span class="klein leise">{{ umfangText(v.umfang) }}, seit {{ v.gueltigAb | datum }}{{ v.gueltigBis ? ' bis ' + (v.gueltigBis | datum) : '' }}{{ v.onlineZugriff ? ', Online-Zugriff' : '' }}</span></span>
             @if (v.status === 'AKTIV' || v.status === 'AUSSTEHEND') { <button class="btn gefahr klein" type="button" (click)="widerrufen(v)">Widerrufen</button> }</li>
         } @empty { <li class="leer">Sie haben keine Vollmachten erteilt.</li> }</ul></section>
       <section class="karte"><h2>Sie sind bevollmächtigt für</h2>
@@ -56,7 +56,7 @@ const UMFANG: Record<string, string> = { POSTFACH: 'Postfach lesen', ANTRAEGE: '
         } @empty { <li class="leer">Keine</li> }</ul></section>
       <section class="karte"><h2>Gesetzliche Vertretung</h2>
         <p class="klein leise">Für Ihre minderjährigen Kinder handeln Sie als gesetzliche Vertreterin bzw. gesetzlicher Vertreter. Ab 15 Jahren können Jugendliche eigene Anträge stellen (§ 36 SGB I).</p>
-        <ul class="liste-ohne">@for (g of d.gesetzlich; track g.id) { <li class="zeile">{{ g.name }} ({{ g.alter }} Jahre) <span class="klein">eigener Zugang ab {{ g.eigenerZugangAb | datum }} · Vertretung bis {{ g.endetAm | datum }}</span></li> }
+        <ul class="liste-ohne">@for (g of d.gesetzlich; track g.id) { <li class="zeile">{{ g.name }} ({{ g.alter }} Jahre) <span class="klein">eigener Zugang ab {{ g.eigenerZugangAb | datum }}, Vertretung bis {{ g.endetAm | datum }}</span></li> }
           @empty { <li class="leer">Keine minderjährigen Kinder mitversichert.</li> }</ul></section>
     }`,
 })
@@ -138,7 +138,7 @@ export class VollmachtenComponent implements OnInit {
       <div class="hinweis warnung">Sie handeln als bevollmächtigte Person. Alle Zugriffe werden protokolliert.</div>
       @if (d.vorgaenge) {
         <section class="karte"><h2>Vorgänge</h2><ul class="liste-ohne">@for (v of d.vorgaenge; track v.vorgangsnummer) {
-          <li class="zeile">{{ v.titel }} <span class="klein">{{ v.vorgangsnummer }} · {{ v.geaendertAm | datum }} <vp-status [wert]="v.status" /></span></li> }</ul></section>
+          <li class="zeile">{{ v.titel }} <span class="klein">{{ v.vorgangsnummer }}, {{ v.geaendertAm | datum }} <vp-status [wert]="v.status" /></span></li> }</ul></section>
       }
       @if (d.nachrichten) {
         <section class="karte"><h2>Postfach</h2><ul class="liste-ohne">@for (n of d.nachrichten; track n.id) {
@@ -236,7 +236,7 @@ const KATEGORIE: Record<string, string> = { NACHRICHT: 'Nachricht', STATUS: 'Sta
     <ul class="liste-ohne karte">
       @for (b of liste(); track b.id) {
         <li class="zeile" [class.fett]="!b.gelesen"><span><span class="badge" [class.rot]="b.kategorie === 'SICHERHEIT' || b.kategorie === 'FRIST'">{{ kat[b.kategorie] }}</span> {{ b.titel }}<br />
-          <span class="klein" [class.leise]="b.gelesen">{{ b.text }} · {{ b.zeitpunkt | datum: true }}</span></span>
+          <span class="klein" [class.leise]="b.gelesen">{{ b.text }}, {{ b.zeitpunkt | datum: true }}</span></span>
           <span>@if (b.link) { <button class="btn link klein" type="button" (click)="oeffnen(b)">Anzeigen</button> }
             <button class="btn link klein" type="button" (click)="loeschen(b)" aria-label="Benachrichtigung entfernen">Entfernen</button></span></li>
       } @empty { <li class="leer">Keine Benachrichtigungen.</li> }

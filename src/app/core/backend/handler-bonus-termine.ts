@@ -167,7 +167,7 @@ function terminBuchen(a: Anfrage) {
     throw new ApiFehler(409, 'Zu diesem Thema ist bereits ein Termin gebucht.', 'thema');
   }
   const slot = slotsFuer(datum, kanal, filiale || null, a).find(s => s.uhrzeit === uhrzeit);
-  if (!slot || !slot.frei) throw new ApiFehler(409, 'Dieser Termin ist leider nicht mehr verfügbar.', 'uhrzeit');
+  if (!slot || !slot.frei) throw new ApiFehler(409, 'Dieser Termin wurde inzwischen vergeben. Bitte wählen Sie einen anderen.', 'uhrzeit');
   const t: Termin = {
     id: neueId('t'), benutzerId: b.id, thema, kanal, filiale: kanal === 'FILIALE' ? filiale : undefined, datum, uhrzeit,
     telefon: kanal === 'TELEFON' ? telefon : undefined, anmerkung, status: 'GEBUCHT', gebuchtAm: jetztIso(),

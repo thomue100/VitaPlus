@@ -39,8 +39,8 @@ const FACHRICHTUNGEN = ['Allgemeinmedizin', 'Augenheilkunde', 'Dermatologie', 'G
           <li>
             <div class="zeile">
               <div><strong>{{ a.titel }} {{ a.vorname }} {{ a.nachname }}</strong> <span class="badge">{{ a.fachrichtung }}</span><br />
-                <span class="klein">{{ a.strasse }}, {{ a.plz }} {{ a.ort }} · Tel. {{ a.telefon }}</span><br />
-                <span class="klein leise">{{ a.sprechzeiten }} · Sprachen: {{ a.sprachen.join(', ') }}</span><br />
+                <span class="klein">{{ a.strasse }}, {{ a.plz }} {{ a.ort }}, Tel. {{ a.telefon }}</span><br />
+                <span class="klein leise">{{ a.sprechzeiten }}, Sprachen: {{ a.sprachen.join(', ') }}</span><br />
                 @if (a.barrierefrei) { <span class="badge blau">barrierefrei</span> }
                 @if (a.onlineTermin) { <span class="badge blau">Online-Termin</span> }
                 @if (!a.neuePatienten) { <span class="badge gelb">keine neuen Patienten</span> }

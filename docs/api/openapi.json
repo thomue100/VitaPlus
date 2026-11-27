@@ -16642,7 +16642,7 @@
             }
           },
           "422": {
-            "description": "Fachlich nicht verarbeitbar\n- Konten aus diesem Land können wir leider nicht verwenden.",
+            "description": "Fachlich nicht verarbeitbar\n- Wir können nur Konten aus dem SEPA-Raum verwenden. Bitte geben Sie eine andere IBAN an.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -24171,7 +24171,7 @@
             }
           },
           "409": {
-            "description": "Konflikt mit dem aktuellen Zustand\n- Sie können höchstens ${MAX_OFFENE_TERMINE} offene Termine gleichzeitig haben.\n- Sie haben an diesem Tag bereits einen Termin.\n- Zu diesem Thema ist bereits ein Termin gebucht.\n- Dieser Termin ist leider nicht mehr verfügbar.",
+            "description": "Konflikt mit dem aktuellen Zustand\n- Sie können höchstens ${MAX_OFFENE_TERMINE} offene Termine gleichzeitig haben.\n- Sie haben an diesem Tag bereits einen Termin.\n- Zu diesem Thema ist bereits ein Termin gebucht.\n- Dieser Termin wurde inzwischen vergeben. Bitte wählen Sie einen anderen.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -25958,6 +25958,32 @@
                     "rueckfragen": {
                       "type": "number"
                     },
+                    "offeneRueckfragen": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "vorgangsnummer": {
+                            "type": "string"
+                          },
+                          "titel": {
+                            "type": "string"
+                          },
+                          "frist": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "vorgangsnummer",
+                          "titel"
+                        ]
+                      },
+                      "description": "Vorgänge, zu denen Unterlagen nachgereicht werden müssen"
+                    },
                     "entwuerfe": {
                       "type": "number"
                     },
@@ -25974,6 +26000,7 @@
                   "required": [
                     "offen",
                     "rueckfragen",
+                    "offeneRueckfragen",
                     "entwuerfe",
                     "erstattetImJahr",
                     "letzte"

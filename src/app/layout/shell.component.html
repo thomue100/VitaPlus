@@ -58,7 +58,7 @@
 
 @if (wartung()) { <div class="banner stoerung" role="alert"><span><vp-symbol name="wrench" [groesse]="17" /> {{ wartung() }}</span></div> }
 @for (m of sichtbareMeldungen(); track m.id) {
-  <div class="banner" [class.warnung]="m.typ === 'WARNUNG'" [class.stoerung]="m.typ === 'STOERUNG'" role="status">
+  <div class="banner" [class.info]="m.typ === 'INFO'" [class.warnung]="m.typ === 'WARNUNG'" [class.stoerung]="m.typ === 'STOERUNG'" role="status">
     <span><vp-symbol [name]="m.typ === 'INFO' ? 'info' : 'triangle-alert'" [groesse]="17" /> <strong>{{ m.titel }}:</strong> {{ m.text }}</span>
     <button type="button" class="btn link klein" (click)="meldungAusblenden(m.id)" aria-label="Hinweis ausblenden">Ausblenden</button>
   </div>

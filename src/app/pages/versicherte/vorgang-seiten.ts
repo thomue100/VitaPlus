@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { VORGANG_TYP_TEXT } from '../../core/konfiguration';
+import { ERSTATTUNGEN, VORGANG_TYP_TEXT } from '../../core/konfiguration';
 import { formular } from '../../core/formulare/formular-katalog';
 import { optionenVon } from '../../core/formulare/formular-pruefung';
 import { Anhang, Vorgang, widerspruchsfaehig } from '../../core/models';
@@ -15,6 +15,7 @@ import { DateienComponent, StatusComponent } from '../../shared/bausteine';
 import { DateigroessePipe, DatumPipe, EuroPipe, StatusTextPipe, TypTextPipe } from '../../shared/pipes';
 import { pdfHerunterladen } from '../../shared/pdf';
 import { SymbolComponent } from '../../shared/symbol.component';
+import { BearbeitungsstandComponent } from '../../shared/bearbeitungsstand.component';
 
 import { anhangOeffner } from '../../shared/dokumente/anhang-oeffnen';
 @Component({
@@ -75,12 +76,20 @@ export class VorgaengeComponent implements OnInit {
 
 @Component({
   selector: 'vp-vorgang',
-  imports: [FormsModule, RouterLink, StatusComponent, DateienComponent, DatumPipe, EuroPipe, TypTextPipe, StatusTextPipe, DateigroessePipe, SymbolComponent],
+  imports: [FormsModule, RouterLink, StatusComponent, DateienComponent, DatumPipe, EuroPipe, TypTextPipe, StatusTextPipe, DateigroessePipe, SymbolComponent, BearbeitungsstandComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p class="brotkrumen"><a routerLink="/vorgaenge">Meine Vorgänge</a> › {{ v()?.vorgangsnummer }}</p>
     @if (v(); as v) {
-      <div class="seitenkopf"><div><h1>{{ v.titel }}</h1><p class="leise">{{ v.typ | typText }} · Vorgangsnummer {{ v.vorgangsnummer }}</p></div><vp-status [wert]="v.status" /></div>
+      <div class="seitenkopf"><div><h1 class="titel-mit-status">{{ v.titel }} <vp-status [wert]="v.status" /></h1><p class="leise">{{ v.typ | typText }}, Vorgangsnummer {{ v.vorgangsnummer }}</p></div></div>
+
+      @if (v.status !== 'ENTWURF') {
+        <section class="karte" aria-labelledby="stand-titel">
+          <h2 id="stand-titel" class="sr-only">Bearbeitungsstand</h2>
+          <vp-bearbeitungsstand [vorgang]="v" />
+          @if (offen() && v.fristBis) { <p class="klein leise stand-hinweis">Wir entscheiden voraussichtlich bis zum {{ v.fristBis | datum }}.</p> }
+        </section>
+      }
 
       @if (v.status === 'RUECKFRAGE') {
         <section class="karte hervor" style="border-left-color: var(--vp-akzent)">
@@ -89,7 +98,7 @@ export class VorgaengeComponent implements OnInit {
           @if (v.rueckfrageFrist) { <p class="klein">Bitte antworten Sie bis <strong>{{ v.rueckfrageFrist | datum }}</strong>.</p> }
           <div class="feld mb"><label for="nr-text">Ihre Antwort</label><textarea id="nr-text" [(ngModel)]="antwort" rows="3" maxlength="1000"></textarea></div>
           <vp-dateien label="Unterlagen nachreichen" [max]="5" [(dateien)]="nachreichung" />
-          <div class="aktionen"><button class="btn primaer" type="button" (click)="nachreichen()">Absenden</button></div>
+          <div class="aktionen"><button class="btn primaer" type="button" (click)="nachreichen()">Unterlagen nachreichen</button></div>
         </section>
       }
       @if (v.status === 'ABGELEHNT' && v.ablehnungsgrund) { <div class="hinweis fehler"><strong>Begründung der Ablehnung:</strong> {{ v.ablehnungsgrund }}</div> }
@@ -100,7 +109,6 @@ export class VorgaengeComponent implements OnInit {
           <dl class="daten">
             <dt>Eingereicht am</dt><dd>{{ v.erstelltAm | datum: true }}</dd>
             <dt>Zuständig</dt><dd>Team {{ v.zustaendig || 'Leistungen' }}</dd>
-            @if (offen() && v.fristBis) { <dt>Voraussichtlich erledigt bis</dt><dd>{{ v.fristBis | datum }}</dd> }
             @if (v.betragBeantragt) { <dt>Beantragt</dt><dd>{{ v.betragBeantragt | euro }}</dd> }
             @if (v.betragErstattet !== undefined) { <dt>{{ v.status === 'AUSGEZAHLT' ? 'Ausgezahlt' : 'Bewilligt' }}</dt><dd class="fett">{{ v.betragErstattet | euro }}</dd> }
             @if (v.bescheidAm) { <dt>Bescheid vom</dt><dd>{{ v.bescheidAm | datum }}</dd> }
@@ -113,7 +121,7 @@ export class VorgaengeComponent implements OnInit {
         </section>
         <section class="karte">
           <h2>Bearbeitungsverlauf</h2>
-          <ul class="zeitleiste">@for (h of verlauf(); track $index) { <li><strong>{{ h.status | statusText }}</strong> · <span class="klein leise">{{ h.zeitpunkt | datum: true }}</span><br />{{ h.text }}<br /><span class="klein leise">{{ h.von }}</span></li> }</ul>
+          <ul class="zeitleiste">@for (h of verlauf(); track $index) { <li><strong>{{ h.status | statusText }}</strong><br />{{ h.text }}<br /><span class="klein leise">{{ h.zeitpunkt | datum: true }}, {{ h.von }}</span></li> }</ul>
         </section>
       </div>
       @if (kommunikation().length) {
@@ -123,18 +131,21 @@ export class VorgaengeComponent implements OnInit {
             @for (n of kommunikation(); track n.id) {
               <li><vp-symbol [name]="n.ordner === 'GESENDET' ? 'send' : 'mail'" [groesse]="16" />
                 <a [routerLink]="['/postfach', n.id]" [class.fett]="!n.gelesen">{{ n.betreff }}</a>
-                <span class="leise klein">{{ n.ordner === 'GESENDET' ? 'von Ihnen' : n.absender }} · {{ n.datum | datum: true }}</span></li>
+                <span class="leise klein">{{ n.ordner === 'GESENDET' ? 'von Ihnen' : n.absender }}, {{ n.datum | datum: true }}</span></li>
             }
           </ul>
         </section>
       }
       <div class="aktionen">
-        @if (v.status === 'EINGEREICHT' || v.status === 'RUECKFRAGE') { @if (v.typ !== 'ARBEITSUNFAEHIGKEIT') { <button class="btn gefahr" type="button" (click)="zurueckziehen()">Antrag zurückziehen</button> } }
-        @if (widerspruchMoeglich()) { <a class="btn" routerLink="/antraege/neu/WIDERSPRUCH" [queryParams]="{ bezug: v.id }">Widerspruch einlegen (bis {{ widerspruchsfrist() | datum }})</a> }
-        @if (v.bescheidAm) { <button class="btn" type="button" (click)="bescheid()">Bescheid herunterladen</button> }
-        @if (!offen()) { <button class="btn" type="button" (click)="archivieren()">{{ v.archiviert ? 'Aus Archiv holen' : 'Archivieren' }}</button> }
-        <a class="btn link" routerLink="/postfach/neu" [queryParams]="{ vorgang: v.id }">Frage zum Vorgang stellen</a>
+        @if (v.bescheidAm) { <button class="btn primaer" type="button" (click)="bescheid()">Bescheid herunterladen</button> }
+        @if (widerspruchMoeglich()) { <a class="btn" routerLink="/antraege/neu/WIDERSPRUCH" [queryParams]="{ bezug: v.id }">Widerspruch einlegen</a> }
+        <a class="btn" [class.primaer]="!v.bescheidAm" routerLink="/postfach/neu" [queryParams]="{ vorgang: v.id }">Frage zum Vorgang stellen</a>
+      </div>
+      @if (widerspruchMoeglich()) { <p class="klein leise">Ein Widerspruch ist bis zum {{ widerspruchsfrist() | datum }} möglich.</p> }
+      <div class="aktionen weitere">
         <button class="btn link" type="button" (click)="drucken()">Drucken</button>
+        @if (!offen()) { <button class="btn link" type="button" (click)="archivieren()">{{ v.archiviert ? 'Aus dem Archiv holen' : 'Archivieren' }}</button> }
+        @if (v.status === 'EINGEREICHT' || v.status === 'RUECKFRAGE') { @if (v.typ !== 'ARBEITSUNFAEHIGKEIT') { <button class="btn link gefahr-text" type="button" (click)="zurueckziehen()">Antrag zurückziehen</button> } }
       </div>
     } @else if (fehler()) { <div class="hinweis fehler">{{ fehler() }}</div> } @else { <p class="lade">Wird geladen …</p> }`,
 })
@@ -169,6 +180,8 @@ export class VorgangComponent implements OnInit {
     const feld = (k: string) => def?.schritte.flatMap(s => s.felder).find(f => f.name === k);
     const label = (k: string) => feld(k)?.label;
     const text = (k: string, w: unknown) => {
+      if (k === 'leistung') return ERSTATTUNGEN.find(e => e.code === w)?.bezeichnung;
+      if (k === 'voraussichtlich' && typeof w === 'number') return new EuroPipe().transform(w);
       const f = feld(k);
       if (f?.typ === 'person') return w === 'SELBST' ? 'Ich selbst' : v.daten['personName'] || String(w);
       return optionenVon(f ?? { name: k, label: k, typ: 'text' }).find(o => o.wert === String(w))?.text;
@@ -197,7 +210,7 @@ export class VorgangComponent implements OnInit {
   async nachreichen() {
     try {
       this.v.set(await this.api.nachreichen(this.id(), this.antwort, this.nachreichung()));
-      this.ui.erfolg('Vielen Dank! Wir setzen die Bearbeitung fort.');
+      this.ui.erfolg('Unterlagen nachgereicht. Wir setzen die Bearbeitung fort.');
       this.nachreichung.set([]);
       this.antwort = '';
     } catch (e) {
@@ -244,7 +257,7 @@ export class VorgangComponent implements OnInit {
 
 const ANZEIGE: Record<string, string> = {
   leistung: 'Leistung', rechnungsdatum: 'Rechnungsdatum', rechnungsnummer: 'Rechnungsnummer', leistungserbringer: 'Leistungserbringer', patient: 'Patient/in',
-  von: 'Von', bis: 'Bis', arzt: 'Arzt/Ärztin', tage: 'Tage', kettenTage: 'Tage gesamt', personName: 'Person', voraussichtlich: 'Voraussichtliche Erstattung (€)',
+  von: 'Von', bis: 'Bis', arzt: 'Arzt/Ärztin', tage: 'Tage', kettenTage: 'Tage gesamt', personName: 'Person', voraussichtlich: 'Voraussichtliche Erstattung',
   festzuschussProzent: 'Festzuschuss (%)', festzuschuss: 'Festzuschuss (€)', weitergeleitetAn: 'Weitergeleitet an', erstattung: 'Erstattung (€)', erstattbar: 'Erstattungsfähig (€)',
   zuschuss: 'Zuschuss (€)', endeZum: 'Mitgliedschaft endet zum', rate: 'Monatliche Rate (€)', schutzfristBeginn: 'Schutzfrist ab', schutzfristEnde: 'Schutzfrist bis',
   freischaltcode: 'Freischaltcode', digaName: 'Anwendung', grenze: 'Belastungsgrenze (€)', bezugVorgangsnummer: 'Bezug', fristEnde: 'Widerspruchsfrist bis',

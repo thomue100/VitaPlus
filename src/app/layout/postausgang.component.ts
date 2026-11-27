@@ -17,7 +17,7 @@ import { SymbolComponent } from '../shared/symbol.component';
   template: `
     <button type="button" class="postausgang-knopf" (click)="umschalten()" [attr.aria-expanded]="offen()" aria-controls="postausgang-liste"
       title="Demo-Umgebung: Hier landen E-Mails, SMS und Briefe, die an Sie verschickt werden.">
-      <vp-symbol name="mail" [groesse]="18" /> <span class="text">Demo: E-Mail, SMS &amp; Testdaten</span>
+      <vp-symbol name="mail" [groesse]="18" /> <span class="text">Demo</span><span class="sr-only">: E-Mail, SMS und Testdaten</span>
       @if (ungelesen()) { <span class="zaehlpunkt">{{ ungelesen() }}</span> }
     </button>
     @if (offen()) {
@@ -31,7 +31,7 @@ import { SymbolComponent } from '../shared/symbol.component';
           <section class="werkzeuge">
             <h3>Hintergrundverarbeitung</h3>
             <p class="klein leise">Anträge werden nach kurzer Zeit automatisch bearbeitet. Mit dem Zeitraffer vergeht für alle offenen Vorgänge sofort eine Stunde.</p>
-            @if (status(); as st) { <p class="klein">{{ st.inVerarbeitung }} Vorgang/Vorgänge in Bearbeitung · {{ st.auszahlungOffen }} Auszahlung(en) ausstehend</p> }
+            @if (status(); as st) { <p class="klein">{{ st.inVerarbeitung }} Vorgang/Vorgänge in Bearbeitung, {{ st.auszahlungOffen }} Auszahlung(en) ausstehend</p> }
             <button type="button" class="btn klein" (click)="zeitraffer()" [disabled]="beschaeftigt()"><vp-symbol name="clock" [groesse]="16" /> Eine Stunde vorspulen</button>
 
             <h3>Testfälle vorbereiten</h3>
@@ -70,17 +70,17 @@ import { SymbolComponent } from '../shared/symbol.component';
       </section>
     }`,
   styles: [`
-    :host { position: fixed; right: 1rem; bottom: 4.6rem; z-index: 650; display: flex; flex-direction: column; align-items: flex-end; }
-    .postausgang-knopf { display: inline-flex; align-items: center; gap: .4rem; border: 1px dashed #8aa3a0; background: #fffdf4; color: #4c5a58; border-radius: 999px; padding: .5rem .9rem;
-      font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(16,40,44,.12); position: relative; }
+    :host { position: fixed; right: 7.25rem; bottom: 1rem; z-index: 650; display: flex; flex-direction: column; align-items: flex-end; }
+    .postausgang-knopf { display: inline-flex; align-items: center; gap: .4rem; border: 1px dashed #8aa3a0; background: #fffdf4; color: #4c5a58; border-radius: var(--vp-radius); padding: .6rem .8rem;
+      font: inherit; font-size: .9rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(16,40,44,.15); position: relative; }
     .postausgang-knopf .zaehlpunkt { position: absolute; top: -.4rem; left: -.4rem; }
-    .postausgang-panel { position: absolute; right: 0; bottom: 3rem; width: min(420px, calc(100vw - 2rem)); max-height: min(70vh, 640px); overflow: auto; background: #fff;
-      border: 1px solid var(--vp-rand); border-radius: 14px; box-shadow: 0 12px 36px rgba(16,40,44,.22); padding: 1rem; }
+    .postausgang-panel { position: absolute; right: -6.25rem; bottom: 3.25rem; width: min(420px, calc(100vw - 2rem)); max-height: min(70vh, 640px); overflow: auto; background: #fff;
+      border: 1px solid var(--vp-rand); border-radius: var(--vp-radius); box-shadow: 0 12px 36px rgba(16,40,44,.22); padding: 1rem; }
     header { display: flex; justify-content: space-between; align-items: center; }
     .ausgang { border: 1px solid var(--vp-rand); border-radius: 10px; padding: .75rem .9rem; margin-top: .6rem; }
     .ausgang.neu { border-color: var(--vp-primaer); background: #f4fbf9; }
     .ausgang-kopf { display: flex; justify-content: space-between; align-items: center; }
-    .kanal { display: inline-flex; gap: .3rem; align-items: center; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--vp-primaer); }
+    .kanal { display: inline-flex; gap: .3rem; align-items: center; font-size: .85rem; font-weight: 700; color: var(--vp-primaer); }
     .kanal[data-kanal='SMS'] { color: #7c5cc4; } .kanal[data-kanal='BRIEF'] { color: #b26a00; }
     .an { margin: .15rem 0 0; }
     h3 { font-size: 1rem; margin: .3rem 0; }
@@ -92,7 +92,7 @@ import { SymbolComponent } from '../shared/symbol.component';
     .werkzeuge p { margin: .2rem 0 .5rem; }
     .werkzeug-liste { display: flex; flex-direction: column; gap: .35rem; align-items: flex-start; }
     .btn.gefahr { border-color: var(--vp-fehler); color: var(--vp-fehler); }
-    @media (max-width: 640px) { .postausgang-knopf .text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+    @media (max-width: 640px) { :host { right: 4.75rem; } .postausgang-panel { right: -3.75rem; } .postausgang-knopf .text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
   `],
 })
 export class PostausgangComponent implements OnInit, OnDestroy {

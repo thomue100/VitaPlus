@@ -288,7 +288,7 @@ export class FormularRendererComponent implements OnInit {
       const items = s.items as any;
       if (items?.oneOf) return (w as string[]).map(x => items.oneOf.find((o: any) => o.const === x)?.title ?? x).join(', ');
       if (items?.properties) {
-        return (w as any[]).map(e => Object.entries(items.properties).map(([k, sub]: [string, any]) => e?.[k] === undefined ? '' : this.anzeige(sub, e[k])).filter(Boolean).join(', ')).join(' · ');
+        return (w as any[]).map(e => Object.entries(items.properties).map(([k, sub]: [string, any]) => e?.[k] === undefined ? '' : this.anzeige(sub, e[k])).filter(Boolean).join(', ')).join(', ');
       }
       return (w as Anhang[]).map(a => a.name).join(', ');
     }

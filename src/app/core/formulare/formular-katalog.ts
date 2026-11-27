@@ -353,7 +353,6 @@ export const FORMULARE: FormularDef[] = [
     code: 'MITGLIEDSANTRAG', titel: 'Mitglied werden', kurz: 'Mitglied werden', kategorie: 'MITGLIEDSCHAFT', zustaendig: 'Mitgliedschaft & Beiträge', bearbeitungTage: 3,
     entwurfErlaubt: false, oeffentlich: true, suchbegriffe: ['wechsel', 'mitglied', 'beitritt', 'kassenwechsel'], lebenslagen: ['JOB'],
     einwilligung: 'Ich habe die Datenschutzhinweise gelesen und bin mit der Verarbeitung meiner Daten zur Durchführung der Mitgliedschaft einverstanden.',
-    hinweis: 'Der Wechsel dauert nur wenige Minuten. Ihre bisherige gesetzliche Krankenkasse und Ihren Arbeitgeber informieren wir für Sie.',
     schritte: [
       { titel: 'Persönliche Daten', felder: [
         f.wahl('anrede', 'Anrede', o(['FRAU', 'Frau'], ['HERR', 'Herr'], ['DIVERS', 'Divers'])),

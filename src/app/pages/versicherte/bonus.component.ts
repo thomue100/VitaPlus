@@ -22,7 +22,6 @@ const KATEGORIEN: Record<string, string> = { VORSORGE: 'Vorsorge', BEWEGUNG: 'Be
     <section class="seitenbuehne">
       <div><h1>Bonusprogramm „VitaPlus aktiv“</h1><p>Gesund leben lohnt sich: 1 Punkt = 10 Cent, als Gesundheitsbudget sogar 20 % mehr.</p>
         <div class="aktionen"><a class="btn" routerLink="/vorsorge">Vorsorgekalender & Ziele</a></div></div>
-      <img src="bilder/bonus-pokal.svg" alt="" width="300" height="220" style="width:200px" />
     </section>
 
     @if (!sitzung.benutzer()?.bonusTeilnahmeSeit) {
@@ -71,7 +70,7 @@ const KATEGORIEN: Record<string, string> = { VORSORGE: 'Vorsorge', BEWEGUNG: 'Be
                 @for (k of kategorien(); track k[0]) { <optgroup [label]="k[1]">@for (m of katalogFuer(k[0]); track m.code) { <option [value]="m.code">{{ m.bezeichnung }} ({{ m.punkte }} P.)</option> }</optgroup> }</select></div>
             <div class="feld"><label for="b-datum" class="pflicht">Datum der Maßnahme</label><input id="b-datum" name="datum" type="date" [max]="heute" [(ngModel)]="neu.datum" /></div>
             @if (gewaehlt(); as m) {
-              <p class="breit klein leise">{{ m.punkte }} Punkte · höchstens {{ m.maxProJahr }}× pro Jahr{{ m.mindestalter ? ' · ab ' + m.mindestalter + ' Jahren' : '' }}{{ m.nachweisErforderlich ? ' · Nachweis erforderlich' : '' }}</p>
+              <p class="breit klein leise">{{ m.punkte }} Punkte, höchstens {{ m.maxProJahr }}× pro Jahr{{ m.mindestalter ? ', ab ' + m.mindestalter + ' Jahren' : '' }}{{ m.nachweisErforderlich ? ', Nachweis erforderlich' : '' }}</p>
               @if (m.nachweisErforderlich) { <div class="breit"><vp-dateien label="Nachweis (z. B. Stempel im Bonusheft, Bescheinigung)" [pflicht]="true" [max]="1" [(dateien)]="nachweis" /></div> }
             }
           </div>

@@ -68,13 +68,13 @@ const SEITEN: Record<string, InfoSeite> = {
         }
         @if (seite() === 'barrierefreiheit') {
           <h2>Barriere melden</h2>
-          @if (gesendet()) { <div class="hinweis erfolg" role="status">Vielen Dank! Wir kümmern uns darum.</div> }
+          @if (gesendet()) { <div class="hinweis erfolg" role="status">Ihre Meldung ist eingegangen. Wir prüfen die Barriere und melden uns, falls wir Rückfragen haben.</div> }
           @else {
             <form (ngSubmit)="barriereMelden()">
               <div class="feld mb"><label for="barriere" class="pflicht">Beschreibung der Barriere</label>
                 <textarea id="barriere" name="text" [(ngModel)]="text" maxlength="1000"></textarea></div>
               <div class="feld mb"><span class="label">Wie zufrieden sind Sie insgesamt mit der Zugänglichkeit?</span><vp-sterne [(wert)]="bewertung" /></div>
-              <button class="btn primaer" type="submit">Absenden</button>
+              <button class="btn primaer" type="submit">Barriere melden</button>
             </form>
           }
         }

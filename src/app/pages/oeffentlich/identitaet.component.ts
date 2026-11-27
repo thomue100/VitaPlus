@@ -13,7 +13,7 @@ import { VpValidatoren } from '../../shared/validatoren';
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <section class="karte identitaet" style="max-width:560px">
-      <p class="klein leise">Externer Identitätsdienst · {{ dienst() }}</p>
+      <p class="klein leise">Externer Identitätsdienst, {{ dienst() }}</p>
       <h1>{{ verfahren() === 'EID' ? 'Mit dem Online-Ausweis anmelden' : 'Mit der GesundheitsID anmelden' }}</h1>
       @if (schritt() === 1) {
         <p>{{ verfahren() === 'EID' ? 'Halten Sie Ihren Personalausweis an Ihr Smartphone bzw. Kartenlesegerät.' : 'Bestätigen Sie die Anmeldung in der App Ihrer Krankenkasse.' }}</p>

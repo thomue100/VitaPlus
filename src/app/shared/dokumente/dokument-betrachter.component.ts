@@ -16,7 +16,7 @@ import { aktuelleVorschau, vorschauSchliessen } from './vorschau';
       <section class="betrachter" role="dialog" aria-modal="true" [attr.aria-label]="'Dokument: ' + v.titel">
         <header>
           <span class="titel"><vp-symbol [name]="istBild() ? 'camera' : 'file-text'" [groesse]="18" /> <strong>{{ v.titel }}</strong>
-            <span class="leise klein">{{ v.dateiname }} · {{ v.blob.size | groesse }}</span></span>
+            <span class="leise klein">{{ v.dateiname }}, {{ v.blob.size | groesse }}</span></span>
           <span class="aktionen-kopf">
             <button type="button" class="btn klein" (click)="laden()"><vp-symbol name="download" [groesse]="16" /> Herunterladen</button>
             <button type="button" class="btn klein" (click)="drucken()"><vp-symbol name="printer" [groesse]="16" /> Drucken</button>

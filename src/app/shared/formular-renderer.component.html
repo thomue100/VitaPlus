@@ -4,7 +4,7 @@
       <span class="bestaetigung-symbol" [class.erledigt]="e.status === 'GENEHMIGT'"><vp-symbol name="circle-check" [groesse]="34" /></span>
       <div>
         <h2>{{ e.status === 'GENEHMIGT' ? 'Erledigt – Ihr Anliegen wurde direkt bearbeitet' : 'Vielen Dank – Ihre Angaben sind bei uns eingegangen' }}</h2>
-        <p class="leise">Vorgangsnummer <strong class="vorgangsnummer">{{ e.vorgangsnummer }}</strong> · {{ definition().titel }}</p>
+        <p class="leise">Vorgangsnummer <strong class="vorgangsnummer">{{ e.vorgangsnummer }}</strong>, {{ definition().titel }}</p>
       </div>
     </div>
 
@@ -56,7 +56,7 @@
   @if (definition().antragsteller; as a) {
     @if (schritt() === 0) {
       <div class="antragsteller"><vp-symbol name="user-round" [groesse]="18" />
-        <span><span class="leise klein">Antragsteller/in</span><strong>{{ a.name }}</strong> · Versichertennummer {{ a.versichertennummer }}<br /><span class="klein">{{ a.anschrift }}</span></span>
+        <span><span class="leise klein">Antragsteller/in</span><strong>{{ a.name }}</strong>, Versichertennummer {{ a.versichertennummer }}<br /><span class="klein">{{ a.anschrift }}</span></span>
         <a class="klein" routerLink="/profil">Daten ändern</a></div>
     }
   }

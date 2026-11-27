@@ -14,7 +14,7 @@ import { laufzeit } from '../../core/laufzeit';
   imports: [DatumPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="seitenkopf"><div><h1>Betrieb & Monitoring</h1><p class="leise">Verfügbarkeit, Antwortzeiten und Fehler der Online-Geschäftsstelle · aktualisiert {{ stand() | datum: true }}</p></div>
+    <div class="seitenkopf"><div><h1>Betrieb & Monitoring</h1><p class="leise">Verfügbarkeit, Antwortzeiten und Fehler der Online-Geschäftsstelle, aktualisiert {{ stand() | datum: true }}</p></div>
       <button class="btn" type="button" (click)="laden()">Aktualisieren</button></div>
     @if (m(); as m) {
       <div class="raster">
@@ -112,7 +112,7 @@ export class AdminKennzahlenComponent implements OnInit {
             <label class="auswahl"><input type="checkbox" name="tl" [(ngModel)]="neu.teamleitung" /> Teamleitung</label>
           }
         </div>
-        @if (zugang(); as z) { <div class="hinweis info">Startpasswort: <code>{{ z.startpasswort }}</code> · 2FA-Code: <code>{{ z.zweiFaktorCode }}</code> – bitte sicher übergeben.</div> }
+        @if (zugang(); as z) { <div class="hinweis info">Startpasswort: <code>{{ z.startpasswort }}</code>, 2FA-Code: <code>{{ z.zweiFaktorCode }}</code> – bitte sicher übergeben.</div> }
         <div class="aktionen"><button class="btn" type="button" (click)="neuOffen.set(false)">Schließen</button><button class="btn primaer" type="submit">Anlegen</button></div>
       </form>
     }
@@ -208,7 +208,7 @@ export class AdminMitarbeitendeComponent implements OnInit {
         <div class="aktionen"><button class="btn primaer" type="submit">Speichern</button></div>
       </form>
       <ul class="liste-ohne karte">@for (m of meldungen(); track m.id) {
-        <li class="zeile"><span><span class="badge">{{ m.typ }}</span> <strong>{{ m.titel }}</strong> <span class="klein leise">{{ m.aktivVon | datum }} – {{ m.aktivBis | datum }} · {{ m.zielgruppe }}</span><br /><span class="klein">{{ m.text }}</span></span>
+        <li class="zeile"><span><span class="badge">{{ m.typ }}</span> <strong>{{ m.titel }}</strong> <span class="klein leise">{{ m.aktivVon | datum }} – {{ m.aktivBis | datum }}, {{ m.zielgruppe }}</span><br /><span class="klein">{{ m.text }}</span></span>
           <span><button class="btn link klein" type="button" (click)="meldung = { ...m }">Bearbeiten</button><button class="btn link klein" type="button" (click)="meldungLoeschen(m)">Löschen</button></span></li>
       }</ul>
     }`,
@@ -326,10 +326,10 @@ export class AdminProtokolleComponent implements OnInit {
       <div class="raster-2">
         <section class="karte"><h2>Verteilung</h2>@for (v of f.verteilung; track v.sterne) {
           <div class="zeile klein"><span>{{ v.sterne }} ★</span><div class="balken" style="flex:1"><span [style.width.%]="f.anzahl ? v.anzahl / f.anzahl * 100 : 0"></span></div><span>{{ v.anzahl }}</span></div> }</section>
-        <section class="karte"><h2>FAQ mit Verbesserungsbedarf</h2><ul class="liste-ohne klein">@for (q of f.faq; track q.id) { <li class="zeile">{{ q.frage }} <span><vp-symbol name="thumbs-up" [groesse]="15" /> {{ q.hilfreich }} · <vp-symbol name="thumbs-down" [groesse]="15" /> {{ q.nichtHilfreich }}</span></li> }</ul></section>
+        <section class="karte"><h2>FAQ mit Verbesserungsbedarf</h2><ul class="liste-ohne klein">@for (q of f.faq; track q.id) { <li class="zeile">{{ q.frage }} <span><vp-symbol name="thumbs-up" [groesse]="15" /> {{ q.hilfreich }}, <vp-symbol name="thumbs-down" [groesse]="15" /> {{ q.nichtHilfreich }}</span></li> }</ul></section>
       </div>
       <section class="karte"><h2>Kommentare</h2><ul class="liste-ohne">@for (e of f.eintraege; track e.id) {
-        <li><span class="badge">{{ e.art }}</span> {{ '★'.repeat(e.bewertung) }} <span class="klein leise">{{ e.zeitpunkt | datum: true }} · {{ e.seite }}</span><br />{{ e.text || '(ohne Kommentar)' }}</li> }</ul></section>
+        <li><span class="badge">{{ e.art }}</span> {{ '★'.repeat(e.bewertung) }} <span class="klein leise">{{ e.zeitpunkt | datum: true }}, {{ e.seite }}</span><br />{{ e.text || '(ohne Kommentar)' }}</li> }</ul></section>
     }`,
 })
 export class AdminFeedbackComponent implements OnInit {

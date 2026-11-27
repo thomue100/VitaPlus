@@ -377,9 +377,11 @@ function uebersicht(a: Anfrage) {
   return {
     offen: eigene.filter(v => OFFENE_STATUS.includes(v.status)).length,
     rueckfragen: eigene.filter(v => v.status === 'RUECKFRAGE').length,
+    /** Vorgänge, zu denen Unterlagen nachgereicht werden müssen */
+    offeneRueckfragen: eigene.filter(v => v.status === 'RUECKFRAGE').map(v => ({ id: v.id, vorgangsnummer: v.vorgangsnummer, titel: v.titel, frist: v.rueckfrageFrist })),
     entwuerfe: eigene.filter(v => v.status === 'ENTWURF').length,
     erstattetImJahr: eigene.filter(v => v.typ === 'KOSTENERSTATTUNG' && v.erstelltAm.startsWith(jahr)).reduce((s, v) => s + (v.betragErstattet || 0), 0),
-    letzte: [...eigene].filter(v => v.status !== 'ENTWURF').sort((x, y) => y.geaendertAm.localeCompare(x.geaendertAm)).slice(0, 4),
+    letzte: [...eigene].filter(v => v.status !== 'ENTWURF').sort((x, y) => y.geaendertAm.localeCompare(x.geaendertAm)).slice(0, 5),
   };
 }
 

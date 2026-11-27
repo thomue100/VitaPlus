@@ -94,7 +94,7 @@ export class PostfachComponent implements OnInit {
     @if (n(); as n) {
       <article class="karte">
         <div class="zeile"><h1 style="font-size:1.4rem">{{ n.betreff }}</h1>@if (n.wichtig) { <span class="badge rot">wichtig</span> }</div>
-        <p class="leise klein">Von {{ n.absender }} an {{ n.empfaenger }} · {{ n.datum | datum: true }} · {{ kategorien[n.kategorie] }}</p>
+        <p class="leise klein">Von {{ n.absender }} an {{ n.empfaenger }}, {{ n.datum | datum: true }}, {{ kategorien[n.kategorie] }}</p>
         <div class="text">{{ n.text }}</div>
         @if (n.anhaenge.length) {
           <h2>Anhänge</h2>
@@ -113,7 +113,7 @@ export class PostfachComponent implements OnInit {
       </article>
       @if (n.verlauf.length) {
         <h2>Verlauf</h2>
-        @for (v of n.verlauf; track v.id) { <article class="karte"><p class="leise klein">{{ v.absender }} · {{ v.datum | datum: true }}</p><p class="fett">{{ v.betreff }}</p><div class="text">{{ v.text }}</div></article> }
+        @for (v of n.verlauf; track v.id) { <article class="karte"><p class="leise klein">{{ v.absender }}, {{ v.datum | datum: true }}</p><p class="fett">{{ v.betreff }}</p><div class="text">{{ v.text }}</div></article> }
       }
     } @else if (fehler()) { <div class="hinweis fehler">{{ fehler() }}</div> }`,
   styles: [`.text{white-space:pre-line;margin:1rem 0}`],
@@ -206,7 +206,7 @@ export class NachrichtComponent implements OnInit {
         <div class="breit"><vp-dateien label="Anhänge" [max]="3" [(dateien)]="anhaenge" /></div>
       </div>
       @if (fehler()) { <div class="hinweis fehler" role="alert">{{ fehler() }}</div> }
-      <div class="aktionen"><button class="btn primaer" type="submit" [disabled]="sendet()">Senden</button><a routerLink="/postfach">Abbrechen</a></div>
+      <div class="aktionen"><button class="btn primaer" type="submit" [disabled]="sendet()">Nachricht senden</button><a routerLink="/postfach">Abbrechen</a></div>
     </form>`,
 })
 export class NachrichtSchreibenComponent implements OnInit, HatUngespeicherteAenderungen {

@@ -11,15 +11,15 @@ import { DatumPipe, TypTextPipe } from '../../shared/pipes';
 
 interface FormularInfo { code: string; titel: string; kurz: string; kategorie: FormularKategorie; lebenslagen: string[]; suchbegriffe: string[]; verfuegbar: boolean; bearbeitungTage: number }
 
-const SONDERSEITEN: { titel: string; route: string; kategorie: FormularKategorie; begriffe: string }[] = [
-  { titel: 'Rechnung zur Kostenerstattung einreichen', route: '/erstattung', kategorie: 'LEISTUNG', begriffe: 'rechnung zahnreinigung osteopathie impfung brille' },
-  { titel: 'Krankmeldung erfassen', route: '/krankmeldung', kategorie: 'LEISTUNG', begriffe: 'au krank arbeitsunfähig' },
-  { titel: 'Familienangehörige anmelden', route: '/familie', kategorie: 'FAMILIE', begriffe: 'familienversicherung ehepartner kind' },
-  { titel: 'Ersatz für die Gesundheitskarte', route: '/gesundheitskarte', kategorie: 'MITGLIEDSCHAFT', begriffe: 'karte verloren gestohlen foto' },
-  { titel: 'Bonusmaßnahme einreichen', route: '/bonus', kategorie: 'LEISTUNG', begriffe: 'bonus punkte vorsorge sport' },
-  { titel: 'Beratungstermin buchen', route: '/termine', kategorie: 'KONTAKT', begriffe: 'termin beratung filiale' },
-  { titel: 'Namensänderung mitteilen', route: '/profil', kategorie: 'STAMMDATEN', begriffe: 'name heirat' },
-  { titel: 'Vollmacht erteilen', route: '/vollmachten', kategorie: 'RECHT', begriffe: 'vollmacht vertretung' },
+const SONDERSEITEN: { titel: string; text: string; route: string; kategorie: FormularKategorie; begriffe: string }[] = [
+  { titel: 'Rechnung zur Kostenerstattung einreichen', text: 'Foto oder PDF der Rechnung hochladen, Erstattung meist in wenigen Tagen', route: '/erstattung', kategorie: 'LEISTUNG', begriffe: 'rechnung zahnreinigung osteopathie impfung brille' },
+  { titel: 'Krankmeldung erfassen', text: 'Arbeitsunfähigkeit mitteilen, wenn sie nicht elektronisch übermittelt wurde', route: '/krankmeldung', kategorie: 'LEISTUNG', begriffe: 'au krank arbeitsunfähig' },
+  { titel: 'Familienangehörige anmelden', text: 'Ehepartner und Kinder beitragsfrei mitversichern', route: '/familie', kategorie: 'FAMILIE', begriffe: 'familienversicherung ehepartner kind' },
+  { titel: 'Ersatz für die Gesundheitskarte', text: 'Bei Verlust, Diebstahl oder neuem Foto', route: '/gesundheitskarte', kategorie: 'MITGLIEDSCHAFT', begriffe: 'karte verloren gestohlen foto' },
+  { titel: 'Bonusmaßnahme einreichen', text: 'Vorsorge, Impfungen und Sport für Bonuspunkte nachweisen', route: '/bonus', kategorie: 'LEISTUNG', begriffe: 'bonus punkte vorsorge sport' },
+  { titel: 'Beratungstermin buchen', text: 'Telefonisch, per Video oder in der Geschäftsstelle', route: '/termine', kategorie: 'KONTAKT', begriffe: 'termin beratung filiale' },
+  { titel: 'Namensänderung mitteilen', text: 'Nach Heirat oder Scheidung, mit Nachweis', route: '/profil', kategorie: 'STAMMDATEN', begriffe: 'name heirat' },
+  { titel: 'Vollmacht erteilen', text: 'Angehörige berechtigen, Ihre Anliegen zu erledigen', route: '/vollmachten', kategorie: 'RECHT', begriffe: 'vollmacht vertretung' },
 ];
 
 @Component({
@@ -53,7 +53,7 @@ const SONDERSEITEN: { titel: string; route: string; kategorie: FormularKategorie
             <span class="titel">{{ f.titel }}</span><br />
             <span class="klein leise">{{ f.verfuegbar ? 'Bearbeitung ca. ' + f.bearbeitungTage + ' Tage' : 'Für Ihre Versicherungsart nicht verfügbar' }}</span></a>
         }
-        @for (s of g.sonder; track s.route) { <a class="kachel" [routerLink]="s.route"><span class="titel">{{ s.titel }}</span><br /><span class="klein leise">Eigener Bereich</span></a> }
+        @for (s of g.sonder; track s.route) { <a class="kachel" [routerLink]="s.route"><span class="titel">{{ s.titel }}</span><br /><span class="klein leise">{{ s.text }}</span></a> }
       </div>
     } @empty { <p class="leer">Kein passender Antrag gefunden. <a routerLink="/postfach/neu">Schreiben Sie uns einfach.</a></p> }`,
 })
