@@ -133,7 +133,7 @@
 </footer>
 
 @if (sitzung.benutzer()?.rolle !== 'SACHBEARBEITER' && sitzung.benutzer()?.rolle !== 'ADMIN') { <vp-chat /> }
-<vp-postausgang />
+@if (demo) { <vp-postausgang /> }
 <vp-dokument-betrachter />
 <vp-cookie-hinweis />
 @if (warnen()) {

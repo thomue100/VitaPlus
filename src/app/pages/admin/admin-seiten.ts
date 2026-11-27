@@ -7,6 +7,7 @@ import { fehlertext } from '../../core/services/auth.interceptor';
 import { UiService } from '../../core/services/ui.service';
 import { DatumPipe, EuroPipe } from '../../shared/pipes';
 import { SymbolComponent } from '../../shared/symbol.component';
+import { laufzeit } from '../../core/laufzeit';
 
 @Component({
   selector: 'vp-admin-monitoring',
@@ -356,6 +357,7 @@ export class AdminFeedbackComponent implements OnInit {
           <dt>Benutzer</dt><dd>{{ s.datensaetze.benutzer }}</dd><dt>Vorgänge</dt><dd>{{ s.datensaetze.vorgaenge }}</dd><dt>Nachrichten</dt><dd>{{ s.datensaetze.nachrichten }}</dd><dt>Protokolleinträge</dt><dd>{{ s.datensaetze.protokoll }}</dd></dl>
           <h3>Löschkonzept</h3><p class="klein">Entfernt Papierkorb-Nachrichten älter als 30 Tage und abgelaufene Tokens. Läuft zusätzlich automatisch bei jeder Anfrage.</p>
           <button class="btn" type="button" (click)="loeschlauf()">Löschlauf jetzt ausführen</button></section>
+        @if (demo) {
         <section class="karte" [class.hervor]="s.stoerung"><h2>Störung simulieren</h2>
           <p class="klein">Für Ausfalltests: Antragsannahme, Nachrichtenversand und Uploads antworten mit „Dienst nicht erreichbar“ (HTTP 503). Eingaben bleiben im Browser erhalten.</p>
           <p>Status: <span class="badge" [class.rot]="s.stoerung" [class.gruen]="!s.stoerung">{{ s.stoerung ? 'Störung aktiv' : 'Normalbetrieb' }}</span></p>
@@ -363,10 +365,12 @@ export class AdminFeedbackComponent implements OnInit {
         <section class="karte"><h2>Testumgebung zurücksetzen</h2>
           <p class="klein">Stellt alle Testkonten, Vorgänge, Nachrichten und Einstellungen auf den Auslieferungszustand zurück. Alle Sitzungen werden beendet.</p>
           <button class="btn gefahr" type="button" (click)="zuruecksetzen()">Testdaten zurücksetzen</button></section>
+        }
       </div>
     }`,
 })
 export class AdminSystemComponent implements OnInit {
+  readonly demo = laufzeit.demo;
   private api = inject(Api);
   private ui = inject(UiService);
   readonly s = signal<any>(null);

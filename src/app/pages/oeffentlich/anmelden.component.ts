@@ -5,6 +5,7 @@ import { fehlertext } from '../../core/services/auth.interceptor';
 import { SitzungService } from '../../core/services/sitzung.service';
 import { FeldfehlerComponent } from '../../shared/bausteine';
 import { SymbolComponent } from '../../shared/symbol.component';
+import { laufzeit } from '../../core/laufzeit';
 
 @Component({
   selector: 'vp-anmelden',
@@ -58,9 +59,10 @@ import { SymbolComponent } from '../../shared/symbol.component';
           <a class="btn" routerLink="/anmelden/identitaet" [queryParams]="{ verfahren: 'GESUNDHEITSID' }"><vp-symbol name="fingerprint" [groesse]="18" /> GesundheitsID</a>
           <a class="btn" routerLink="/anmelden/identitaet" [queryParams]="{ verfahren: 'EID' }"><vp-symbol name="id-card" [groesse]="18" /> Online-Ausweis</a>
         </div>
+        @if (demo) {
         <details class="testzugaenge">
           <summary><vp-symbol name="users" [groesse]="18" /> Testzugänge für die Demo</summary>
-          <p class="leise klein">Ein Klick trägt die Zugangsdaten ein. Sicherheitscodes per SMS finden Sie unten links unter „E-Mail &amp; SMS (Demo)“.</p>
+          <p class="leise klein">Ein Klick trägt die Zugangsdaten ein. Sicherheitscodes per SMS finden Sie unten rechts unter „Demo: E-Mail, SMS &amp; Testdaten“.</p>
           <ul>
             @for (t of testzugaenge; track t.kennung) {
               <li><button type="button" class="testzugang" (click)="eintragen(t.kennung, t.passwort)">
@@ -70,6 +72,7 @@ import { SymbolComponent } from '../../shared/symbol.component';
             }
           </ul>
         </details>
+        }
         <div class="neu-hier">
           <p class="fett">Neu in der Online-Geschäftsstelle?</p>
           <div class="aktionen"><a class="btn primaer-umriss" routerLink="/registrieren">Jetzt registrieren</a><a class="btn link" routerLink="/aktivieren">Aktivierungscode eingeben</a></div>
@@ -133,6 +136,7 @@ import { SymbolComponent } from '../../shared/symbol.component';
   `],
 })
 export class AnmeldenComponent {
+  readonly demo = laufzeit.demo;
   readonly testzugaenge = [
     { name: 'Anna Schmidt', rolle: 'Angestellte, Tarif Komfort, Familie mitversichert', kennung: 'anna.schmidt@example.de', passwort: 'VitaPlus2026!', kuerzel: 'AS', farbe: '#0b6e69' },
     { name: 'Max Mustermann', rolle: 'Selbstständig, Zwei-Faktor-Anmeldung per SMS', kennung: 'max.mustermann@example.de', passwort: 'Sicher#2026', kuerzel: 'MM', farbe: '#1d6fb8' },

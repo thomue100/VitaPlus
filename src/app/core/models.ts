@@ -349,6 +349,8 @@ export interface Store {
   passwortResetTokens: { token: string; benutzerId: string; gueltigBis: string }[];
   /** Simulierter Versand über externe Kanäle (E-Mail-Gateway, SMS-Gateway, Druckstraße) */
   postausgang: AusgehendeNachricht[];
+  /** Metadaten hochgeladener Dateien; die Inhalte liegen in der Dokumentenablage */
+  dateien?: Datei[];
   zaehler: number;
 }
 
@@ -564,4 +566,9 @@ export function widerspruchsfaehig(v: Pick<Vorgang, 'typ' | 'status' | 'betragBe
   if (v.typ === 'WIDERSPRUCH') return false;
   if (v.status === 'ABGELEHNT' || v.status === 'TEILWEISE_GENEHMIGT') return true;
   return v.status === 'AUSGEZAHLT' && v.betragBeantragt != null && (v.betragErstattet ?? 0) < v.betragBeantragt;
+}
+
+/** Hochgeladene Datei: Metadaten wie beim Anhang, dazu der Eigentümer (fehlt bei Uploads ohne Anmeldung) */
+export interface Datei extends Anhang {
+  benutzerId?: string;
 }

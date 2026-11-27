@@ -313,7 +313,7 @@ export class FormularRendererComponent implements OnInit {
       this.fertig.emit(r);
       window.scrollTo({ top: 0 });
     } catch (e: any) {
-      const details: { feld: string; meldung: string }[] = e?.error?.details || (e?.error?.feld ? [{ feld: e.error.feld, meldung: e.error.meldung }] : []);
+      const details: { feld: string; meldung: string }[] = e?.error?.details || (e?.error?.feld ? [{ feld: e.error.feld, meldung: e.error.detail || e.error.meldung }] : []);
       if (details.length) this.serverfehlerZeigen(details);
       else this.serverFehler.set(serverFehlertext(e));
     } finally {

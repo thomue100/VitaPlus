@@ -126,6 +126,8 @@ export class PostausgangComponent implements OnInit, OnDestroy {
 
   async umschalten() {
     this.offen.update(o => !o);
+    // Beim Öffnen sofort aktualisieren, damit gerade verschickte Codes schon sichtbar sind
+    if (this.offen()) await this.laden();
     if (this.offen() && this.ungelesen()) {
       await this.api.post('/api/demo/postausgang/gelesen').catch(() => undefined);
       setTimeout(() => this.laden(), 4000);

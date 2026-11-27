@@ -77,6 +77,39 @@ Der Knopf „Demo: E-Mail, SMS & Testdaten“ öffnet zwei Reiter:
 Hochgeladene Dateien werden im Browser (IndexedDB) gespeichert und lassen sich im Dokumentbetrachter öffnen.
 Angefangene Formulare werden sieben Tage lang lokal zwischengespeichert.
 
+## Backend-Anbindung
+
+Das Frontend spricht ausschließlich über HTTP mit `/api/**`. Welches Backend antwortet, steht in
+`public/konfiguration.json` und wird beim Start geladen – ein neuer Build ist dafür nicht nötig:
+
+```json
+{
+  "backend": { "modus": "simulation", "basisUrl": "", "echteRouten": [] },
+  "demo": true
+}
+```
+
+| Modus | Verhalten |
+| --- | --- |
+| `simulation` | Alle Aufrufe beantwortet das eingebaute Simulations-Backend im Browser (Standard). |
+| `mischbetrieb` | Aufrufe, die auf ein Muster in `echteRouten` passen, gehen an `basisUrl`, alle anderen an die Simulation. Muster: `"/api/auth/**"`, `"GET /api/vorgaenge/*"` (`*` = ein Pfadabschnitt, `**` = beliebig viele). |
+| `echt` | Alle Aufrufe gehen an `basisUrl`. |
+
+- `basisUrl` leer lassen, wenn das Backend unter demselben Ursprung erreichbar ist (z. B. per Rewrite in `vercel.json`); sonst muss das Backend CORS für den `Authorization`-Header erlauben.
+- `demo` blendet Postausgang, Testzugänge und Testdaten-Werkzeuge ein oder aus (Standard: an in der Simulation, sonst aus).
+- Im Mischbetrieb übernimmt die Simulation die Sitzungen, die das echte Backend bei der Anmeldung ausstellt. Voraussetzung sind dieselben Benutzer-IDs wie in den Testdaten. Daten eines Bereichs sollten vollständig in einem der beiden Backends liegen – am besten Bereich für Bereich umstellen.
+
+**Vertrag:** `npm run api:vertrag` erzeugt aus den Routen und Typen des Simulations-Backends
+
+- `docs/api/openapi.json` – OpenAPI 3.1 mit allen Endpunkten, Anmeldung, Rollen, Antwortschemas und Fehlercodes
+- `docs/api/formularkatalog.json` – alle Formulare mit Feldern, Regeln und Optionen, damit ein anderes Backend dieselben Formulare ausliefert und prüft
+
+**Konventionen:**
+
+- Anmeldung per `Authorization: Bearer <token>`; Sitzungen laufen nach 15 Minuten ohne Aktivität ab.
+- Fehler kommen als `application/problem+json` nach RFC 9457 (`type`, `title`, `status`, `detail`) mit den Erweiterungen `code`, `feld` und `details`. Angezeigt wird `detail`.
+- Dateien werden einzeln per `POST /api/dateien` (multipart, Feld `datei`) hochgeladen; Anträge und Nachrichten verweisen nur auf die zurückgegebenen Anhänge. Inhalte liefert `GET /api/dateien/{id}/inhalt`.
+
 ## Projektstruktur
 
 ```

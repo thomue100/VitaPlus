@@ -23,6 +23,23 @@ export class Api {
   delete<T = any>(url: string) {
     return firstValueFrom(this.http.delete<T>(url));
   }
+  /** Datei als multipart/form-data hochladen (Feld „datei“) */
+  hochladen<T = any>(url: string, datei: File) {
+    const form = new FormData();
+    form.append('datei', datei, datei.name);
+    return firstValueFrom(this.http.post<T>(url, form));
+  }
+  /** Binärinhalt laden; Fehlerantworten (Problem Details) werden aus dem Blob gelesen */
+  async datei(url: string): Promise<Blob> {
+    try {
+      return await firstValueFrom(this.http.get(url, { responseType: 'blob' }));
+    } catch (e: any) {
+      if (e?.error instanceof Blob) {
+        try { e = Object.assign(Object.create(Object.getPrototypeOf(e)), e, { error: JSON.parse(await e.error.text()) }); } catch { /* kein JSON */ }
+      }
+      throw e;
+    }
+  }
 }
 
 @Injectable({ providedIn: 'root' })

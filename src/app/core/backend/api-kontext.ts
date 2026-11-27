@@ -33,6 +33,10 @@ export interface Route {
   rolle?: 'VERSICHERTER' | 'SACHBEARBEITER' | 'ADMIN';
   /** Hintergrundabfrage: verlängert die Sitzung nicht */
   hintergrund?: boolean;
+  /** Anfrage als multipart/form-data statt JSON */
+  multipart?: boolean;
+  /** Antwort ist eine Datei (Binärinhalt) statt JSON */
+  dateiAntwort?: boolean;
 }
 
 export function pflicht(wert: any, feld: string, meldung = 'Pflichtfeld'): void {

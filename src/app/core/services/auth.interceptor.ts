@@ -21,7 +21,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
+/** Meldungstext aus einer Fehlerantwort (Problem Details nach RFC 9457: `detail`). */
 export function fehlertext(e: unknown, standard = 'Die Aktion konnte nicht ausgeführt werden.'): string {
   const err = e as HttpErrorResponse;
-  return err?.error?.meldung || standard;
+  if (err?.status === 0) return 'Der Dienst ist gerade nicht erreichbar. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es in einigen Minuten erneut.';
+  return err?.error?.detail || err?.error?.meldung || standard;
 }

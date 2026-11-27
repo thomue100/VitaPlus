@@ -109,6 +109,12 @@ export const sitzungen = {
     sitzungenSpeichern(liste);
     return s;
   },
+  /** Sitzung eines echten Backends spiegeln (Mischbetrieb) */
+  uebernehmen(token: string, benutzerId: string, minuten: number) {
+    const liste = sitzungenLaden().filter(x => x.token !== token);
+    liste.push({ token, benutzerId, ablauf: Date.now() + minuten * 60000, vorlaeufig: false, codeFehlversuche: 0, geraet: geraetBeschreibung(), erstellt: Date.now(), letzteAktivitaet: Date.now() });
+    sitzungenSpeichern(liste);
+  },
   finden(token: string | null): Sitzung | undefined {
     if (!token) return undefined;
     return sitzungenLaden().find(s => s.token === token && s.ablauf > Date.now());

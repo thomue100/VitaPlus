@@ -15,7 +15,7 @@ const BETRAGS_TYPEN = ['KOSTENERSTATTUNG', 'ZAHNERSATZ', 'FAHRKOSTEN', 'KIEFEROR
 const ERWARTET: Record<string, string> = { KOSTENERSTATTUNG: 'voraussichtlich', ZAHNERSATZ: 'festzuschuss', FAHRKOSTEN: 'erstattung', KIEFERORTHOPAEDIE: 'kassenanteil', KUENSTLICHE_BEFRUCHTUNG: 'zuschuss',
   VERHINDERUNGSPFLEGE: 'erstattbar', KURZZEITPFLEGE: 'erstattbar', WOHNUMFELD: 'zuschuss', ENTLASTUNGSBETRAG: 'erstattbar', ZUZAHLUNGSBEFREIUNG: 'erstattung' };
 
-import { anhangOeffnen } from '../../shared/dokumente/anhang-oeffnen';
+import { anhangOeffner } from '../../shared/dokumente/anhang-oeffnen';
 @Component({
   selector: 'vp-sb-eingang',
   imports: [FormsModule, StatusComponent, DatumPipe, EuroPipe],
@@ -161,7 +161,7 @@ export class SbEingangComponent implements OnInit {
     } @else if (fehler()) { <div class="hinweis fehler">{{ fehler() }}</div> }`,
 })
 export class SbVorgangComponent implements OnInit {
-  readonly anhangOeffnen = anhangOeffnen;
+  readonly anhangOeffnen = anhangOeffner();
   readonly sitzung = inject(SitzungService);
   private api = inject(SachbearbeitungApi);
   private ui = inject(UiService);

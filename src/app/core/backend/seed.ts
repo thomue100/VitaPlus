@@ -254,5 +254,6 @@ export function erzeugeStartdaten(): Store {
     arztFavoriten: { u1: ['A1002', 'A1015'] },
     passwortResetTokens: [],
     postausgang: [],
+    dateien: [],
   } as any);
 }

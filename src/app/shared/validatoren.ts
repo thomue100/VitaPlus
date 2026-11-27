@@ -31,7 +31,7 @@ export const VpValidatoren = {
 /** Überträgt einen feldbezogenen Backend-Fehler auf das passende Formularfeld. */
 export function serverfehlerSetzen(form: AbstractControl, e: any): boolean {
   const feld = e?.error?.feld;
-  const meldung = e?.error?.meldung;
+  const meldung = e?.error?.detail || e?.error?.meldung;
   const c = feld ? form.get(feld) : null;
   if (c && meldung) {
     c.setErrors({ server: meldung });

@@ -14,7 +14,7 @@ import { SymbolComponent } from '../../shared/symbol.component';
 
 interface ArchivEintrag { datum: string; titel: string; kategorie: 'BESCHEINIGUNG' | 'BESCHEID' | 'UPLOAD' | 'INFORMATION'; quelle: string; link?: any[]; aktion?: () => void }
 
-import { anhangOeffnen } from '../../shared/dokumente/anhang-oeffnen';
+import { anhangOeffner } from '../../shared/dokumente/anhang-oeffnen';
 @Component({
   selector: 'vp-dokumente',
   imports: [FormsModule, RouterLink, DatumPipe, SymbolComponent],
@@ -89,7 +89,7 @@ import { anhangOeffnen } from '../../shared/dokumente/anhang-oeffnen';
   styles: [`button.kachel{text-align:left;font:inherit;cursor:pointer}.gewaehlt{border-color:var(--vp-primaer);background:var(--vp-primaer-hell)}`],
 })
 export class DokumenteComponent implements OnInit {
-  readonly anhangOeffnen = anhangOeffnen;
+  readonly anhangOeffnen = anhangOeffner();
   private dokApi = inject(DokumentApi);
   private famApi = inject(FamilieApi);
   private api = inject(Api);

@@ -6,6 +6,7 @@ import {
 } from '../util/pruefungen';
 import { Anfrage, ApiFehler, anrede, ohnePasswort, pflicht, postfachNachricht, Route, statusSetzen, versenden, voller, eingangErfassen } from './api-kontext';
 import { neueId, neueVorgangsnummer, sitzungen } from './db';
+import { anhaengePruefen } from './handler-vorgaenge';
 
 const SEPA_LAENDER = ['DE', 'AT', 'BE', 'CH', 'DK', 'ES', 'FR', 'IT', 'LU', 'NL', 'PL'];
 const BANKEN: Record<string, [string, string]> = {
@@ -17,11 +18,10 @@ const BANKEN: Record<string, [string, string]> = {
   '86055592': ['Sparkasse Leipzig', 'WELADE8LXXX'],
 };
 
-function profil(a: Anfrage) {
-  const b = a.benutzer!;
-  const p: any = ohnePasswort(b);
-  if (p.bank) p.bank = { ...p.bank, ibanMaskiert: maskiereIban(p.bank.iban) };
-  return p;
+/** Eigene Stammdaten; die IBAN wird zusätzlich maskiert geliefert */
+function profil(a: Anfrage): Omit<ReturnType<typeof ohnePasswort>, 'bank'> & { bank?: NonNullable<Benutzer['bank']> & { ibanMaskiert: string } } {
+  const p = ohnePasswort(a.benutzer!);
+  return { ...p, bank: p.bank ? { ...p.bank, ibanMaskiert: maskiereIban(p.bank.iban) } : undefined };
 }
 
 function bankLookup(a: Anfrage) {
@@ -200,6 +200,7 @@ function namensaenderung(a: Anfrage) {
   if (!/^[A-Za-zÄÖÜäöüßéèáàçğışİ' -]{2,60}$/.test(nachname)) throw new ApiFehler(400, 'Der Name enthält ungültige Zeichen.', 'nachname');
   if (String(nachname).trim() === b.nachname) throw new ApiFehler(400, 'Der neue Name entspricht dem bisherigen.', 'nachname');
   if (!anhaenge?.length) throw new ApiFehler(400, 'Bitte laden Sie einen Nachweis (z. B. Heiratsurkunde) hoch.', 'anhaenge');
+  anhaengePruefen(anhaenge, true, 3);
   if (a.store.vorgaenge.some(v => v.benutzerId === b.id && v.typ === 'NAMENSAENDERUNG' && ['EINGEREICHT', 'IN_BEARBEITUNG', 'RUECKFRAGE'].includes(v.status))) {
     throw new ApiFehler(409, 'Es liegt bereits eine Namensänderung zur Bearbeitung vor.');
   }

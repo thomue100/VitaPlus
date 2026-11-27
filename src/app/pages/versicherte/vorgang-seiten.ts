@@ -16,7 +16,7 @@ import { DateigroessePipe, DatumPipe, EuroPipe, StatusTextPipe, TypTextPipe } fr
 import { pdfHerunterladen } from '../../shared/pdf';
 import { SymbolComponent } from '../../shared/symbol.component';
 
-import { anhangOeffnen } from '../../shared/dokumente/anhang-oeffnen';
+import { anhangOeffner } from '../../shared/dokumente/anhang-oeffnen';
 @Component({
   selector: 'vp-vorgaenge',
   imports: [FormsModule, RouterLink, StatusComponent, DatumPipe, EuroPipe, TypTextPipe],
@@ -139,7 +139,7 @@ export class VorgaengeComponent implements OnInit {
     } @else if (fehler()) { <div class="hinweis fehler">{{ fehler() }}</div> } @else { <p class="lade">Wird geladen …</p> }`,
 })
 export class VorgangComponent implements OnInit {
-  readonly anhangOeffnen = anhangOeffnen;
+  readonly anhangOeffnen = anhangOeffner();
   private api = inject(VorgangApi);
   private gApi = inject(Api);
   private ui = inject(UiService);

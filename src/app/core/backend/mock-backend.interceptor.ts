@@ -1,6 +1,7 @@
-import { HttpErrorResponse, HttpEvent, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
-import { Observable, of, throwError, timer } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
+import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpHeaders, HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
+import { from, Observable, throwError, timer } from 'rxjs';
+import { mergeMap, tap } from 'rxjs/operators';
+import { anEchtesBackend, laufzeit } from '../laufzeit';
 import { SESSION_TIMEOUT_MINUTEN } from '../konfiguration';
 import { Anfrage, ApiFehler, Route } from './api-kontext';
 import { db, persistieren, sitzungen } from './db';
@@ -15,6 +16,7 @@ import { hintergrundverarbeitung } from './verarbeitung';
 import { FORMULAR_ROUTEN } from './handler-formulare';
 import { FORMULARSERVICE_ROUTEN } from './formularservice';
 import { DEMO_ROUTEN } from './handler-demo';
+import { DATEI_ROUTEN } from './handler-dateien';
 import { KONTO_ROUTEN } from './handler-konto';
 import { VERSICHERUNG_ROUTEN } from './handler-versicherung';
 import { fehlerErfassen, INHALT_ADMIN_ROUTEN, messpunktErfassen } from './handler-inhalte-admin';
@@ -30,6 +32,7 @@ const ROUTEN: Route[] = [
   ...FORMULAR_ROUTEN,
   ...FORMULARSERVICE_ROUTEN,
   ...DEMO_ROUTEN,
+  ...DATEI_ROUTEN,
   ...KONTO_ROUTEN,
   ...VERSICHERUNG_ROUTEN,
   ...INHALT_ADMIN_ROUTEN,
@@ -62,7 +65,48 @@ function finde(methode: string, pfad: string): Treffer | undefined {
 
 /** Bei simulierter Störung betroffene Schnittstellen (Antragsannahme und Uploads) */
 const STOERUNG_BETROFFEN = [/^POST \/api\/antraege$/, /^PUT \/api\/antraege\/[^/]+$/, /^POST \/api\/oeffentlich\/formulare\/[^/]+$/, /^POST \/api\/erstattung$/,
-  /^POST \/api\/krankmeldung$/, /^POST \/api\/nachrichten$/, /^POST \/api\/vorgaenge\/[^/]+\/nachreichen$/];
+  /^POST \/api\/krankmeldung$/, /^POST \/api\/nachrichten$/, /^POST \/api\/vorgaenge\/[^/]+\/nachreichen$/, /^POST \/api\/dateien$/];
+
+const TITEL: Record<number, string> = {
+  400: 'Ungültige Anfrage', 401: 'Nicht angemeldet', 403: 'Keine Berechtigung', 404: 'Nicht gefunden', 409: 'Konflikt',
+  410: 'Nicht mehr verfügbar', 413: 'Inhalt zu groß', 415: 'Nicht unterstütztes Format', 422: 'Nicht verarbeitbar',
+  423: 'Gesperrt', 429: 'Zu viele Anfragen', 500: 'Interner Fehler', 503: 'Dienst nicht verfügbar',
+};
+
+/** Fehlerantwort im Format „Problem Details for HTTP APIs“ (RFC 9457), wie es auch Spring Boot liefert. */
+export function problem(status: number, detail: string, instance: string, ext: { code?: string; feld?: string; details?: unknown } = {}) {
+  return {
+    type: ext.code ? `/probleme/${ext.code.toLowerCase().replace(/_/g, '-')}` : 'about:blank',
+    title: TITEL[status] || 'Fehler',
+    status,
+    detail,
+    instance,
+    ...(ext.code ? { code: ext.code } : {}),
+    ...(ext.feld ? { feld: ext.feld } : {}),
+    ...(ext.details ? { details: ext.details } : {}),
+  };
+}
+
+function problemAntwort(req: { url: string }, status: number, body: unknown) {
+  return new HttpErrorResponse({ status, url: req.url, error: body, headers: new HttpHeaders({ 'Content-Type': 'application/problem+json' }) });
+}
+
+/**
+ * Weiterleitung an das echte Backend. Im Mischbetrieb übernimmt die Simulation Sitzungen, die das echte Backend
+ * ausgestellt hat (gleiche Benutzer-IDs vorausgesetzt), damit simulierte Bereiche angemeldet weiterarbeiten.
+ */
+function weiterleiten(req: HttpRequest<unknown>, next: HttpHandlerFn, url: URL): Observable<HttpEvent<unknown>> {
+  const ziel = laufzeit.backend.basisUrl + url.pathname + url.search;
+  return next(req.clone({ url: ziel })).pipe(tap(ev => {
+    if (laufzeit.backend.modus !== 'mischbetrieb' || !(ev instanceof HttpResponse)) return;
+    const body = ev.body as any;
+    if (body?.token && body?.benutzer?.id) sitzungen.uebernehmen(body.token, body.benutzer.id, SESSION_TIMEOUT_MINUTEN);
+    if (url.pathname === '/api/auth/logout') {
+      const t = req.headers.get('Authorization')?.substring(7);
+      if (t) sitzungen.entfernen(t);
+    }
+  }));
+}
 
 function latenz(): number {
   return 120 + Math.floor(Math.random() * 380);
@@ -74,6 +118,7 @@ function latenz(): number {
 export const mockBackendInterceptor: HttpInterceptorFn = (req, next): Observable<HttpEvent<unknown>> => {
   const url = new URL(req.urlWithParams, window.location.origin);
   if (!url.pathname.startsWith('/api/')) return next(req);
+  if (anEchtesBackend(req.method, url.pathname)) return weiterleiten(req, next, url);
 
   const start = performance.now();
   const messen = (route: string, status: number) => {
@@ -81,11 +126,14 @@ export const mockBackendInterceptor: HttpInterceptorFn = (req, next): Observable
     messpunktErfassen({ pfad: route, methode: req.method, status, dauerMs: Math.round(performance.now() - start), zeitpunkt: Date.now() });
   };
   return timer(latenz()).pipe(
-    mergeMap(() => {
+    mergeMap(() => from(verarbeiten())),
+  );
+
+  async function verarbeiten(): Promise<HttpEvent<unknown>> {
       const treffer = finde(req.method, url.pathname);
       if (!treffer) {
         messen(url.pathname, 404);
-        return throwError(() => new HttpErrorResponse({ status: 404, url: req.url, error: { meldung: 'Ressource nicht gefunden' } }));
+        throw problemAntwort(req, 404, problem(404, 'Die angeforderte Ressource wurde nicht gefunden.', url.pathname));
       }
       const store = db();
       const authHeader = req.headers.get('Authorization');
@@ -117,23 +165,21 @@ export const mockBackendInterceptor: HttpInterceptorFn = (req, next): Observable
         }
         zeitgesteuerteUebergaenge(store);
         hintergrundverarbeitung(store);
-        const ergebnis = treffer.route.handler(anfrage);
+        const ergebnis = await treffer.route.handler(anfrage);
         persistieren();
         messen(treffer.route.muster, req.method === 'POST' ? 201 : 200);
-        return of(new HttpResponse({ status: req.method === 'POST' ? 201 : 200, body: structuredClone(ergebnis), url: req.url }));
+        const body = ergebnis instanceof Blob ? ergebnis : structuredClone(ergebnis);
+        return new HttpResponse({ status: req.method === 'POST' ? 201 : 200, body, url: req.url });
       } catch (e) {
         persistieren();
         if (e instanceof ApiFehler) {
           messen(treffer.route.muster, e.status);
-          return throwError(() => new HttpErrorResponse({
-            status: e.status, url: req.url, error: { meldung: e.meldung, feld: e.feld, code: e.code, details: e.details },
-          }));
+          throw problemAntwort(req, e.status, problem(e.status, e.meldung, url.pathname, { code: e.code, feld: e.feld, details: e.details }));
         }
         console.error('Interner Fehler im Backend', e);
         messen(treffer.route.muster, 500);
         fehlerErfassen({ zeitpunkt: new Date().toISOString(), quelle: 'BACKEND', meldung: String((e as Error)?.message || e), details: String((e as Error)?.stack || '').substring(0, 1500), pfad: `${req.method} ${treffer.route.muster}` });
-        return throwError(() => new HttpErrorResponse({ status: 500, url: req.url, error: { meldung: 'Es ist ein technischer Fehler aufgetreten. Bitte versuchen Sie es später erneut.' } }));
+        throw problemAntwort(req, 500, problem(500, 'Es ist ein technischer Fehler aufgetreten. Bitte versuchen Sie es später erneut.', url.pathname));
       }
-    }),
-  );
+  }
 };

@@ -7,7 +7,7 @@ import { berechneErstattung, festzuschussProzent } from '../util/berechnungen';
 import { addMonate, addTage, alterAm, formatDatum, heute, heuteIso, istWochenende, jetztIso, parseIso, tageZwischen, toIso } from '../util/datum';
 import { zahllauf } from './verarbeitung';
 import { Anfrage, ApiFehler, anrede, euro, pflicht, postfachNachricht, Route, statusSetzen, voller, eingangErfassen } from './api-kontext';
-import { neueId, neueVorgangsnummer } from './db';
+import { db, neueId, neueVorgangsnummer } from './db';
 
 const AUSZAHLUNGS_TYPEN = ['KOSTENERSTATTUNG', 'BONUS_AUSZAHLUNG', 'FAHRKOSTEN', 'VERHINDERUNGSPFLEGE', 'ENTLASTUNGSBETRAG', 'ZUZAHLUNGSBEFREIUNG', 'KUENSTLICHE_BEFRUCHTUNG'];
 
@@ -17,7 +17,12 @@ export function anhaengePruefen(anhaenge: Anhang[] | undefined, pflichtig: boole
   const liste = anhaenge || [];
   if (pflichtig && liste.length === 0) throw new ApiFehler(400, 'Bitte laden Sie mindestens einen Beleg hoch.', 'anhaenge');
   if (liste.length > max) throw new ApiFehler(400, `Es sind höchstens ${max} Dateien erlaubt.`, 'anhaenge');
+  const hochgeladen = db().dateien || [];
   for (const d of liste) {
+    // Nur Dateien, die über POST /api/dateien angenommen wurden; Metadaten kommen vom Server, nicht vom Client
+    const original = hochgeladen.find(x => x.id === d?.id);
+    if (!original) throw new ApiFehler(400, `Die Datei „${d?.name || 'ohne Namen'}“ liegt uns nicht vor. Bitte laden Sie sie erneut hoch.`, 'anhaenge', 'DATEI_UNBEKANNT');
+    Object.assign(d, { name: original.name, groesseBytes: original.groesseBytes, mimeType: original.mimeType, hochgeladenAm: original.hochgeladenAm });
     if (!ERLAUBTE_DATEITYPEN.includes(d.mimeType)) throw new ApiFehler(415, `Der Dateityp von „${d.name}“ wird nicht unterstützt.`, 'anhaenge');
     if (d.groesseBytes > MAX_ANHANG_BYTES) throw new ApiFehler(413, `Die Datei „${d.name}“ ist größer als 5 MB.`, 'anhaenge');
   }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, model, signal } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import { ERLAUBTE_DATEITYPEN, MAX_ANHANG_BYTES } from '../core/konfiguration';
 import { Anhang } from '../core/models';
@@ -26,8 +26,9 @@ const MELDUNGEN: Record<string, (e: any) => string> = {
   server: e => e,
 };
 
-import { dokumentenablage } from '../core/backend/dokumentenablage';
-import { anhangOeffnen } from './dokumente/anhang-oeffnen';
+import { Api } from '../core/services/api.service';
+import { fehlertext } from '../core/services/auth.interceptor';
+import { anhangOeffner } from './dokumente/anhang-oeffnen';
 @Component({
   selector: 'vp-feldfehler',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -69,13 +70,14 @@ let uploadZaehler = 0;
       <div class="upload" (dragover)="$event.preventDefault()" (drop)="fallenLassen($event)">
         <input #wahl type="file" [id]="id" [accept]="akzeptiert()" [multiple]="max() > 1" (change)="gewaehlt(wahl)" hidden />
         <input #kamera type="file" accept="image/*" capture="environment" (change)="gewaehlt(kamera)" hidden />
-        <button type="button" class="btn klein" (click)="wahl.click()" [disabled]="dateien().length >= max()">Datei auswählen</button>
-        <button type="button" class="btn klein kamera" (click)="kamera.click()" [disabled]="dateien().length >= max()">Foto aufnehmen</button>
+        <button type="button" class="btn klein" (click)="wahl.click()" [disabled]="dateien().length + laedt().length >= max()">Datei auswählen</button>
+        <button type="button" class="btn klein kamera" (click)="kamera.click()" [disabled]="dateien().length + laedt().length >= max()">Foto aufnehmen</button>
         <span class="leise klein">PDF, JPG oder PNG, max. 5 MB{{ max() > 1 ? ', bis zu ' + max() + ' Dateien' : '' }} – oder Dateien hierher ziehen</span>
       </div>
       @if (fehler()) { <span class="feldfehler" role="alert">{{ fehler() }}</span> }
-      @if (dateien().length) {
+      @if (dateien().length || laedt().length) {
         <ul class="liste-ohne">
+          @for (n of laedt(); track $index) { <li class="zeile leise" role="status"><span><span class="lade-punkt"></span> {{ n }} wird hochgeladen …</span></li> }
           @for (d of dateien(); track d.id) {
             <li class="zeile"><span><vp-symbol [name]="d.mimeType.startsWith('image/') ? 'camera' : 'file-text'" [groesse]="16" />
               <button type="button" class="btn link" (click)="ansehen(d)" [attr.aria-label]="'Datei ' + d.name + ' ansehen'">{{ d.name }}</button>
@@ -86,7 +88,9 @@ let uploadZaehler = 0;
       }
     </div>`,
   styles: [`.upload{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;border:1px dashed #9fb0b4;border-radius:6px;padding:.75rem;background:#fbfcfc}
-    @media (min-width: 900px){.kamera{display:none}}`],
+    @media (min-width: 900px){.kamera{display:none}}
+    .lade-punkt{display:inline-block;width:.7rem;height:.7rem;border-radius:50%;border:2px solid var(--vp-primaer);border-right-color:transparent;animation:dreh 1s linear infinite;vertical-align:middle}
+    @keyframes dreh{to{transform:rotate(360deg)}}`],
 })
 export class DateienComponent {
   readonly label = input('Unterlagen');
@@ -96,7 +100,11 @@ export class DateienComponent {
   readonly nurBilder = input(false);
   readonly dateien = model<Anhang[]>([]);
   readonly fehler = signal<string | null>(null);
+  /** Dateien, deren Übertragung noch läuft */
+  readonly laedt = signal<string[]>([]);
   readonly id = 'upload-' + ++uploadZaehler;
+  private api = inject(Api);
+  private oeffnen = anhangOeffner();
 
   akzeptiert() {
     return this.nurBilder() ? 'image/jpeg,image/png' : '.pdf,.jpg,.jpeg,.png';
@@ -112,9 +120,9 @@ export class DateienComponent {
     this.hinzufuegen(Array.from(e.dataTransfer?.files || []));
   }
 
-  private hinzufuegen(files: File[]) {
+  private async hinzufuegen(files: File[]) {
     this.fehler.set(null);
-    const neu: Anhang[] = [];
+    const geprueft: File[] = [];
     for (const f of files) {
       const typ = f.type || (f.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : '');
       if (!ERLAUBTE_DATEITYPEN.includes(typ) || (this.nurBilder() && typ === 'application/pdf')) {
@@ -129,13 +137,22 @@ export class DateienComponent {
         this.fehler.set(`„${f.name}“ ist leer.`);
         continue;
       }
-      const anhang: Anhang = { id: Math.random().toString(36).substring(2, 10), name: f.name, groesseBytes: f.size, mimeType: typ, hochgeladenAm: new Date().toISOString() };
-      dokumentenablage.speichern(anhang.id, f);
-      neu.push(anhang);
+      geprueft.push(f);
     }
-    const gesamt = [...this.dateien(), ...neu];
-    if (gesamt.length > this.max()) this.fehler.set(`Es sind höchstens ${this.max()} Dateien erlaubt.`);
-    this.dateien.set(gesamt.slice(0, this.max()));
+    const frei = this.max() - this.dateien().length - this.laedt().length;
+    if (geprueft.length > frei) this.fehler.set(`Es sind höchstens ${this.max()} Dateien erlaubt.`);
+    // Jede Datei einzeln übertragen; die Antwort des Servers ist der Anhang mit der vergebenen ID
+    await Promise.all(geprueft.slice(0, Math.max(0, frei)).map(async f => {
+      this.laedt.update(l => [...l, f.name]);
+      try {
+        const anhang = await this.api.hochladen<Anhang>('/api/dateien', f);
+        this.dateien.update(l => [...l, anhang]);
+      } catch (e) {
+        this.fehler.set(fehlertext(e, `„${f.name}“ konnte nicht hochgeladen werden.`));
+      } finally {
+        this.laedt.update(l => { const i = l.indexOf(f.name); return i < 0 ? l : [...l.slice(0, i), ...l.slice(i + 1)]; });
+      }
+    }));
   }
 
   entfernen(id: string) {
@@ -143,7 +160,7 @@ export class DateienComponent {
   }
 
   ansehen(a: Anhang) {
-    anhangOeffnen(a);
+    this.oeffnen(a);
   }
 
   typText(mime: string) {

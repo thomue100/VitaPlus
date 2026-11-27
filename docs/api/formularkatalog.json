@@ -1,0 +1,4728 @@
+{
+  "formulare": [
+    {
+      "code": "HAUSHALTSHILFE",
+      "titel": "Haushaltshilfe beantragen",
+      "kurz": "Haushaltshilfe",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 5,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "haushalt",
+        "hilfe",
+        "krankenhaus",
+        "kinderbetreuung"
+      ],
+      "lebenslagen": [
+        "KRANK",
+        "FAMILIE"
+      ],
+      "schritte": [
+        {
+          "titel": "Zeitraum und Grund",
+          "felder": [
+            {
+              "name": "von",
+              "label": "Beginn",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "bis",
+              "label": "Ende",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "grund",
+              "label": "Grund",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "KRANKENHAUS",
+                  "text": "Krankenhausaufenthalt"
+                },
+                {
+                  "wert": "REHA",
+                  "text": "Reha-Maßnahme"
+                },
+                {
+                  "wert": "SCHWERE_ERKRANKUNG",
+                  "text": "Schwere Erkrankung (ambulant)"
+                },
+                {
+                  "wert": "OPERATION",
+                  "text": "Ambulante Operation"
+                }
+              ]
+            },
+            {
+              "name": "stundenProTag",
+              "label": "Benötigte Stunden pro Tag",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 1,
+              "max": 8
+            },
+            {
+              "name": "pflegebeduerftigesKind",
+              "label": "Im Haushalt lebt ein behindertes oder pflegebedürftiges Kind",
+              "typ": "checkbox"
+            },
+            {
+              "name": "keineAnderePerson",
+              "label": "Keine andere im Haushalt lebende Person kann den Haushalt weiterführen",
+              "typ": "checkbox",
+              "pflicht": true
+            }
+          ]
+        },
+        {
+          "titel": "Haushaltshilfe",
+          "felder": [
+            {
+              "name": "art",
+              "label": "Wer übernimmt die Haushaltshilfe?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "DIENST",
+                  "text": "Professioneller Dienst"
+                },
+                {
+                  "wert": "PRIVAT",
+                  "text": "Private Person (Nachbarn, Bekannte)"
+                },
+                {
+                  "wert": "VERWANDT",
+                  "text": "Verwandte/Verschwägerte bis 2. Grades"
+                }
+              ]
+            },
+            {
+              "name": "anbieter",
+              "label": "Name des Dienstes bzw. der Person",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "info_114",
+              "label": "Verwandte und Verschwägerte bis zum 2. Grad erhalten keine Vergütung, sondern nur Fahrkosten und Verdienstausfall.",
+              "typ": "info",
+              "breit": true
+            },
+            {
+              "name": "anhaenge",
+              "label": "Ärztliche Bescheinigung",
+              "typ": "datei",
+              "pflicht": false,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "HAUSHALTSHILFE_SCHWANGERSCHAFT",
+      "titel": "Haushaltshilfe bei Schwangerschaft und Entbindung",
+      "kurz": "Haushaltshilfe Schwangerschaft",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 3,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "schwanger",
+        "entbindung",
+        "geburt",
+        "haushalt"
+      ],
+      "lebenslagen": [
+        "FAMILIE"
+      ],
+      "schritte": [
+        {
+          "titel": "Angaben",
+          "felder": [
+            {
+              "name": "entbindungstermin",
+              "label": "Voraussichtlicher oder tatsächlicher Entbindungstermin",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "von",
+              "label": "Beginn der Haushaltshilfe",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "bis",
+              "label": "Ende der Haushaltshilfe",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "stundenProTag",
+              "label": "Stunden pro Tag",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 1,
+              "max": 8
+            },
+            {
+              "name": "anlass",
+              "label": "Anlass",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "SCHWANGERSCHAFT",
+                  "text": "Beschwerden in der Schwangerschaft"
+                },
+                {
+                  "wert": "ENTBINDUNG",
+                  "text": "Nach der Entbindung"
+                }
+              ]
+            },
+            {
+              "name": "anhaenge",
+              "label": "Ärztliche Bescheinigung oder Bescheinigung der Hebamme",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 2,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "HAEUSLICHE_KRANKENPFLEGE",
+      "titel": "Häusliche Krankenpflege",
+      "kurz": "Häusliche Krankenpflege",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 3,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "pflegedienst",
+        "verordnung",
+        "wundversorgung",
+        "spritzen"
+      ],
+      "lebenslagen": [
+        "KRANK"
+      ],
+      "hinweis": "Bitte reichen Sie die Verordnung spätestens am dritten Arbeitstag nach Ausstellung ein.",
+      "schritte": [
+        {
+          "titel": "Verordnung",
+          "felder": [
+            {
+              "name": "person",
+              "label": "Für wen stellen Sie den Antrag?",
+              "typ": "person",
+              "pflicht": true
+            },
+            {
+              "name": "verordnungsdatum",
+              "label": "Ausgestellt am",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "von",
+              "label": "Pflege ab",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "bis",
+              "label": "Pflege bis",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "massnahmen",
+              "label": "Verordnete Maßnahmen",
+              "typ": "mehrfach",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "MEDIKAMENTE",
+                  "text": "Medikamentengabe"
+                },
+                {
+                  "wert": "INJEKTION",
+                  "text": "Injektionen"
+                },
+                {
+                  "wert": "WUNDE",
+                  "text": "Wundversorgung"
+                },
+                {
+                  "wert": "KOMPRESSION",
+                  "text": "Kompressionsstrümpfe"
+                },
+                {
+                  "wert": "GRUNDPFLEGE",
+                  "text": "Grundpflege"
+                },
+                {
+                  "wert": "HAUSWIRTSCHAFT",
+                  "text": "Hauswirtschaftliche Versorgung"
+                }
+              ],
+              "breit": true
+            },
+            {
+              "name": "pflegedienst",
+              "label": "Pflegedienst",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "anhaenge",
+              "label": "Verordnung (Muster 12)",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "HILFSMITTEL",
+      "titel": "Hilfsmittel beantragen",
+      "kurz": "Hilfsmittel",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 7,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "rollator",
+        "rollstuhl",
+        "hörgerät",
+        "einlagen",
+        "bandage",
+        "orthese"
+      ],
+      "lebenslagen": [
+        "KRANK",
+        "PFLEGE"
+      ],
+      "schritte": [
+        {
+          "titel": "Hilfsmittel",
+          "felder": [
+            {
+              "name": "person",
+              "label": "Für wen stellen Sie den Antrag?",
+              "typ": "person",
+              "pflicht": true
+            },
+            {
+              "name": "hilfsmittel",
+              "label": "Hilfsmittel",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "Rollator",
+                  "text": "Rollator"
+                },
+                {
+                  "wert": "Rollstuhl",
+                  "text": "Rollstuhl"
+                },
+                {
+                  "wert": "Hörgerät",
+                  "text": "Hörgerät"
+                },
+                {
+                  "wert": "Orthopädische Einlagen",
+                  "text": "Orthopädische Einlagen"
+                },
+                {
+                  "wert": "Bandage",
+                  "text": "Bandage / Orthese"
+                },
+                {
+                  "wert": "Inhalationsgerät",
+                  "text": "Inhalationsgerät"
+                },
+                {
+                  "wert": "Blutzuckermessgerät",
+                  "text": "Blutzuckermessgerät"
+                },
+                {
+                  "wert": "Sonstiges",
+                  "text": "Sonstiges"
+                }
+              ]
+            },
+            {
+              "name": "beschreibung",
+              "label": "Genaue Bezeichnung",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "sichtbarWenn": {
+                "feld": "hilfsmittel",
+                "gleich": "Sonstiges"
+              }
+            },
+            {
+              "name": "verordnungsdatum",
+              "label": "Datum der Verordnung",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "sanitaetshaus",
+              "label": "Gewünschtes Sanitätshaus",
+              "typ": "text",
+              "pflicht": false,
+              "maxLaenge": 120
+            },
+            {
+              "name": "anhaenge",
+              "label": "Verordnung und Kostenvoranschlag",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "HEILMITTEL",
+      "titel": "Langfristiger Heilmittelbedarf",
+      "kurz": "Heilmittel",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 28,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "physiotherapie",
+        "ergotherapie",
+        "logopädie",
+        "krankengymnastik"
+      ],
+      "lebenslagen": [
+        "KRANK"
+      ],
+      "schritte": [
+        {
+          "titel": "Angaben",
+          "felder": [
+            {
+              "name": "person",
+              "label": "Für wen stellen Sie den Antrag?",
+              "typ": "person",
+              "pflicht": true
+            },
+            {
+              "name": "heilmittel",
+              "label": "Heilmittel",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "PHYSIO",
+                  "text": "Physiotherapie"
+                },
+                {
+                  "wert": "ERGO",
+                  "text": "Ergotherapie"
+                },
+                {
+                  "wert": "LOGO",
+                  "text": "Logopädie"
+                },
+                {
+                  "wert": "PODO",
+                  "text": "Podologie"
+                }
+              ]
+            },
+            {
+              "name": "diagnose",
+              "label": "Diagnose (ICD-10, falls bekannt)",
+              "typ": "text",
+              "pflicht": false,
+              "maxLaenge": 120,
+              "muster": "^[A-Z]\\d{2}(\\.\\d{1,2})?$",
+              "musterText": "Format z. B. M54.5"
+            },
+            {
+              "name": "begruendung",
+              "label": "Begründung des langfristigen Bedarfs",
+              "typ": "textarea",
+              "pflicht": true,
+              "minLaenge": 10,
+              "maxLaenge": 2000,
+              "breit": true
+            },
+            {
+              "name": "anhaenge",
+              "label": "Heilmittelverordnung und ärztliche Stellungnahme",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "REHA",
+      "titel": "Medizinische Rehabilitation",
+      "kurz": "Reha",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 21,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "kur",
+        "reha",
+        "rehabilitation",
+        "mutter-kind-kur"
+      ],
+      "lebenslagen": [
+        "KRANK",
+        "FAMILIE"
+      ],
+      "schritte": [
+        {
+          "titel": "Art der Reha",
+          "felder": [
+            {
+              "name": "person",
+              "label": "Für wen stellen Sie den Antrag?",
+              "typ": "person",
+              "pflicht": true
+            },
+            {
+              "name": "art",
+              "label": "Art der Maßnahme",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "AMBULANT",
+                  "text": "Ambulante Rehabilitation"
+                },
+                {
+                  "wert": "STATIONAER",
+                  "text": "Stationäre Rehabilitation"
+                },
+                {
+                  "wert": "MUTTER_KIND",
+                  "text": "Mutter-/Vater-Kind-Maßnahme"
+                }
+              ]
+            },
+            {
+              "name": "letzteReha",
+              "label": "Datum der letzten Reha (falls vorhanden)",
+              "typ": "datum",
+              "pflicht": false,
+              "nichtZukunft": true
+            },
+            {
+              "name": "ziel",
+              "label": "Was soll mit der Reha erreicht werden?",
+              "typ": "textarea",
+              "pflicht": true,
+              "minLaenge": 10,
+              "maxLaenge": 2000,
+              "breit": true
+            }
+          ]
+        },
+        {
+          "titel": "Einrichtung und Unterlagen",
+          "felder": [
+            {
+              "name": "wunscheinrichtung",
+              "label": "Wunsch-Einrichtung",
+              "typ": "text",
+              "pflicht": false,
+              "maxLaenge": 120
+            },
+            {
+              "name": "begleitperson",
+              "label": "Eine Begleitperson ist medizinisch erforderlich",
+              "typ": "checkbox"
+            },
+            {
+              "name": "anhaenge",
+              "label": "Ärztliche Verordnung (Muster 61)",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "ANSCHLUSSREHA",
+      "titel": "Anschlussrehabilitation (AHB)",
+      "kurz": "Anschlussreha",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 2,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "ahb",
+        "anschlussheilbehandlung",
+        "krankenhaus",
+        "operation"
+      ],
+      "lebenslagen": [
+        "KRANK"
+      ],
+      "schritte": [
+        {
+          "titel": "Krankenhausaufenthalt",
+          "felder": [
+            {
+              "name": "person",
+              "label": "Für wen stellen Sie den Antrag?",
+              "typ": "person",
+              "pflicht": true
+            },
+            {
+              "name": "krankenhaus",
+              "label": "Krankenhaus",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "aufnahme",
+              "label": "Aufnahme im Krankenhaus",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "entlassung",
+              "label": "Entlassung (geplant oder erfolgt)",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "einrichtung",
+              "label": "Reha-Einrichtung (lt. Sozialdienst)",
+              "typ": "text",
+              "pflicht": false,
+              "maxLaenge": 120
+            },
+            {
+              "name": "anhaenge",
+              "label": "AHB-Antrag des Sozialdienstes und Befundbericht",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "FAHRKOSTEN",
+      "titel": "Fahrkosten erstatten lassen",
+      "kurz": "Fahrkosten",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 10,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "taxi",
+        "fahrt",
+        "dialyse",
+        "chemotherapie",
+        "kilometer"
+      ],
+      "lebenslagen": [
+        "KRANK",
+        "GELD"
+      ],
+      "schritte": [
+        {
+          "titel": "Fahrt",
+          "felder": [
+            {
+              "name": "person",
+              "label": "Für wen stellen Sie den Antrag?",
+              "typ": "person",
+              "pflicht": true
+            },
+            {
+              "name": "anlass",
+              "label": "Anlass der Fahrt",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "STATIONAER",
+                  "text": "Stationäre Behandlung"
+                },
+                {
+                  "wert": "AMBULANTE_OP",
+                  "text": "Ambulante Operation"
+                },
+                {
+                  "wert": "DIALYSE",
+                  "text": "Dialyse"
+                },
+                {
+                  "wert": "CHEMO",
+                  "text": "Chemo- oder Strahlentherapie"
+                },
+                {
+                  "wert": "SCHWERBEHINDERT",
+                  "text": "Fahrt mit Merkzeichen aG, Bl oder H"
+                },
+                {
+                  "wert": "SONSTIGES",
+                  "text": "Sonstige ambulante Behandlung"
+                }
+              ]
+            },
+            {
+              "name": "fahrtdatum",
+              "label": "Datum der Fahrt",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true,
+              "maxTageZurueck": 1460
+            },
+            {
+              "name": "verkehrsmittel",
+              "label": "Verkehrsmittel",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "PKW",
+                  "text": "Privat-PKW"
+                },
+                {
+                  "wert": "OEPNV",
+                  "text": "Öffentliche Verkehrsmittel"
+                },
+                {
+                  "wert": "TAXI",
+                  "text": "Taxi / Mietwagen"
+                }
+              ]
+            },
+            {
+              "name": "kilometer",
+              "label": "Gefahrene Kilometer (Hin- und Rückfahrt)",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 1,
+              "max": 2000,
+              "sichtbarWenn": {
+                "feld": "verkehrsmittel",
+                "gleich": "PKW"
+              }
+            },
+            {
+              "name": "kosten",
+              "label": "Kosten laut Beleg",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000,
+              "sichtbarWenn": {
+                "feld": "verkehrsmittel",
+                "in": [
+                  "OEPNV",
+                  "TAXI"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "titel": "Nachweise",
+          "felder": [
+            {
+              "name": "genehmigungVorhanden",
+              "label": "Die Fahrt wurde vorab von der VitaPlus genehmigt",
+              "typ": "checkbox",
+              "sichtbarWenn": {
+                "feld": "anlass",
+                "gleich": "SONSTIGES"
+              }
+            },
+            {
+              "name": "anhaenge",
+              "label": "Verordnung einer Krankenbeförderung und Belege",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "KRANKENTRANSPORT",
+      "titel": "Krankentransport genehmigen lassen",
+      "kurz": "Krankentransport",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 2,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "krankenwagen",
+        "ktw",
+        "liegendtransport"
+      ],
+      "lebenslagen": [
+        "KRANK"
+      ],
+      "schritte": [
+        {
+          "titel": "Transport",
+          "felder": [
+            {
+              "name": "person",
+              "label": "Für wen stellen Sie den Antrag?",
+              "typ": "person",
+              "pflicht": true
+            },
+            {
+              "name": "transportart",
+              "label": "Art des Transports",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "KTW",
+                  "text": "Krankentransportwagen"
+                },
+                {
+                  "wert": "TRAGESTUHL",
+                  "text": "Tragestuhl / Rollstuhl-Transport"
+                }
+              ]
+            },
+            {
+              "name": "termin",
+              "label": "Termin",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtVergangenheit": true
+            },
+            {
+              "name": "ziel",
+              "label": "Ziel (Praxis, Klinik)",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "regelmaessig",
+              "label": "Es handelt sich um eine Serienbehandlung",
+              "typ": "checkbox"
+            },
+            {
+              "name": "anhaenge",
+              "label": "Verordnung einer Krankenbeförderung (Muster 4)",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "ZAHNERSATZ",
+      "titel": "Heil- und Kostenplan Zahnersatz",
+      "kurz": "Zahnersatz",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 14,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "krone",
+        "brücke",
+        "implantat",
+        "prothese",
+        "festzuschuss",
+        "bonusheft"
+      ],
+      "lebenslagen": [
+        "KRANK",
+        "GELD"
+      ],
+      "schritte": [
+        {
+          "titel": "Behandlung",
+          "felder": [
+            {
+              "name": "zahnarzt",
+              "label": "Zahnarztpraxis",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "regelversorgung",
+              "label": "Kosten der Regelversorgung laut Heil- und Kostenplan",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000
+            },
+            {
+              "name": "geplanterBeginn",
+              "label": "Geplanter Behandlungsbeginn",
+              "typ": "datum",
+              "pflicht": false
+            }
+          ]
+        },
+        {
+          "titel": "Bonusheft",
+          "felder": [
+            {
+              "name": "bonusheftJahre",
+              "label": "Lückenlos geführtes Bonusheft",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "0",
+                  "text": "Nicht oder weniger als 5 Jahre"
+                },
+                {
+                  "wert": "5",
+                  "text": "5 bis 9 Jahre"
+                },
+                {
+                  "wert": "10",
+                  "text": "10 Jahre und mehr"
+                }
+              ]
+            },
+            {
+              "name": "bonusheftHochgeladen",
+              "label": "Bonusheft ist als Nachweis beigefügt",
+              "typ": "checkbox",
+              "sichtbarWenn": {
+                "feld": "bonusheftJahre",
+                "in": [
+                  "5",
+                  "10"
+                ]
+              }
+            },
+            {
+              "name": "haertefall",
+              "label": "Ich beantrage die Härtefallregelung (geringes Einkommen)",
+              "typ": "checkbox"
+            },
+            {
+              "name": "anhaenge",
+              "label": "Heil- und Kostenplan, ggf. Bonusheft",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "MUTTERSCHAFTSGELD",
+      "titel": "Mutterschaftsgeld beantragen",
+      "kurz": "Mutterschaftsgeld",
+      "kategorie": "FAMILIE",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 7,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "mutterschutz",
+        "schwangerschaft",
+        "mutterschaftsgeld",
+        "schutzfrist"
+      ],
+      "lebenslagen": [
+        "FAMILIE"
+      ],
+      "schritte": [
+        {
+          "titel": "Schwangerschaft",
+          "felder": [
+            {
+              "name": "entbindungstermin",
+              "label": "Voraussichtlicher Entbindungstermin",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "mehrlinge",
+              "label": "Mehrlingsschwangerschaft",
+              "typ": "checkbox"
+            },
+            {
+              "name": "fruehgeburt",
+              "label": "Frühgeburt oder Behinderung des Kindes festgestellt",
+              "typ": "checkbox"
+            },
+            {
+              "name": "arbeitgeber",
+              "label": "Arbeitgeber",
+              "typ": "text",
+              "pflicht": false,
+              "maxLaenge": 120
+            },
+            {
+              "name": "anhaenge",
+              "label": "Zeugnis über den mutmaßlichen Entbindungstermin",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 2,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "KINDERKRANKENGELD",
+      "titel": "Kinderkrankengeld beantragen",
+      "kurz": "Kinderkrankengeld",
+      "kategorie": "FAMILIE",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 5,
+      "entwurfErlaubt": false,
+      "nurFuer": [
+        "ANGESTELLT"
+      ],
+      "suchbegriffe": [
+        "kind krank",
+        "kinderkrank",
+        "betreuung krankes kind"
+      ],
+      "lebenslagen": [
+        "FAMILIE",
+        "KRANK"
+      ],
+      "schritte": [
+        {
+          "titel": "Angaben",
+          "felder": [
+            {
+              "name": "kindId",
+              "label": "Erkranktes Kind",
+              "typ": "kind",
+              "pflicht": true
+            },
+            {
+              "name": "von",
+              "label": "Erster Tag",
+              "typ": "datum",
+              "pflicht": true,
+              "maxTageZurueck": 365
+            },
+            {
+              "name": "bis",
+              "label": "Letzter Tag",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "alleinerziehend",
+              "label": "Ich bin alleinerziehend",
+              "typ": "checkbox"
+            },
+            {
+              "name": "behinderung",
+              "label": "Das Kind ist behindert und auf Hilfe angewiesen",
+              "typ": "checkbox"
+            },
+            {
+              "name": "anhaenge",
+              "label": "Ärztliche Bescheinigung (Muster 21)",
+              "typ": "datei",
+              "pflicht": false,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "KIEFERORTHOPAEDIE",
+      "titel": "Kieferorthopädische Behandlung",
+      "kurz": "Kieferorthopädie",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 21,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "zahnspange",
+        "kig",
+        "kieferorthopäde"
+      ],
+      "lebenslagen": [
+        "FAMILIE"
+      ],
+      "schritte": [
+        {
+          "titel": "Behandlungsplan",
+          "felder": [
+            {
+              "name": "person",
+              "label": "Patient/in",
+              "typ": "person",
+              "pflicht": true
+            },
+            {
+              "name": "kieferorthopaede",
+              "label": "Kieferorthopädische Praxis",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "kig",
+              "label": "KIG-Behandlungsbedarfsgrad laut Plan",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "1",
+                  "text": "Grad 1"
+                },
+                {
+                  "wert": "2",
+                  "text": "Grad 2"
+                },
+                {
+                  "wert": "3",
+                  "text": "Grad 3"
+                },
+                {
+                  "wert": "4",
+                  "text": "Grad 4"
+                },
+                {
+                  "wert": "5",
+                  "text": "Grad 5"
+                }
+              ]
+            },
+            {
+              "name": "kieferchirurgisch",
+              "label": "Kombiniert kieferchirurgische Behandlung (bei Erwachsenen erforderlich)",
+              "typ": "checkbox"
+            },
+            {
+              "name": "kosten",
+              "label": "Geplante Gesamtkosten",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000
+            },
+            {
+              "name": "anhaenge",
+              "label": "Kieferorthopädischer Behandlungsplan",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "KUENSTLICHE_BEFRUCHTUNG",
+      "titel": "Künstliche Befruchtung",
+      "kurz": "Künstliche Befruchtung",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 14,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "kinderwunsch",
+        "ivf",
+        "icsi",
+        "insemination"
+      ],
+      "lebenslagen": [
+        "FAMILIE"
+      ],
+      "schritte": [
+        {
+          "titel": "Behandlung",
+          "felder": [
+            {
+              "name": "verheiratet",
+              "label": "Sind Sie mit Ihrem Partner bzw. Ihrer Partnerin verheiratet?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "JA",
+                  "text": "Ja"
+                },
+                {
+                  "wert": "NEIN",
+                  "text": "Nein"
+                }
+              ]
+            },
+            {
+              "name": "geburtsdatumPartner",
+              "label": "Geburtsdatum Partner/in",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "methode",
+              "label": "Methode",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "IUI",
+                  "text": "Insemination"
+                },
+                {
+                  "wert": "IVF",
+                  "text": "In-vitro-Fertilisation"
+                },
+                {
+                  "wert": "ICSI",
+                  "text": "ICSI"
+                }
+              ]
+            },
+            {
+              "name": "versuch",
+              "label": "Der wievielte Versuch ist geplant?",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 1,
+              "max": 10
+            },
+            {
+              "name": "kosten",
+              "label": "Kosten laut Behandlungsplan",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000
+            },
+            {
+              "name": "anhaenge",
+              "label": "Behandlungsplan",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "PSYCHOTHERAPIE",
+      "titel": "Kostenerstattung Psychotherapie",
+      "kurz": "Psychotherapie",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 21,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "therapie",
+        "psychotherapeut",
+        "depression",
+        "privatpraxis"
+      ],
+      "lebenslagen": [
+        "KRANK"
+      ],
+      "hinweis": "Eine Kostenerstattung für Privatpraxen ist nur möglich, wenn kein zugelassener Therapieplatz in zumutbarer Zeit verfügbar ist.",
+      "schritte": [
+        {
+          "titel": "Angaben",
+          "felder": [
+            {
+              "name": "person",
+              "label": "Für wen stellen Sie den Antrag?",
+              "typ": "person",
+              "pflicht": true
+            },
+            {
+              "name": "sprechstundeErfolgt",
+              "label": "Eine psychotherapeutische Sprechstunde hat stattgefunden",
+              "typ": "checkbox",
+              "pflicht": true
+            },
+            {
+              "name": "absagen",
+              "label": "Anzahl der Absagen von Praxen mit Kassenzulassung",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 0,
+              "max": 50
+            },
+            {
+              "name": "privatpraxis",
+              "label": "Behandelnde Privatpraxis",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "verfahren",
+              "label": "Verfahren",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "VT",
+                  "text": "Verhaltenstherapie"
+                },
+                {
+                  "wert": "TP",
+                  "text": "Tiefenpsychologisch fundiert"
+                },
+                {
+                  "wert": "AP",
+                  "text": "Analytische Psychotherapie"
+                },
+                {
+                  "wert": "ST",
+                  "text": "Systemische Therapie"
+                }
+              ]
+            },
+            {
+              "name": "anhaenge",
+              "label": "PTV 11, Absageliste und Dringlichkeitsbescheinigung",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "DIGA",
+      "titel": "Digitale Gesundheitsanwendung (DiGA)",
+      "kurz": "DiGA",
+      "kategorie": "DIGITAL",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 3,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "app auf rezept",
+        "diga",
+        "gesundheitsapp",
+        "freischaltcode"
+      ],
+      "lebenslagen": [
+        "KRANK"
+      ],
+      "schritte": [
+        {
+          "titel": "Anwendung",
+          "felder": [
+            {
+              "name": "diga",
+              "label": "Anwendung",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "DIGA01",
+                  "text": "somnio (Schlafstörungen)"
+                },
+                {
+                  "wert": "DIGA02",
+                  "text": "Vivira (Rückenschmerzen)"
+                },
+                {
+                  "wert": "DIGA03",
+                  "text": "zanadio (Adipositas)"
+                },
+                {
+                  "wert": "DIGA04",
+                  "text": "Kalmeda (Tinnitus)"
+                },
+                {
+                  "wert": "DIGA05",
+                  "text": "HelloBetter Stress und Burnout (Psychische Gesundheit)"
+                },
+                {
+                  "wert": "DIGA06",
+                  "text": "Mika (Krebserkrankungen)"
+                },
+                {
+                  "wert": "DIGA07",
+                  "text": "Endo-App (Endometriose)"
+                },
+                {
+                  "wert": "DIGA08",
+                  "text": "Kranus Edera (Erektile Dysfunktion)"
+                }
+              ]
+            },
+            {
+              "name": "weg",
+              "label": "Wie liegt die Verordnung vor?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "REZEPT",
+                  "text": "Ärztliches Rezept"
+                },
+                {
+                  "wert": "NACHWEIS",
+                  "text": "Ohne Rezept – Nachweis der Diagnose"
+                }
+              ]
+            },
+            {
+              "name": "rezeptcode",
+              "label": "Code vom Rezept (16-stellig)",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "sichtbarWenn": {
+                "feld": "weg",
+                "gleich": "REZEPT"
+              },
+              "muster": "^[A-Z0-9]{16}$",
+              "musterText": "16 Zeichen, nur Großbuchstaben und Ziffern"
+            },
+            {
+              "name": "anhaenge",
+              "label": "Nachweis der Diagnose",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true,
+              "sichtbarWenn": {
+                "feld": "weg",
+                "gleich": "NACHWEIS"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "DMP",
+      "titel": "Teilnahme an einem Behandlungsprogramm (DMP)",
+      "kurz": "DMP-Teilnahme",
+      "kategorie": "DIGITAL",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 7,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "chroniker",
+        "diabetes",
+        "asthma",
+        "copd",
+        "behandlungsprogramm"
+      ],
+      "lebenslagen": [
+        "KRANK"
+      ],
+      "schritte": [
+        {
+          "titel": "Programm",
+          "felder": [
+            {
+              "name": "programm",
+              "label": "Programm",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "DIABETES2",
+                  "text": "Diabetes mellitus Typ 2"
+                },
+                {
+                  "wert": "DIABETES1",
+                  "text": "Diabetes mellitus Typ 1"
+                },
+                {
+                  "wert": "KHK",
+                  "text": "Koronare Herzkrankheit"
+                },
+                {
+                  "wert": "ASTHMA",
+                  "text": "Asthma bronchiale"
+                },
+                {
+                  "wert": "COPD",
+                  "text": "COPD"
+                },
+                {
+                  "wert": "BRUSTKREBS",
+                  "text": "Brustkrebs"
+                },
+                {
+                  "wert": "RUECKEN",
+                  "text": "Chronischer Rückenschmerz"
+                },
+                {
+                  "wert": "DEPRESSION",
+                  "text": "Depression"
+                },
+                {
+                  "wert": "OSTEOPOROSE",
+                  "text": "Osteoporose"
+                },
+                {
+                  "wert": "RHEUMA",
+                  "text": "Rheumatoide Arthritis"
+                }
+              ]
+            },
+            {
+              "name": "arzt",
+              "label": "Koordinierende Arztpraxis",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "einschreibung",
+              "label": "Datum der Einschreibung in der Praxis",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "anhaenge",
+              "label": "Teilnahme- und Einwilligungserklärung",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ],
+      "einwilligung": "Ich willige ein, dass meine Behandlungsdaten im Rahmen des Programms verarbeitet werden."
+    },
+    {
+      "code": "ZUZAHLUNGSBEFREIUNG",
+      "titel": "Befreiung von Zuzahlungen",
+      "kurz": "Zuzahlungsbefreiung",
+      "kategorie": "LEISTUNG",
+      "zustaendig": "Leistungen",
+      "bearbeitungTage": 10,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "zuzahlung",
+        "befreiung",
+        "belastungsgrenze",
+        "chroniker",
+        "befreiungsausweis"
+      ],
+      "lebenslagen": [
+        "GELD",
+        "KRANK"
+      ],
+      "schritte": [
+        {
+          "titel": "Einkommen",
+          "beschreibung": "Wir berechnen Ihre persönliche Belastungsgrenze aus den Bruttoeinnahmen aller Haushaltsangehörigen.",
+          "felder": [
+            {
+              "name": "jahr",
+              "label": "Kalenderjahr",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "2026",
+                  "text": "2026"
+                },
+                {
+                  "wert": "2025",
+                  "text": "2025"
+                }
+              ]
+            },
+            {
+              "name": "bruttoeinnahmen",
+              "label": "Jährliche Bruttoeinnahmen zum Lebensunterhalt (Haushalt)",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000
+            },
+            {
+              "name": "angehoerige",
+              "label": "Anzahl weiterer Angehöriger im Haushalt (ohne Kinder)",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 0,
+              "max": 5
+            },
+            {
+              "name": "kinder",
+              "label": "Anzahl Kinder im Haushalt",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 0,
+              "max": 10
+            },
+            {
+              "name": "chronisch",
+              "label": "Ich bin chronisch krank (Bescheinigung Muster 55 liegt vor)",
+              "typ": "checkbox"
+            }
+          ]
+        },
+        {
+          "titel": "Zuzahlungen",
+          "felder": [
+            {
+              "name": "art",
+              "label": "Was möchten Sie beantragen?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "ERSTATTUNG",
+                  "text": "Erstattung bereits geleisteter Zuzahlungen"
+                },
+                {
+                  "wert": "VORAUSZAHLUNG",
+                  "text": "Befreiung im Voraus (Vorauszahlung der Belastungsgrenze)"
+                }
+              ]
+            },
+            {
+              "name": "geleistet",
+              "label": "Summe der geleisteten Zuzahlungen",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0,
+              "max": 100000,
+              "sichtbarWenn": {
+                "feld": "art",
+                "gleich": "ERSTATTUNG"
+              }
+            },
+            {
+              "name": "anhaenge",
+              "label": "Einkommensnachweise, Quittungen, ggf. Chroniker-Bescheinigung",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "PFLEGEGRAD",
+      "titel": "Pflegegrad beantragen",
+      "kurz": "Pflegegrad",
+      "kategorie": "PFLEGE",
+      "zustaendig": "Pflegekasse",
+      "bearbeitungTage": 25,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "pflegegrad",
+        "pflegestufe",
+        "medizinischer dienst",
+        "begutachtung",
+        "höherstufung"
+      ],
+      "lebenslagen": [
+        "PFLEGE"
+      ],
+      "schritte": [
+        {
+          "titel": "Pflegebedürftige Person",
+          "felder": [
+            {
+              "name": "fuer",
+              "label": "Für wen beantragen Sie den Pflegegrad?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "SELBST",
+                  "text": "Für mich"
+                },
+                {
+                  "wert": "ANGEHOERIGER",
+                  "text": "Für einen Angehörigen (bei der VitaPlus versichert)"
+                }
+              ]
+            },
+            {
+              "name": "nameAngehoeriger",
+              "label": "Name der pflegebedürftigen Person",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "sichtbarWenn": {
+                "feld": "fuer",
+                "gleich": "ANGEHOERIGER"
+              }
+            },
+            {
+              "name": "versichertennummerAngehoeriger",
+              "label": "Versichertennummer",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "sichtbarWenn": {
+                "feld": "fuer",
+                "gleich": "ANGEHOERIGER"
+              },
+              "muster": "^[A-Z]\\d{9}$",
+              "musterText": "Ein Buchstabe und 9 Ziffern"
+            },
+            {
+              "name": "antragsart",
+              "label": "Art des Antrags",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "ERST",
+                  "text": "Erstantrag"
+                },
+                {
+                  "wert": "HOEHER",
+                  "text": "Höherstufung"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "titel": "Pflegesituation",
+          "felder": [
+            {
+              "name": "bereiche",
+              "label": "In welchen Bereichen wird Hilfe benötigt?",
+              "typ": "mehrfach",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "MOBILITAET",
+                  "text": "Mobilität"
+                },
+                {
+                  "wert": "KOGNITION",
+                  "text": "Orientierung und Kommunikation"
+                },
+                {
+                  "wert": "VERHALTEN",
+                  "text": "Verhalten und Psyche"
+                },
+                {
+                  "wert": "SELBSTVERSORGUNG",
+                  "text": "Körperpflege, Essen, Toilette"
+                },
+                {
+                  "wert": "THERAPIE",
+                  "text": "Umgang mit Medikamenten und Therapien"
+                },
+                {
+                  "wert": "ALLTAG",
+                  "text": "Gestaltung des Alltags"
+                }
+              ],
+              "breit": true
+            },
+            {
+              "name": "wohnsituation",
+              "label": "Wohnsituation",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "ALLEIN",
+                  "text": "Lebt allein"
+                },
+                {
+                  "wert": "ANGEHOERIGE",
+                  "text": "Lebt mit Angehörigen"
+                },
+                {
+                  "wert": "HEIM",
+                  "text": "Pflegeeinrichtung"
+                }
+              ]
+            },
+            {
+              "name": "leistung",
+              "label": "Gewünschte Leistung",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "PFLEGEGELD",
+                  "text": "Pflegegeld (Pflege durch Angehörige)"
+                },
+                {
+                  "wert": "SACHLEISTUNG",
+                  "text": "Pflegesachleistung (Pflegedienst)"
+                },
+                {
+                  "wert": "KOMBINATION",
+                  "text": "Kombination"
+                }
+              ]
+            },
+            {
+              "name": "begutachtung",
+              "label": "Begutachtung durch den Medizinischen Dienst",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "HAUSBESUCH",
+                  "text": "Hausbesuch"
+                },
+                {
+                  "wert": "TELEFON",
+                  "text": "Telefoninterview (nur Höherstufung)"
+                }
+              ]
+            },
+            {
+              "name": "pflegeperson",
+              "label": "Name der Pflegeperson",
+              "typ": "text",
+              "pflicht": false,
+              "maxLaenge": 120
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "VERHINDERUNGSPFLEGE",
+      "titel": "Verhinderungspflege abrechnen",
+      "kurz": "Verhinderungspflege",
+      "kategorie": "PFLEGE",
+      "zustaendig": "Pflegekasse",
+      "bearbeitungTage": 14,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "ersatzpflege",
+        "urlaub pflegeperson",
+        "verhinderung"
+      ],
+      "lebenslagen": [
+        "PFLEGE"
+      ],
+      "schritte": [
+        {
+          "titel": "Ersatzpflege",
+          "felder": [
+            {
+              "name": "von",
+              "label": "Beginn",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "bis",
+              "label": "Ende",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "ersatzpflege",
+              "label": "Wer hat die Ersatzpflege übernommen?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "DIENST",
+                  "text": "Pflegedienst"
+                },
+                {
+                  "wert": "PRIVAT",
+                  "text": "Nicht verwandte Person"
+                },
+                {
+                  "wert": "VERWANDT",
+                  "text": "Verwandte/r bis 2. Grades oder im Haushalt lebend"
+                }
+              ]
+            },
+            {
+              "name": "ersatzperson",
+              "label": "Name der Ersatzpflegeperson bzw. des Dienstes",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "kosten",
+              "label": "Entstandene Kosten",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000
+            },
+            {
+              "name": "anhaenge",
+              "label": "Rechnung oder Quittung",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "KURZZEITPFLEGE",
+      "titel": "Kurzzeitpflege beantragen",
+      "kurz": "Kurzzeitpflege",
+      "kategorie": "PFLEGE",
+      "zustaendig": "Pflegekasse",
+      "bearbeitungTage": 7,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "kurzzeitpflege",
+        "pflegeheim vorübergehend",
+        "nach krankenhaus"
+      ],
+      "lebenslagen": [
+        "PFLEGE"
+      ],
+      "schritte": [
+        {
+          "titel": "Kurzzeitpflege",
+          "felder": [
+            {
+              "name": "einrichtung",
+              "label": "Pflegeeinrichtung",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "von",
+              "label": "Aufnahme",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "bis",
+              "label": "Entlassung",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "kosten",
+              "label": "Voraussichtliche pflegebedingte Kosten",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000
+            },
+            {
+              "name": "anhaenge",
+              "label": "Kostenvoranschlag der Einrichtung",
+              "typ": "datei",
+              "pflicht": false,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "PFLEGEHILFSMITTEL",
+      "titel": "Pflegehilfsmittel",
+      "kurz": "Pflegehilfsmittel",
+      "kategorie": "PFLEGE",
+      "zustaendig": "Pflegekasse",
+      "bearbeitungTage": 7,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "handschuhe",
+        "desinfektion",
+        "bettschutz",
+        "pflegebett",
+        "hausnotruf"
+      ],
+      "lebenslagen": [
+        "PFLEGE"
+      ],
+      "schritte": [
+        {
+          "titel": "Hilfsmittel",
+          "felder": [
+            {
+              "name": "art",
+              "label": "Art",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "VERBRAUCH",
+                  "text": "Zum Verbrauch bestimmte Pflegehilfsmittel (monatliche Box)"
+                },
+                {
+                  "wert": "TECHNISCH",
+                  "text": "Technische Pflegehilfsmittel"
+                }
+              ]
+            },
+            {
+              "name": "produkte",
+              "label": "Produkte",
+              "typ": "mehrfach",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "HANDSCHUHE",
+                  "text": "Einmalhandschuhe"
+                },
+                {
+                  "wert": "DESINFEKTION",
+                  "text": "Desinfektionsmittel"
+                },
+                {
+                  "wert": "BETTSCHUTZ",
+                  "text": "Bettschutzeinlagen"
+                },
+                {
+                  "wert": "MUNDSCHUTZ",
+                  "text": "Mundschutz"
+                },
+                {
+                  "wert": "SCHUERZEN",
+                  "text": "Schutzschürzen"
+                }
+              ],
+              "breit": true,
+              "sichtbarWenn": {
+                "feld": "art",
+                "gleich": "VERBRAUCH"
+              }
+            },
+            {
+              "name": "technisch",
+              "label": "Technisches Hilfsmittel",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "PFLEGEBETT",
+                  "text": "Pflegebett"
+                },
+                {
+                  "wert": "HAUSNOTRUF",
+                  "text": "Hausnotruf"
+                },
+                {
+                  "wert": "LAGERUNG",
+                  "text": "Lagerungshilfen"
+                }
+              ],
+              "sichtbarWenn": {
+                "feld": "art",
+                "gleich": "TECHNISCH"
+              }
+            },
+            {
+              "name": "lieferant",
+              "label": "Lieferant / Sanitätshaus",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "WOHNUMFELD",
+      "titel": "Zuschuss für Wohnumfeldverbesserung",
+      "kurz": "Wohnumfeld",
+      "kategorie": "PFLEGE",
+      "zustaendig": "Pflegekasse",
+      "bearbeitungTage": 21,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "umbau",
+        "barrierefrei",
+        "treppenlift",
+        "dusche",
+        "rampe"
+      ],
+      "lebenslagen": [
+        "PFLEGE"
+      ],
+      "schritte": [
+        {
+          "titel": "Maßnahme",
+          "felder": [
+            {
+              "name": "massnahme",
+              "label": "Maßnahme",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "DUSCHE",
+                  "text": "Bodengleiche Dusche"
+                },
+                {
+                  "wert": "TREPPENLIFT",
+                  "text": "Treppenlift"
+                },
+                {
+                  "wert": "TUEREN",
+                  "text": "Türverbreiterung"
+                },
+                {
+                  "wert": "RAMPE",
+                  "text": "Rampe"
+                },
+                {
+                  "wert": "SONSTIGES",
+                  "text": "Sonstige Umbaumaßnahme"
+                }
+              ]
+            },
+            {
+              "name": "kosten",
+              "label": "Kosten laut Kostenvoranschlag",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000
+            },
+            {
+              "name": "beginn",
+              "label": "Geplanter Beginn",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtVergangenheit": true
+            },
+            {
+              "name": "eigentum",
+              "label": "Wohnverhältnis",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "EIGENTUM",
+                  "text": "Eigentum"
+                },
+                {
+                  "wert": "MIETE",
+                  "text": "Miete (Zustimmung Vermieter erforderlich)"
+                }
+              ]
+            },
+            {
+              "name": "zustimmungVermieter",
+              "label": "Zustimmung des Vermieters liegt vor",
+              "typ": "checkbox",
+              "sichtbarWenn": {
+                "feld": "eigentum",
+                "gleich": "MIETE"
+              }
+            },
+            {
+              "name": "anhaenge",
+              "label": "Kostenvoranschlag, ggf. Fotos",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "ENTLASTUNGSBETRAG",
+      "titel": "Entlastungsbetrag abrechnen",
+      "kurz": "Entlastungsbetrag",
+      "kategorie": "PFLEGE",
+      "zustaendig": "Pflegekasse",
+      "bearbeitungTage": 10,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "entlastung",
+        "alltagshilfe",
+        "haushaltshilfe pflege",
+        "131"
+      ],
+      "lebenslagen": [
+        "PFLEGE",
+        "GELD"
+      ],
+      "schritte": [
+        {
+          "titel": "Rechnung",
+          "felder": [
+            {
+              "name": "anbieter",
+              "label": "Anerkannter Anbieter",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "leistungsmonat",
+              "label": "Leistungsmonat (beliebiger Tag)",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "betrag",
+              "label": "Rechnungsbetrag",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000
+            },
+            {
+              "name": "anhaenge",
+              "label": "Rechnung",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "PFLEGEPERSON",
+      "titel": "Angaben zur Pflegeperson",
+      "kurz": "Pflegeperson",
+      "kategorie": "PFLEGE",
+      "zustaendig": "Pflegekasse",
+      "bearbeitungTage": 14,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "pflegeperson",
+        "rentenversicherung pflege",
+        "pflegezeit"
+      ],
+      "lebenslagen": [
+        "PFLEGE"
+      ],
+      "schritte": [
+        {
+          "titel": "Pflegeperson",
+          "felder": [
+            {
+              "name": "name",
+              "label": "Name der Pflegeperson",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "geburtsdatum",
+              "label": "Geburtsdatum",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "stunden",
+              "label": "Pflegestunden pro Woche",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 1,
+              "max": 168
+            },
+            {
+              "name": "tage",
+              "label": "Verteilt auf wie viele Tage pro Woche?",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 1,
+              "max": 7
+            },
+            {
+              "name": "erwerbsstunden",
+              "label": "Eigene Erwerbstätigkeit in Stunden pro Woche",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 0,
+              "max": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "MITGLIEDSANTRAG",
+      "titel": "Mitglied werden",
+      "kurz": "Mitglied werden",
+      "kategorie": "MITGLIEDSCHAFT",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 3,
+      "entwurfErlaubt": false,
+      "oeffentlich": true,
+      "suchbegriffe": [
+        "wechsel",
+        "mitglied",
+        "beitritt",
+        "kassenwechsel"
+      ],
+      "lebenslagen": [
+        "JOB"
+      ],
+      "einwilligung": "Ich habe die Datenschutzhinweise gelesen und bin mit der Verarbeitung meiner Daten zur Durchführung der Mitgliedschaft einverstanden.",
+      "hinweis": "Der Wechsel dauert nur wenige Minuten. Ihre bisherige gesetzliche Krankenkasse und Ihren Arbeitgeber informieren wir für Sie.",
+      "schritte": [
+        {
+          "titel": "Persönliche Daten",
+          "felder": [
+            {
+              "name": "anrede",
+              "label": "Anrede",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "FRAU",
+                  "text": "Frau"
+                },
+                {
+                  "wert": "HERR",
+                  "text": "Herr"
+                },
+                {
+                  "wert": "DIVERS",
+                  "text": "Divers"
+                }
+              ]
+            },
+            {
+              "name": "vorname",
+              "label": "Vorname",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "nachname",
+              "label": "Nachname",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "geburtsdatum",
+              "label": "Geburtsdatum",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "geburtsort",
+              "label": "Geburtsort",
+              "typ": "text",
+              "pflicht": false,
+              "maxLaenge": 120
+            },
+            {
+              "name": "staatsangehoerigkeit",
+              "label": "Staatsangehörigkeit",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "DE",
+                  "text": "deutsch"
+                },
+                {
+                  "wert": "EU",
+                  "text": "anderes EU-Land"
+                },
+                {
+                  "wert": "SONSTIGE",
+                  "text": "andere"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "titel": "Kontakt und Anschrift",
+          "felder": [
+            {
+              "name": "email",
+              "label": "E-Mail-Adresse",
+              "typ": "email",
+              "pflicht": true,
+              "hilfe": "An diese Adresse senden wir Ihre Bestätigung und Ihre Versichertennummer."
+            },
+            {
+              "name": "telefon",
+              "label": "Telefon (für Rückfragen)",
+              "typ": "telefon"
+            },
+            {
+              "name": "strasse",
+              "label": "Straße und Hausnummer",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "plz",
+              "label": "PLZ",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "muster": "^\\d{5}$",
+              "musterText": "5 Ziffern"
+            },
+            {
+              "name": "ort",
+              "label": "Ort",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "bundesland",
+              "label": "Bundesland",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "Baden-Württemberg",
+                  "text": "Baden-Württemberg"
+                },
+                {
+                  "wert": "Bayern",
+                  "text": "Bayern"
+                },
+                {
+                  "wert": "Berlin",
+                  "text": "Berlin"
+                },
+                {
+                  "wert": "Brandenburg",
+                  "text": "Brandenburg"
+                },
+                {
+                  "wert": "Bremen",
+                  "text": "Bremen"
+                },
+                {
+                  "wert": "Hamburg",
+                  "text": "Hamburg"
+                },
+                {
+                  "wert": "Hessen",
+                  "text": "Hessen"
+                },
+                {
+                  "wert": "Mecklenburg-Vorpommern",
+                  "text": "Mecklenburg-Vorpommern"
+                },
+                {
+                  "wert": "Niedersachsen",
+                  "text": "Niedersachsen"
+                },
+                {
+                  "wert": "Nordrhein-Westfalen",
+                  "text": "Nordrhein-Westfalen"
+                },
+                {
+                  "wert": "Rheinland-Pfalz",
+                  "text": "Rheinland-Pfalz"
+                },
+                {
+                  "wert": "Saarland",
+                  "text": "Saarland"
+                },
+                {
+                  "wert": "Sachsen",
+                  "text": "Sachsen"
+                },
+                {
+                  "wert": "Sachsen-Anhalt",
+                  "text": "Sachsen-Anhalt"
+                },
+                {
+                  "wert": "Schleswig-Holstein",
+                  "text": "Schleswig-Holstein"
+                },
+                {
+                  "wert": "Thüringen",
+                  "text": "Thüringen"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "titel": "Beschäftigung",
+          "felder": [
+            {
+              "name": "status",
+              "label": "Beschäftigungsstatus",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "ANGESTELLT",
+                  "text": "Angestellt"
+                },
+                {
+                  "wert": "AUSZUBILDEND",
+                  "text": "In Ausbildung"
+                },
+                {
+                  "wert": "STUDENT",
+                  "text": "Student/in"
+                },
+                {
+                  "wert": "SELBSTSTAENDIG",
+                  "text": "Selbstständig"
+                },
+                {
+                  "wert": "RENTNER",
+                  "text": "Rentner/in"
+                },
+                {
+                  "wert": "ARBEITSLOS",
+                  "text": "Arbeitslos"
+                }
+              ]
+            },
+            {
+              "name": "arbeitgeber",
+              "label": "Arbeitgeber",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "sichtbarWenn": {
+                "feld": "status",
+                "in": [
+                  "ANGESTELLT",
+                  "AUSZUBILDEND"
+                ]
+              }
+            },
+            {
+              "name": "arbeitgeberOrt",
+              "label": "Ort des Arbeitgebers",
+              "typ": "text",
+              "pflicht": false,
+              "maxLaenge": 120,
+              "sichtbarWenn": {
+                "feld": "status",
+                "in": [
+                  "ANGESTELLT",
+                  "AUSZUBILDEND"
+                ]
+              }
+            },
+            {
+              "name": "brutto",
+              "label": "Monatliches Bruttoeinkommen",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000,
+              "sichtbarWenn": {
+                "feld": "status",
+                "in": [
+                  "ANGESTELLT",
+                  "SELBSTSTAENDIG"
+                ]
+              }
+            },
+            {
+              "name": "hochschule",
+              "label": "Hochschule",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "sichtbarWenn": {
+                "feld": "status",
+                "gleich": "STUDENT"
+              }
+            },
+            {
+              "name": "info_118",
+              "label": "Arbeitslosengeld-Beziehende melden wir über die Agentur für Arbeit an – bitte teilen Sie uns dort Ihre Kassenwahl mit.",
+              "typ": "info",
+              "breit": true
+            }
+          ]
+        },
+        {
+          "titel": "Bisherige Versicherung",
+          "felder": [
+            {
+              "name": "vorversicherung",
+              "label": "Wie waren Sie bisher versichert?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "GKV",
+                  "text": "Gesetzlich"
+                },
+                {
+                  "wert": "PKV",
+                  "text": "Privat"
+                },
+                {
+                  "wert": "FAMILIE",
+                  "text": "Familienversichert"
+                },
+                {
+                  "wert": "KEINE",
+                  "text": "Nicht versichert / aus dem Ausland"
+                }
+              ]
+            },
+            {
+              "name": "bisherigeKasse",
+              "label": "Bisherige Krankenkasse",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "sichtbarWenn": {
+                "feld": "vorversicherung",
+                "in": [
+                  "GKV",
+                  "PKV",
+                  "FAMILIE"
+                ]
+              }
+            },
+            {
+              "name": "versichertSeit",
+              "label": "Dort versichert seit",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true,
+              "sichtbarWenn": {
+                "feld": "vorversicherung",
+                "in": [
+                  "GKV"
+                ]
+              }
+            },
+            {
+              "name": "info_119",
+              "label": "Bei einem Wechsel innerhalb der gesetzlichen Krankenversicherung müssen Sie nicht selbst kündigen – das übernehmen wir.",
+              "typ": "info",
+              "breit": true
+            }
+          ]
+        },
+        {
+          "titel": "Beginn und Tarif",
+          "felder": [
+            {
+              "name": "beginn",
+              "label": "Gewünschter Beginn bei der VitaPlus",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionenQuelle": "MONATSERSTE",
+              "hilfe": "Eine Mitgliedschaft beginnt immer am Monatsersten. Bei einem Kassenwechsel gilt eine Kündigungsfrist von zwei Monaten zum Monatsende."
+            },
+            {
+              "name": "tarif",
+              "label": "Tarif",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "BASIS",
+                  "text": "VitaPlus Basis – alle gesetzlichen Leistungen"
+                },
+                {
+                  "wert": "KOMFORT",
+                  "text": "VitaPlus Komfort – mit Zahnreinigung, Osteopathie, Reiseimpfungen"
+                },
+                {
+                  "wert": "PREMIUM",
+                  "text": "VitaPlus Premium – höchste Zuschüsse und Gesundheitsbudget"
+                }
+              ]
+            },
+            {
+              "name": "familieMitversichern",
+              "label": "Ich möchte Familienangehörige beitragsfrei mitversichern",
+              "typ": "checkbox"
+            },
+            {
+              "name": "familie",
+              "label": "Mitzuversichernde Angehörige",
+              "typ": "liste",
+              "pflicht": true,
+              "minEintraege": 1,
+              "maxEintraege": 6,
+              "eintragBezeichnung": "Angehörige/r",
+              "breit": true,
+              "sichtbarWenn": {
+                "feld": "familieMitversichern",
+                "gleich": true
+              },
+              "unterfelder": [
+                {
+                  "name": "vorname",
+                  "label": "Vorname",
+                  "typ": "text",
+                  "pflicht": true,
+                  "maxLaenge": 120
+                },
+                {
+                  "name": "nachname",
+                  "label": "Nachname",
+                  "typ": "text",
+                  "pflicht": true,
+                  "maxLaenge": 120
+                },
+                {
+                  "name": "geburtsdatum",
+                  "label": "Geburtsdatum",
+                  "typ": "datum",
+                  "pflicht": true,
+                  "nichtZukunft": true
+                },
+                {
+                  "name": "beziehung",
+                  "label": "Beziehung",
+                  "typ": "auswahl",
+                  "pflicht": true,
+                  "optionen": [
+                    {
+                      "wert": "EHEPARTNER",
+                      "text": "Ehepartner/in"
+                    },
+                    {
+                      "wert": "LEBENSPARTNER",
+                      "text": "Eingetragene/r Lebenspartner/in"
+                    },
+                    {
+                      "wert": "KIND",
+                      "text": "Kind"
+                    },
+                    {
+                      "wert": "STIEFKIND",
+                      "text": "Stiefkind"
+                    },
+                    {
+                      "wert": "ENKELKIND",
+                      "text": "Enkelkind"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "titel": "Bankverbindung",
+          "beschreibung": "Für Erstattungen und – falls Sie Ihre Beiträge selbst zahlen – für den Beitragseinzug.",
+          "felder": [
+            {
+              "name": "iban",
+              "label": "IBAN",
+              "typ": "iban",
+              "pflicht": false
+            },
+            {
+              "name": "kontoinhaber",
+              "label": "Kontoinhaber/in",
+              "typ": "text",
+              "pflicht": false,
+              "maxLaenge": 120
+            },
+            {
+              "name": "sepaMandat",
+              "label": "Ich erteile der VitaPlus ein SEPA-Lastschriftmandat für meine Beiträge",
+              "typ": "checkbox",
+              "sichtbarWenn": {
+                "feld": "status",
+                "in": [
+                  "SELBSTSTAENDIG",
+                  "STUDENT",
+                  "RENTNER"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "ARBEITGEBERWECHSEL",
+      "titel": "Neuen Arbeitgeber melden",
+      "kurz": "Arbeitgeberwechsel",
+      "kategorie": "MITGLIEDSCHAFT",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 3,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "jobwechsel",
+        "neuer job",
+        "arbeitgeber"
+      ],
+      "lebenslagen": [
+        "JOB"
+      ],
+      "schritte": [
+        {
+          "titel": "Neue Beschäftigung",
+          "felder": [
+            {
+              "name": "arbeitgeber",
+              "label": "Neuer Arbeitgeber",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "beginn",
+              "label": "Beginn der Beschäftigung",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "brutto",
+              "label": "Monatliches Bruttoentgelt",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0.01,
+              "max": 100000
+            },
+            {
+              "name": "art",
+              "label": "Art der Beschäftigung",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "VOLLZEIT",
+                  "text": "Vollzeit"
+                },
+                {
+                  "wert": "TEILZEIT",
+                  "text": "Teilzeit"
+                },
+                {
+                  "wert": "MINIJOB",
+                  "text": "Minijob"
+                }
+              ]
+            },
+            {
+              "name": "mehrfach",
+              "label": "Ich habe zusätzlich weitere Beschäftigungen",
+              "typ": "checkbox"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "BESCHAEFTIGUNGSENDE",
+      "titel": "Ende der Beschäftigung melden",
+      "kurz": "Beschäftigungsende",
+      "kategorie": "MITGLIEDSCHAFT",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 5,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "kündigung job",
+        "arbeitslos",
+        "jobverlust"
+      ],
+      "lebenslagen": [
+        "JOB"
+      ],
+      "schritte": [
+        {
+          "titel": "Ende",
+          "felder": [
+            {
+              "name": "ende",
+              "label": "Letzter Arbeitstag",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "grund",
+              "label": "Grund",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "KUENDIGUNG_AN",
+                  "text": "Eigene Kündigung"
+                },
+                {
+                  "wert": "KUENDIGUNG_AG",
+                  "text": "Kündigung durch Arbeitgeber"
+                },
+                {
+                  "wert": "BEFRISTUNG",
+                  "text": "Befristung ausgelaufen"
+                },
+                {
+                  "wert": "AUFHEBUNG",
+                  "text": "Aufhebungsvertrag"
+                }
+              ]
+            },
+            {
+              "name": "anschluss",
+              "label": "Wie geht es weiter?",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "NEUER_JOB",
+                  "text": "Neue Beschäftigung"
+                },
+                {
+                  "wert": "ALG1",
+                  "text": "Arbeitslosengeld"
+                },
+                {
+                  "wert": "SELBSTSTAENDIG",
+                  "text": "Selbstständigkeit"
+                },
+                {
+                  "wert": "AUSLAND",
+                  "text": "Wegzug ins Ausland"
+                },
+                {
+                  "wert": "KEINE",
+                  "text": "Noch offen / keine Einkünfte"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "SELBSTSTAENDIGKEIT",
+      "titel": "Selbstständigkeit melden",
+      "kurz": "Selbstständigkeit",
+      "kategorie": "MITGLIEDSCHAFT",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 7,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "selbstständig",
+        "freiberuflich",
+        "gründung",
+        "gewerbe"
+      ],
+      "lebenslagen": [
+        "JOB"
+      ],
+      "schritte": [
+        {
+          "titel": "Tätigkeit",
+          "felder": [
+            {
+              "name": "ereignis",
+              "label": "Was möchten Sie melden?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "BEGINN",
+                  "text": "Aufnahme einer Selbstständigkeit"
+                },
+                {
+                  "wert": "ENDE",
+                  "text": "Ende der Selbstständigkeit"
+                }
+              ]
+            },
+            {
+              "name": "datum",
+              "label": "Datum",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "taetigkeit",
+              "label": "Art der Tätigkeit",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "sichtbarWenn": {
+                "feld": "ereignis",
+                "gleich": "BEGINN"
+              }
+            },
+            {
+              "name": "einkommen",
+              "label": "Voraussichtliches monatliches Einkommen",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0,
+              "max": 100000,
+              "sichtbarWenn": {
+                "feld": "ereignis",
+                "gleich": "BEGINN"
+              }
+            },
+            {
+              "name": "hauptberuflich",
+              "label": "Hauptberuflich?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "JA",
+                  "text": "Ja"
+                },
+                {
+                  "wert": "NEIN",
+                  "text": "Nein"
+                }
+              ],
+              "sichtbarWenn": {
+                "feld": "ereignis",
+                "gleich": "BEGINN"
+              }
+            },
+            {
+              "name": "krankengeld",
+              "label": "Möchten Sie Anspruch auf Krankengeld?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "JA",
+                  "text": "Ja"
+                },
+                {
+                  "wert": "NEIN",
+                  "text": "Nein"
+                }
+              ],
+              "sichtbarWenn": {
+                "feld": "ereignis",
+                "gleich": "BEGINN"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "STUDIUM",
+      "titel": "Studium melden",
+      "kurz": "Studienbescheinigung",
+      "kategorie": "MITGLIEDSCHAFT",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 3,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "studium",
+        "immatrikulation",
+        "studienbescheinigung",
+        "semester"
+      ],
+      "lebenslagen": [
+        "JOB"
+      ],
+      "schritte": [
+        {
+          "titel": "Studium",
+          "felder": [
+            {
+              "name": "hochschule",
+              "label": "Hochschule",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "semester",
+              "label": "Semester",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "platzhalter": "z. B. WiSe 2026/27",
+              "muster": "^(WiSe|SoSe) \\d{4}(\\/\\d{2})?$",
+              "musterText": "Format: WiSe 2026/27 oder SoSe 2027"
+            },
+            {
+              "name": "studienende",
+              "label": "Voraussichtliches Studienende",
+              "typ": "datum",
+              "pflicht": false,
+              "nichtVergangenheit": true
+            },
+            {
+              "name": "anhaenge",
+              "label": "Immatrikulationsbescheinigung",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 1,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "AUSBILDUNG",
+      "titel": "Ausbildungsbeginn melden",
+      "kurz": "Ausbildung",
+      "kategorie": "MITGLIEDSCHAFT",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 3,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "ausbildung",
+        "azubi",
+        "lehre"
+      ],
+      "lebenslagen": [
+        "JOB",
+        "FAMILIE"
+      ],
+      "schritte": [
+        {
+          "titel": "Ausbildung",
+          "felder": [
+            {
+              "name": "person",
+              "label": "Wer beginnt die Ausbildung?",
+              "typ": "person",
+              "pflicht": true
+            },
+            {
+              "name": "betrieb",
+              "label": "Ausbildungsbetrieb / Schule",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "beginn",
+              "label": "Beginn",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "ende",
+              "label": "Voraussichtliches Ende",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "verguetung",
+              "label": "Monatliche Ausbildungsvergütung",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0,
+              "max": 100000
+            },
+            {
+              "name": "anhaenge",
+              "label": "Ausbildungsvertrag oder Schulbescheinigung",
+              "typ": "datei",
+              "pflicht": false,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "RENTE",
+      "titel": "Rentenantrag / Renteneintritt melden",
+      "kurz": "Rente",
+      "kategorie": "MITGLIEDSCHAFT",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 14,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "rente",
+        "ruhestand",
+        "kvdr",
+        "rentner"
+      ],
+      "lebenslagen": [
+        "RENTE"
+      ],
+      "schritte": [
+        {
+          "titel": "Rente",
+          "felder": [
+            {
+              "name": "rentenart",
+              "label": "Rentenart",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "ALTER",
+                  "text": "Altersrente"
+                },
+                {
+                  "wert": "ERWERBSMINDERUNG",
+                  "text": "Erwerbsminderungsrente"
+                },
+                {
+                  "wert": "WITWEN",
+                  "text": "Hinterbliebenenrente"
+                },
+                {
+                  "wert": "WAISEN",
+                  "text": "Waisenrente"
+                }
+              ]
+            },
+            {
+              "name": "beginn",
+              "label": "Rentenbeginn",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "antragGestelltAm",
+              "label": "Rentenantrag gestellt am",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "traeger",
+              "label": "Rentenversicherungsträger",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "platzhalter": "z. B. Deutsche Rentenversicherung Bund"
+            },
+            {
+              "name": "weiterBeschaeftigt",
+              "label": "Ich arbeite neben der Rente weiter",
+              "typ": "checkbox"
+            },
+            {
+              "name": "anhaenge",
+              "label": "Rentenbescheid (sofern vorhanden)",
+              "typ": "datei",
+              "pflicht": false,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "AUSLAND",
+      "titel": "Auslandsaufenthalt melden",
+      "kurz": "Ausland",
+      "kategorie": "MITGLIEDSCHAFT",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 5,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "ausland",
+        "auslandssemester",
+        "entsendung",
+        "auswandern"
+      ],
+      "lebenslagen": [
+        "AUSLAND"
+      ],
+      "schritte": [
+        {
+          "titel": "Aufenthalt",
+          "felder": [
+            {
+              "name": "art",
+              "label": "Art des Aufenthalts",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "STUDIUM",
+                  "text": "Studium / Praktikum"
+                },
+                {
+                  "wert": "ENTSENDUNG",
+                  "text": "Entsendung durch Arbeitgeber"
+                },
+                {
+                  "wert": "ARBEIT",
+                  "text": "Arbeit bei ausländischem Arbeitgeber"
+                },
+                {
+                  "wert": "WOHNSITZ",
+                  "text": "Verlegung des Wohnsitzes"
+                },
+                {
+                  "wert": "LANGZEITREISE",
+                  "text": "Längere Reise (über 6 Wochen)"
+                }
+              ]
+            },
+            {
+              "name": "land",
+              "label": "Land",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "von",
+              "label": "Von",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "bis",
+              "label": "Bis",
+              "typ": "datum",
+              "pflicht": false
+            },
+            {
+              "name": "eu",
+              "label": "Liegt das Land in der EU, im EWR oder der Schweiz?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "JA",
+                  "text": "Ja"
+                },
+                {
+                  "wert": "NEIN",
+                  "text": "Nein"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "KUENDIGUNG",
+      "titel": "Mitgliedschaft beenden",
+      "kurz": "Kündigung",
+      "kategorie": "MITGLIEDSCHAFT",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 14,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "kündigen",
+        "austritt",
+        "wechseln",
+        "sonderkündigung",
+        "private krankenversicherung"
+      ],
+      "lebenslagen": [
+        "JOB",
+        "AUSLAND"
+      ],
+      "hinweis": "Bei einem Wechsel zu einer anderen gesetzlichen Krankenkasse müssen Sie nicht selbst kündigen – die neue Kasse informiert uns elektronisch.",
+      "einwilligung": "Mir ist bewusst, dass mit dem Ende der Mitgliedschaft auch die Familienversicherung meiner Angehörigen endet.",
+      "schritte": [
+        {
+          "titel": "Kündigung",
+          "felder": [
+            {
+              "name": "grund",
+              "label": "Grund",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "PKV",
+                  "text": "Wechsel in die private Krankenversicherung"
+                },
+                {
+                  "wert": "AUSLAND",
+                  "text": "Wegzug ins Ausland"
+                },
+                {
+                  "wert": "GKV_WECHSEL",
+                  "text": "Wechsel zu einer anderen gesetzlichen Kasse"
+                },
+                {
+                  "wert": "SONDERKUENDIGUNG",
+                  "text": "Sonderkündigung wegen Erhöhung des Zusatzbeitrags"
+                }
+              ]
+            },
+            {
+              "name": "neueVersicherung",
+              "label": "Neue Versicherung",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120,
+              "sichtbarWenn": {
+                "feld": "grund",
+                "in": [
+                  "PKV",
+                  "GKV_WECHSEL"
+                ]
+              }
+            },
+            {
+              "name": "anhaenge",
+              "label": "Versicherungsnachweis der privaten Krankenversicherung",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true,
+              "sichtbarWenn": {
+                "feld": "grund",
+                "gleich": "PKV"
+              }
+            },
+            {
+              "name": "anmerkung",
+              "label": "Möchten Sie uns etwas mitteilen?",
+              "typ": "textarea",
+              "pflicht": false,
+              "minLaenge": 0,
+              "maxLaenge": 2000,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "EINKOMMEN",
+      "titel": "Einkommensänderung mitteilen",
+      "kurz": "Einkommen",
+      "kategorie": "BEITRAG",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 10,
+      "entwurfErlaubt": true,
+      "nurFuer": [
+        "SELBSTSTAENDIG",
+        "RENTNER"
+      ],
+      "suchbegriffe": [
+        "einkommen",
+        "beitrag neu",
+        "steuerbescheid",
+        "einnahmen"
+      ],
+      "lebenslagen": [
+        "GELD"
+      ],
+      "schritte": [
+        {
+          "titel": "Einkommen",
+          "felder": [
+            {
+              "name": "einkommen",
+              "label": "Neues monatliches Einkommen (brutto)",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0,
+              "max": 100000
+            },
+            {
+              "name": "ab",
+              "label": "Gültig ab",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "art",
+              "label": "Art der Einnahmen",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "GEWINN",
+                  "text": "Gewinn aus selbstständiger Tätigkeit"
+                },
+                {
+                  "wert": "RENTE",
+                  "text": "Rente / Versorgungsbezüge"
+                },
+                {
+                  "wert": "MIETE",
+                  "text": "Vermietung und Verpachtung"
+                },
+                {
+                  "wert": "KAPITAL",
+                  "text": "Kapitalerträge"
+                }
+              ]
+            },
+            {
+              "name": "anhaenge",
+              "label": "Nachweis (z. B. Einkommensteuerbescheid)",
+              "typ": "datei",
+              "pflicht": false,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "STEUERBESCHEID",
+      "titel": "Einkommensteuerbescheid einreichen",
+      "kurz": "Steuerbescheid",
+      "kategorie": "BEITRAG",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 14,
+      "entwurfErlaubt": false,
+      "nurFuer": [
+        "SELBSTSTAENDIG"
+      ],
+      "suchbegriffe": [
+        "steuerbescheid",
+        "finanzamt",
+        "beitragsfestsetzung"
+      ],
+      "lebenslagen": [
+        "GELD"
+      ],
+      "schritte": [
+        {
+          "titel": "Bescheid",
+          "felder": [
+            {
+              "name": "jahr",
+              "label": "Veranlagungsjahr",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "2025",
+                  "text": "2025"
+                },
+                {
+                  "wert": "2024",
+                  "text": "2024"
+                },
+                {
+                  "wert": "2023",
+                  "text": "2023"
+                }
+              ]
+            },
+            {
+              "name": "bescheiddatum",
+              "label": "Datum des Bescheids",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "einkuenfte",
+              "label": "Summe der Einkünfte laut Bescheid",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0,
+              "max": 100000
+            },
+            {
+              "name": "anhaenge",
+              "label": "Einkommensteuerbescheid (alle Seiten)",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "RATENZAHLUNG",
+      "titel": "Ratenzahlung beantragen",
+      "kurz": "Ratenzahlung",
+      "kategorie": "BEITRAG",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 7,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "raten",
+        "rückstand",
+        "schulden",
+        "mahnung"
+      ],
+      "lebenslagen": [
+        "GELD"
+      ],
+      "schritte": [
+        {
+          "titel": "Raten",
+          "felder": [
+            {
+              "name": "anzahlRaten",
+              "label": "Anzahl der Raten",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 2,
+              "max": 12
+            },
+            {
+              "name": "ersteRate",
+              "label": "Erste Rate am",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtVergangenheit": true
+            },
+            {
+              "name": "begruendung",
+              "label": "Begründung",
+              "typ": "textarea",
+              "pflicht": true,
+              "minLaenge": 10,
+              "maxLaenge": 2000,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "STUNDUNG",
+      "titel": "Stundung beantragen",
+      "kurz": "Stundung",
+      "kategorie": "BEITRAG",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 7,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "stundung",
+        "zahlungsaufschub",
+        "beitrag später"
+      ],
+      "lebenslagen": [
+        "GELD"
+      ],
+      "schritte": [
+        {
+          "titel": "Stundung",
+          "felder": [
+            {
+              "name": "bis",
+              "label": "Stundung bis",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "begruendung",
+              "label": "Begründung (vorübergehende Zahlungsschwierigkeiten)",
+              "typ": "textarea",
+              "pflicht": true,
+              "minLaenge": 10,
+              "maxLaenge": 2000,
+              "breit": true
+            },
+            {
+              "name": "anhaenge",
+              "label": "Nachweise über die wirtschaftliche Situation",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "GEBURT",
+      "titel": "Geburt melden und Kind anmelden",
+      "kurz": "Geburt",
+      "kategorie": "FAMILIE",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 3,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "baby",
+        "neugeboren",
+        "geburt",
+        "kind anmelden"
+      ],
+      "lebenslagen": [
+        "FAMILIE"
+      ],
+      "schritte": [
+        {
+          "titel": "Ihr Kind",
+          "felder": [
+            {
+              "name": "vorname",
+              "label": "Vorname des Kindes",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "nachname",
+              "label": "Nachname des Kindes",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "geburtsdatum",
+              "label": "Geburtsdatum",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "geschlecht",
+              "label": "Geschlecht",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "W",
+                  "text": "weiblich"
+                },
+                {
+                  "wert": "M",
+                  "text": "männlich"
+                },
+                {
+                  "wert": "D",
+                  "text": "divers"
+                }
+              ]
+            },
+            {
+              "name": "mehrlinge",
+              "label": "Mehrlingsgeburt",
+              "typ": "checkbox"
+            }
+          ]
+        },
+        {
+          "titel": "Anderer Elternteil",
+          "felder": [
+            {
+              "name": "anderesElternteilVersicherung",
+              "label": "Wie ist der andere Elternteil versichert?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "VITAPLUS",
+                  "text": "Bei der VitaPlus"
+                },
+                {
+                  "wert": "GKV",
+                  "text": "Andere gesetzliche Kasse"
+                },
+                {
+                  "wert": "PKV",
+                  "text": "Privat"
+                },
+                {
+                  "wert": "KEINE",
+                  "text": "Nicht vorhanden / unbekannt"
+                }
+              ]
+            },
+            {
+              "name": "einkommenAnderesElternteil",
+              "label": "Monatliches Bruttoeinkommen des anderen Elternteils",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0,
+              "max": 100000,
+              "sichtbarWenn": {
+                "feld": "anderesElternteilVersicherung",
+                "gleich": "PKV"
+              }
+            },
+            {
+              "name": "verheiratet",
+              "label": "Wir sind verheiratet",
+              "typ": "checkbox",
+              "sichtbarWenn": {
+                "feld": "anderesElternteilVersicherung",
+                "gleich": "PKV"
+              }
+            },
+            {
+              "name": "anhaenge",
+              "label": "Geburtsurkunde (für Krankenkassenzwecke)",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "ELTERNZEIT",
+      "titel": "Elternzeit melden",
+      "kurz": "Elternzeit",
+      "kategorie": "FAMILIE",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 5,
+      "entwurfErlaubt": false,
+      "nurFuer": [
+        "ANGESTELLT"
+      ],
+      "suchbegriffe": [
+        "elternzeit",
+        "elterngeld",
+        "babypause"
+      ],
+      "lebenslagen": [
+        "FAMILIE",
+        "JOB"
+      ],
+      "schritte": [
+        {
+          "titel": "Elternzeit",
+          "felder": [
+            {
+              "name": "kind",
+              "label": "Für welches Kind?",
+              "typ": "kind",
+              "pflicht": true
+            },
+            {
+              "name": "von",
+              "label": "Beginn",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "bis",
+              "label": "Ende",
+              "typ": "datum",
+              "pflicht": true
+            },
+            {
+              "name": "teilzeit",
+              "label": "Arbeiten Sie während der Elternzeit in Teilzeit?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "JA",
+                  "text": "Ja"
+                },
+                {
+                  "wert": "NEIN",
+                  "text": "Nein"
+                }
+              ]
+            },
+            {
+              "name": "stunden",
+              "label": "Wochenstunden",
+              "typ": "zahl",
+              "pflicht": true,
+              "min": 1,
+              "max": 32,
+              "sichtbarWenn": {
+                "feld": "teilzeit",
+                "gleich": "JA"
+              }
+            },
+            {
+              "name": "elterngeld",
+              "label": "Ich beziehe Elterngeld",
+              "typ": "checkbox"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "FAMILIENSTAND",
+      "titel": "Familienstand ändern",
+      "kurz": "Familienstand",
+      "kategorie": "STAMMDATEN",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 3,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "heirat",
+        "scheidung",
+        "verwitwet",
+        "eingetragene partnerschaft",
+        "familienstand"
+      ],
+      "lebenslagen": [
+        "FAMILIE",
+        "TRAUER"
+      ],
+      "schritte": [
+        {
+          "titel": "Familienstand",
+          "felder": [
+            {
+              "name": "familienstand",
+              "label": "Neuer Familienstand",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "LEDIG",
+                  "text": "ledig"
+                },
+                {
+                  "wert": "VERHEIRATET",
+                  "text": "verheiratet"
+                },
+                {
+                  "wert": "LEBENSPARTNERSCHAFT",
+                  "text": "eingetragene Lebenspartnerschaft"
+                },
+                {
+                  "wert": "GETRENNT",
+                  "text": "getrennt lebend"
+                },
+                {
+                  "wert": "GESCHIEDEN",
+                  "text": "geschieden"
+                },
+                {
+                  "wert": "VERWITWET",
+                  "text": "verwitwet"
+                }
+              ]
+            },
+            {
+              "name": "seit",
+              "label": "Seit",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "namensaenderung",
+              "label": "Mit der Änderung ändert sich auch mein Name",
+              "typ": "checkbox"
+            },
+            {
+              "name": "anhaenge",
+              "label": "Nachweis (z. B. Heiratsurkunde)",
+              "typ": "datei",
+              "pflicht": false,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "FAMILIE_FRAGEBOGEN",
+      "titel": "Fragebogen zur Familienversicherung",
+      "kurz": "Familienfragebogen",
+      "kategorie": "FAMILIE",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 14,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "bestandsprüfung",
+        "fragebogen",
+        "einkommen angehörige"
+      ],
+      "lebenslagen": [
+        "FAMILIE"
+      ],
+      "schritte": [
+        {
+          "titel": "Angaben zu Ihren Angehörigen",
+          "felder": [
+            {
+              "name": "angehoeriger",
+              "label": "Angehörige/r",
+              "typ": "kind",
+              "pflicht": true,
+              "hilfe": "Füllen Sie den Fragebogen für jede Person einzeln aus."
+            },
+            {
+              "name": "einkommen",
+              "label": "Regelmäßiges monatliches Gesamteinkommen",
+              "typ": "betrag",
+              "pflicht": true,
+              "min": 0,
+              "max": 100000
+            },
+            {
+              "name": "status",
+              "label": "Aktueller Status",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "SCHULE",
+                  "text": "Schule / Kita / ohne Beschäftigung"
+                },
+                {
+                  "wert": "AUSBILDUNG",
+                  "text": "Ausbildung / Studium"
+                },
+                {
+                  "wert": "MINIJOB",
+                  "text": "Minijob"
+                },
+                {
+                  "wert": "BESCHAEFTIGT",
+                  "text": "Sozialversicherungspflichtig beschäftigt"
+                },
+                {
+                  "wert": "SELBSTSTAENDIG",
+                  "text": "Selbstständig"
+                }
+              ]
+            },
+            {
+              "name": "anderweitigVersichert",
+              "label": "Die Person ist inzwischen anderweitig versichert",
+              "typ": "checkbox"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "TODESFALL",
+      "titel": "Todesfall melden",
+      "kurz": "Todesfall",
+      "kategorie": "FAMILIE",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 5,
+      "entwurfErlaubt": false,
+      "oeffentlich": true,
+      "suchbegriffe": [
+        "tod",
+        "verstorben",
+        "sterbefall",
+        "hinterbliebene"
+      ],
+      "lebenslagen": [
+        "TRAUER"
+      ],
+      "hinweis": "Unser herzliches Beileid. Wir kümmern uns um alle Formalitäten und melden uns bei Ihnen.",
+      "schritte": [
+        {
+          "titel": "Angaben",
+          "felder": [
+            {
+              "name": "name",
+              "label": "Name der verstorbenen Person",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "versichertennummer",
+              "label": "Versichertennummer (falls bekannt)",
+              "typ": "text",
+              "pflicht": false,
+              "maxLaenge": 120,
+              "muster": "^[A-Z]\\d{9}$",
+              "musterText": "Ein Buchstabe und 9 Ziffern"
+            },
+            {
+              "name": "sterbedatum",
+              "label": "Sterbedatum",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "melder",
+              "label": "Ihr Name",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "beziehung",
+              "label": "Ihre Beziehung zur verstorbenen Person",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "kontaktEmail",
+              "label": "Ihre E-Mail-Adresse",
+              "typ": "email",
+              "pflicht": true
+            },
+            {
+              "name": "anhaenge",
+              "label": "Sterbeurkunde",
+              "typ": "datei",
+              "pflicht": false,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "STAMMDATEN_KORREKTUR",
+      "titel": "Fehlerhafte Geburtsdaten korrigieren",
+      "kurz": "Geburtsdaten",
+      "kategorie": "STAMMDATEN",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 5,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "geburtsdatum falsch",
+        "geburtsort",
+        "geburtsname",
+        "korrektur"
+      ],
+      "lebenslagen": [],
+      "schritte": [
+        {
+          "titel": "Korrektur",
+          "felder": [
+            {
+              "name": "feld",
+              "label": "Welche Angabe ist falsch?",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "GEBURTSDATUM",
+                  "text": "Geburtsdatum"
+                },
+                {
+                  "wert": "GEBURTSORT",
+                  "text": "Geburtsort"
+                },
+                {
+                  "wert": "GEBURTSNAME",
+                  "text": "Geburtsname"
+                }
+              ]
+            },
+            {
+              "name": "richtig",
+              "label": "Richtige Angabe",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "anhaenge",
+              "label": "Nachweis (Personalausweis, Geburtsurkunde)",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "STAATSANGEHOERIGKEIT",
+      "titel": "Staatsangehörigkeit ändern",
+      "kurz": "Staatsangehörigkeit",
+      "kategorie": "STAMMDATEN",
+      "zustaendig": "Mitgliedschaft & Beiträge",
+      "bearbeitungTage": 5,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "einbürgerung",
+        "staatsangehörigkeit",
+        "nationalität"
+      ],
+      "lebenslagen": [],
+      "schritte": [
+        {
+          "titel": "Staatsangehörigkeit",
+          "felder": [
+            {
+              "name": "staatsangehoerigkeit",
+              "label": "Neue Staatsangehörigkeit",
+              "typ": "text",
+              "pflicht": true,
+              "maxLaenge": 120
+            },
+            {
+              "name": "seit",
+              "label": "Seit",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "anhaenge",
+              "label": "Einbürgerungsurkunde oder Ausweis",
+              "typ": "datei",
+              "pflicht": true,
+              "maxDateien": 2,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "WIDERSPRUCH",
+      "titel": "Widerspruch einlegen",
+      "kurz": "Widerspruch",
+      "kategorie": "RECHT",
+      "zustaendig": "Widerspruchsstelle",
+      "bearbeitungTage": 90,
+      "entwurfErlaubt": true,
+      "suchbegriffe": [
+        "widerspruch",
+        "ablehnung",
+        "bescheid",
+        "einspruch"
+      ],
+      "lebenslagen": [
+        "GELD"
+      ],
+      "hinweis": "Der Widerspruch muss innerhalb eines Monats nach Bekanntgabe des Bescheids eingehen.",
+      "schritte": [
+        {
+          "titel": "Widerspruch",
+          "felder": [
+            {
+              "name": "bezugVorgangId",
+              "label": "Gegen welche Entscheidung legen Sie Widerspruch ein?",
+              "typ": "vorgang",
+              "pflicht": true,
+              "vorgangFilter": {
+                "nurWiderspruchsfaehig": true
+              }
+            },
+            {
+              "name": "begruendung",
+              "label": "Begründung",
+              "typ": "textarea",
+              "pflicht": true,
+              "minLaenge": 30,
+              "maxLaenge": 2000,
+              "breit": true,
+              "hilfe": "Sie können die Begründung auch später nachreichen."
+            },
+            {
+              "name": "begruendungFolgt",
+              "label": "Ich reiche eine ausführliche Begründung nach",
+              "typ": "checkbox"
+            },
+            {
+              "name": "anhaenge",
+              "label": "Weitere Unterlagen",
+              "typ": "datei",
+              "pflicht": false,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "AKTENEINSICHT",
+      "titel": "Akteneinsicht beantragen",
+      "kurz": "Akteneinsicht",
+      "kategorie": "RECHT",
+      "zustaendig": "Widerspruchsstelle",
+      "bearbeitungTage": 14,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "akte",
+        "einsicht",
+        "unterlagen"
+      ],
+      "lebenslagen": [],
+      "schritte": [
+        {
+          "titel": "Akteneinsicht",
+          "felder": [
+            {
+              "name": "bezugVorgangId",
+              "label": "Zu welchem Vorgang?",
+              "typ": "vorgang",
+              "pflicht": false
+            },
+            {
+              "name": "form",
+              "label": "Form der Einsicht",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "DIGITAL",
+                  "text": "Digitale Kopie in mein Postfach"
+                },
+                {
+                  "wert": "VOR_ORT",
+                  "text": "Einsicht in einer Geschäftsstelle"
+                }
+              ]
+            },
+            {
+              "name": "anliegen",
+              "label": "Ihr Anliegen",
+              "typ": "textarea",
+              "pflicht": false,
+              "minLaenge": 0,
+              "maxLaenge": 2000,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "DATENSCHUTZANFRAGE",
+      "titel": "Datenschutzanfrage stellen",
+      "kurz": "Datenschutzanfrage",
+      "kategorie": "RECHT",
+      "zustaendig": "Datenschutz",
+      "bearbeitungTage": 30,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "dsgvo",
+        "auskunft",
+        "löschung",
+        "berichtigung",
+        "datenübertragbarkeit"
+      ],
+      "lebenslagen": [],
+      "schritte": [
+        {
+          "titel": "Anfrage",
+          "felder": [
+            {
+              "name": "recht",
+              "label": "Ihr Anliegen",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "AUSKUNFT",
+                  "text": "Auskunft über gespeicherte Daten (Art. 15 DSGVO)"
+                },
+                {
+                  "wert": "BERICHTIGUNG",
+                  "text": "Berichtigung (Art. 16 DSGVO)"
+                },
+                {
+                  "wert": "LOESCHUNG",
+                  "text": "Löschung (Art. 17 DSGVO)"
+                },
+                {
+                  "wert": "EINSCHRAENKUNG",
+                  "text": "Einschränkung der Verarbeitung (Art. 18 DSGVO)"
+                },
+                {
+                  "wert": "UEBERTRAGBARKEIT",
+                  "text": "Datenübertragbarkeit (Art. 20 DSGVO)"
+                },
+                {
+                  "wert": "WIDERSPRUCH",
+                  "text": "Widerspruch gegen Verarbeitung (Art. 21 DSGVO)"
+                }
+              ]
+            },
+            {
+              "name": "beschreibung",
+              "label": "Beschreibung",
+              "typ": "textarea",
+              "pflicht": true,
+              "minLaenge": 10,
+              "maxLaenge": 2000,
+              "breit": true,
+              "sichtbarWenn": {
+                "feld": "recht",
+                "in": [
+                  "BERICHTIGUNG",
+                  "LOESCHUNG",
+                  "EINSCHRAENKUNG",
+                  "WIDERSPRUCH"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "DATENSCHUTZBESCHWERDE",
+      "titel": "Datenschutzbeauftragten kontaktieren",
+      "kurz": "Datenschutzbeschwerde",
+      "kategorie": "RECHT",
+      "zustaendig": "Datenschutz",
+      "bearbeitungTage": 14,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "datenschutzbeauftragter",
+        "datenpanne",
+        "beschwerde datenschutz"
+      ],
+      "lebenslagen": [],
+      "schritte": [
+        {
+          "titel": "Ihr Anliegen",
+          "felder": [
+            {
+              "name": "anliegen",
+              "label": "Ihr Anliegen",
+              "typ": "textarea",
+              "pflicht": true,
+              "minLaenge": 20,
+              "maxLaenge": 2000,
+              "breit": true
+            },
+            {
+              "name": "vorfallAm",
+              "label": "Wann ist der Vorfall aufgetreten?",
+              "typ": "datum",
+              "pflicht": false,
+              "nichtZukunft": true
+            },
+            {
+              "name": "anhaenge",
+              "label": "Unterlagen",
+              "typ": "datei",
+              "pflicht": false,
+              "maxDateien": 5,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "LEISTUNGSAUSKUNFT",
+      "titel": "Auskunft über in Anspruch genommene Leistungen",
+      "kurz": "Leistungsauskunft",
+      "kategorie": "DIGITAL",
+      "zustaendig": "Kundenservice",
+      "bearbeitungTage": 1,
+      "entwurfErlaubt": false,
+      "automatischErledigt": true,
+      "suchbegriffe": [
+        "patientenquittung",
+        "leistungsauskunft",
+        "abrechnung",
+        "§ 305"
+      ],
+      "lebenslagen": [],
+      "schritte": [
+        {
+          "titel": "Zeitraum",
+          "felder": [
+            {
+              "name": "von",
+              "label": "Von",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true,
+              "maxTageZurueck": 1500
+            },
+            {
+              "name": "bis",
+              "label": "Bis",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtZukunft": true
+            },
+            {
+              "name": "bereiche",
+              "label": "Bereiche",
+              "typ": "mehrfach",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "AERZTLICH",
+                  "text": "Ärztliche Leistungen"
+                },
+                {
+                  "wert": "ZAHNAERZTLICH",
+                  "text": "Zahnärztliche Leistungen"
+                },
+                {
+                  "wert": "ARZNEIMITTEL",
+                  "text": "Arzneimittel"
+                },
+                {
+                  "wert": "KRANKENHAUS",
+                  "text": "Krankenhaus"
+                },
+                {
+                  "wert": "HEILMITTEL",
+                  "text": "Heilmittel"
+                }
+              ],
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "RUECKRUF",
+      "titel": "Rückruf vereinbaren",
+      "kurz": "Rückruf",
+      "kategorie": "KONTAKT",
+      "zustaendig": "Kundenservice",
+      "bearbeitungTage": 1,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "rückruf",
+        "anrufen",
+        "telefon"
+      ],
+      "lebenslagen": [],
+      "schritte": [
+        {
+          "titel": "Rückruf",
+          "felder": [
+            {
+              "name": "thema",
+              "label": "Thema",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "ALLGEMEIN",
+                  "text": "Allgemeine Fragen"
+                },
+                {
+                  "wert": "LEISTUNG",
+                  "text": "Leistungen"
+                },
+                {
+                  "wert": "BEITRAG",
+                  "text": "Beiträge"
+                },
+                {
+                  "wert": "PFLEGE",
+                  "text": "Pflege"
+                },
+                {
+                  "wert": "ONLINE",
+                  "text": "Online-Geschäftsstelle"
+                }
+              ]
+            },
+            {
+              "name": "telefon",
+              "label": "Telefonnummer für den Rückruf",
+              "typ": "telefon",
+              "pflicht": true
+            },
+            {
+              "name": "datum",
+              "label": "Wunschtag",
+              "typ": "datum",
+              "pflicht": true,
+              "nichtVergangenheit": true,
+              "maxTageVoraus": 14
+            },
+            {
+              "name": "zeitfenster",
+              "label": "Zeitfenster",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "08-10",
+                  "text": "08:00–10:00 Uhr"
+                },
+                {
+                  "wert": "10-12",
+                  "text": "10:00–12:00 Uhr"
+                },
+                {
+                  "wert": "12-14",
+                  "text": "12:00–14:00 Uhr"
+                },
+                {
+                  "wert": "14-16",
+                  "text": "14:00–16:00 Uhr"
+                },
+                {
+                  "wert": "16-18",
+                  "text": "16:00–18:00 Uhr"
+                }
+              ]
+            },
+            {
+              "name": "anliegen",
+              "label": "Worum geht es?",
+              "typ": "textarea",
+              "pflicht": false,
+              "minLaenge": 0,
+              "maxLaenge": 300,
+              "breit": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "BESCHWERDE",
+      "titel": "Beschwerde einreichen",
+      "kurz": "Beschwerde",
+      "kategorie": "KONTAKT",
+      "zustaendig": "Kundenservice",
+      "bearbeitungTage": 2,
+      "entwurfErlaubt": false,
+      "suchbegriffe": [
+        "beschwerde",
+        "unzufrieden",
+        "reklamation"
+      ],
+      "lebenslagen": [],
+      "schritte": [
+        {
+          "titel": "Beschwerde",
+          "felder": [
+            {
+              "name": "bereich",
+              "label": "Bereich",
+              "typ": "auswahl",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "SERVICE",
+                  "text": "Service / Erreichbarkeit"
+                },
+                {
+                  "wert": "BEARBEITUNG",
+                  "text": "Bearbeitungsdauer"
+                },
+                {
+                  "wert": "ENTSCHEIDUNG",
+                  "text": "Entscheidung zu einem Antrag"
+                },
+                {
+                  "wert": "ONLINE",
+                  "text": "Online-Geschäftsstelle"
+                },
+                {
+                  "wert": "SONSTIGES",
+                  "text": "Sonstiges"
+                }
+              ]
+            },
+            {
+              "name": "bezugVorgangId",
+              "label": "Betrifft die Beschwerde einen Vorgang?",
+              "typ": "vorgang",
+              "pflicht": false
+            },
+            {
+              "name": "beschreibung",
+              "label": "Beschreibung",
+              "typ": "textarea",
+              "pflicht": true,
+              "minLaenge": 20,
+              "maxLaenge": 2000,
+              "breit": true
+            },
+            {
+              "name": "rueckmeldung",
+              "label": "Wie möchten Sie Antwort erhalten?",
+              "typ": "radio",
+              "pflicht": true,
+              "optionen": [
+                {
+                  "wert": "POSTFACH",
+                  "text": "Postfach"
+                },
+                {
+                  "wert": "TELEFON",
+                  "text": "Telefon"
+                },
+                {
+                  "wert": "POST",
+                  "text": "Brief"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

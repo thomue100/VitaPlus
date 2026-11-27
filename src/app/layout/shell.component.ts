@@ -10,6 +10,7 @@ import { UiService } from '../core/services/ui.service';
 import { UebersetzungPipe } from '../shared/pipes';
 import { ChatComponent } from './chat.component';
 import { PostausgangComponent } from './postausgang.component';
+import { laufzeit } from '../core/laufzeit';
 import { CookieHinweisComponent, statistikErlaubt } from './cookie-hinweis.component';
 import { DokumentBetrachterComponent } from '../shared/dokumente/dokument-betrachter.component';
 import { SymbolComponent } from '../shared/symbol.component';
@@ -26,6 +27,8 @@ interface NavGruppe { schluessel: string; eintraege: NavEintrag[] }
   styleUrl: './shell.component.scss',
 })
 export class ShellComponent implements OnInit {
+  /** Demo-Werkzeuge laut Laufzeitkonfiguration */
+  readonly demo = laufzeit.demo;
   readonly sitzung = inject(SitzungService);
   readonly ui = inject(UiService);
   private api = inject(Api);
