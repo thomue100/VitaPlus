@@ -67,6 +67,14 @@ src/app
 
 Alle Personen, Daten, Beträge und Rechengrößen sind frei erfunden bzw. vereinfacht und haben keine Rechtsverbindlichkeit.
 
+## Bereitstellung auf Vercel
+
+Die Datei `vercel.json` enthält Build-Befehl, Ausgabeverzeichnis (`dist/vitaplus-geschaeftsstelle/browser`) und die Weiterleitung aller App-Routen auf `index.html`.
+
+1. In Vercel „Add New → Project“ wählen und dieses Repository importieren.
+2. Im Projekt unter „Analytics“ die Web Analytics aktivieren.
+3. Neu deployen – die Besucherstatistik wird im Produktions-Build über `@vercel/analytics` eingebunden (`src/main.ts`), lokal mit `npm start` wird nichts gezählt.
+
 ## Bildnachweis
 
 - Illustrationen (`public/bilder/`), Logo und Kartendarstellung: eigene Gestaltung für dieses Projekt.
