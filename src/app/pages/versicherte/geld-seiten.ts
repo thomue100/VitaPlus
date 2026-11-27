@@ -132,9 +132,14 @@ const ZAHLUNGSWEG: Record<string, string> = { ARBEITGEBER: 'über Ihren Arbeitge
           @for (h of b.aktuell.hinweise; track h) { <p class="klein leise">{{ h }}</p> }
         </section>
         <section class="karte"><h2>Beitragsentwicklung</h2>
+          <p class="klein leise">Ihr Anteil am Monatsbeitrag für Kranken- und Pflegeversicherung</p>
           <div class="diagramm" role="img" [attr.aria-label]="'Beitragsentwicklung ' + entwicklungText()">
-            @for (e of b.entwicklung; track e.jahr) {
-              <div class="saeule"><span class="wert">{{ e.monatsbeitrag | euro }}</span><span class="bar" [style.height.%]="hoehe(e.monatsbeitrag)"></span><span class="jahr">{{ e.jahr }}</span></div>
+            @for (e of b.entwicklung; track e.jahr; let letzte = $last; let erste = $first) {
+              <div class="saeule" tabindex="0" [attr.title]="e.jahr + ': ' + (e.monatsbeitrag | euro) + ' im Monat, Zusatzbeitrag ' + komma(e.zusatzbeitrag) + ' %'">
+                <span class="flaeche"><span class="bar" [style.height.%]="hoehe(e.monatsbeitrag)">
+                  <span class="wert" [class.immer]="erste || letzte">{{ e.monatsbeitrag | euro }}</span></span></span>
+                <span class="jahr">{{ e.jahr }}</span>
+              </div>
             }
           </div>
           <table class="tabelle klein mt"><thead><tr><th>Jahr</th><th>Zusatzbeitrag</th><th class="betrag">Ihr Monatsbeitrag</th></tr></thead><tbody>
@@ -173,8 +178,17 @@ const ZAHLUNGSWEG: Record<string, string> = { ARBEITGEBER: 'über Ihren Arbeitge
         <li><a routerLink="/antraege/neu/RATENZAHLUNG">Ratenzahlung</a> oder <a routerLink="/antraege/neu/STUNDUNG">Stundung</a> beantragen</li>
       </ul></section>
     }`,
-  styles: [`.diagramm{display:flex;align-items:flex-end;gap:.75rem;height:160px;padding-top:1.5rem}.saeule{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
-    .bar{width:70%;background:var(--vp-primaer);border-radius:4px 4px 0 0;min-height:4px}.wert{font-size:.7rem;color:var(--vp-text-leise)}.jahr{font-size:.8rem;margin-top:.2rem}`],
+  styles: [`
+    /* Säulen ab Null: Die Fläche hat eine feste Höhe, die Säule füllt sie anteilig */
+    .diagramm{display:flex;padding-top:1.6rem}
+    .saeule{flex:1;display:flex;flex-direction:column;align-items:center;outline-offset:2px}
+    .flaeche{height:150px;width:100%;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid var(--vp-text-leise)}
+    .bar{position:relative;width:55%;max-width:3rem;background:var(--vp-primaer);border-radius:4px 4px 0 0;min-height:2px}
+    .wert{position:absolute;bottom:calc(100% + .25rem);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.8rem;color:var(--vp-text);visibility:hidden}
+    .wert.immer,.saeule:hover .wert,.saeule:focus .wert{visibility:visible}
+    .saeule:hover .bar,.saeule:focus .bar{background:var(--vp-primaer-dunkel)}
+    .jahr{font-size:.85rem;color:var(--vp-text-leise);margin-top:.3rem}
+  `],
 })
 export class BeitraegeComponent implements OnInit {
   private api = inject(Api);

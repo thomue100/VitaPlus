@@ -363,6 +363,10 @@ export interface AusgehendeNachricht {
   zeitpunkt: string;
   link?: { text: string; ziel: string };
   gelesen?: boolean;
+  /** Versicherte/r, an die/den die Nachricht geht; fehlt bei externen Empfängern (z. B. Mitgliedsantrag) */
+  empfaengerId?: string;
+  /** Entstanden in einem Ablauf ohne Anmeldung (Registrierung, Passwort vergessen) */
+  ohneAnmeldung?: boolean;
 }
 
 export interface Buchung {

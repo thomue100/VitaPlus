@@ -85,6 +85,8 @@ function zweiFaktor(a: Anfrage) {
     throw new ApiFehler(400, 'Der Sicherheitscode ist nicht korrekt.', 'code');
   }
   sitzungen.entfernen(s.token);
+  // Nach der Anmeldung gehören die Codes wieder nur der angemeldeten Person
+  (a.store.postausgang || []).forEach(n => { if (n.empfaengerId === b.id && n.kanal === 'SMS') n.ohneAnmeldung = false; });
   return anmeldungAbschliessen(b, 'Passwort + SMS-Code');
 }
 
@@ -109,7 +111,7 @@ function externeIdentitaet(a: Anfrage) {
 
 function smsCodeSenden(b: Benutzer) {
   versenden('SMS', b.mobil || b.telefon || 'unbekannt', 'VitaPlus Sicherheitscode',
-    `Ihr VitaPlus-Sicherheitscode lautet ${b.zweiFaktorCode}. Er ist 5 Minuten gültig. Geben Sie ihn niemals am Telefon weiter.`);
+    `Ihr VitaPlus-Sicherheitscode lautet ${b.zweiFaktorCode}. Er ist 5 Minuten gültig. Geben Sie ihn niemals am Telefon weiter.`, undefined, { id: b.id, ohneAnmeldung: true });
 }
 
 function codeErneutSenden(a: Anfrage) {
@@ -190,10 +192,10 @@ function registrieren(a: Anfrage) {
     b.aktivierungscode = 'VP' + String(Math.floor(Math.random() * 90 + 10)) + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
     versenden('BRIEF', `${b.vorname} ${b.nachname}, ${b.adresse.strasse} ${b.adresse.hausnummer}, ${b.adresse.plz} ${b.adresse.ort}`.replace(/\s+,/g, ','), 'Ihr Aktivierungscode für die Online-Geschäftsstelle',
       `Guten Tag ${b.vorname} ${b.nachname},\n\nSie haben einen Zugang zur Online-Geschäftsstelle eingerichtet. Ihr persönlicher Aktivierungscode lautet:\n\n${b.aktivierungscode}\n\nGeben Sie den Code zusammen mit Ihrer Versichertennummer ${b.versichertennummer} unter „Aktivierungscode eingeben“ ein.\n\nIhre VitaPlus`,
-      { text: 'Zugang aktivieren', ziel: `/aktivieren?nr=${b.versichertennummer}` });
+      { text: 'Zugang aktivieren', ziel: `/aktivieren?nr=${b.versichertennummer}` }, { id: b.id, ohneAnmeldung: true });
   } else {
     versenden('EMAIL', b.email, 'Willkommen in der Online-Geschäftsstelle', `Guten Tag ${b.vorname} ${b.nachname},\n\nIhr Online-Zugang ist eingerichtet. Sie können sich ab sofort mit Ihrer E-Mail-Adresse anmelden.\n\nIhre VitaPlus`,
-      { text: 'Jetzt anmelden', ziel: '/anmelden' });
+      { text: 'Jetzt anmelden', ziel: '/anmelden' }, { id: b.id, ohneAnmeldung: true });
   }
   protokollieren({ benutzerId: b.id, akteurId: b.id, ereignis: 'REGISTRIERUNG', details: `Online-Zugang eingerichtet (Identifizierung: ${identifizierung})` });
   postfachNachricht(b.id, 'Willkommen in der Online-Geschäftsstelle',
@@ -225,7 +227,7 @@ function passwortVergessen(a: Anfrage) {
     a.store.passwortResetTokens.push({ token, benutzerId: b.id, gueltigBis: addTage(new Date(), 1).toISOString() });
     link = `/passwort-neu?token=${token}`;
     versenden('EMAIL', b.email, 'Passwort zurücksetzen', `Guten Tag ${b.vorname} ${b.nachname},\n\nüber die Online-Geschäftsstelle wurde ein neues Passwort angefordert. Der Link ist 24 Stunden gültig. Falls Sie das nicht waren, ignorieren Sie diese E-Mail.\n\nIhre VitaPlus`,
-      { text: 'Neues Passwort festlegen', ziel: link });
+      { text: 'Neues Passwort festlegen', ziel: link }, { id: b.id, ohneAnmeldung: true });
   }
   // Aus Sicherheitsgründen immer dieselbe Antwort; der Link wird nur in der Entwicklungsumgebung mitgeliefert.
   return { meldung: 'Falls die Angaben zu einem Zugang passen, haben wir Ihnen eine E-Mail mit einem Link gesendet.', entwicklerLink: link };

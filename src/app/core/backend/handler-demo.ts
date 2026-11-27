@@ -2,23 +2,40 @@ import { RUECKFRAGE_FRIST_TAGE } from '../konfiguration';
 import { addTage, heuteIso, jetztIso, toIso } from '../util/datum';
 import { Anfrage, ApiFehler, anrede, eingangErfassen, euro, postfachNachricht, Route, statusSetzen } from './api-kontext';
 import { dokumentenablage } from './dokumentenablage';
-import { neuAufsetzen, neueId, neueVorgangsnummer } from './db';
+import { neuAufsetzen, neueId, neueVorgangsnummer, sitzungen } from './db';
 import { protokollieren } from './fachlogik';
 import { hintergrundverarbeitung } from './verarbeitung';
 import { zeitgesteuerteUebergaenge } from './handler-vorgaenge';
-import { Vorgang } from '../models';
+import { AusgehendeNachricht, Vorgang } from '../models';
 
 /**
  * Funktionen der Demo- und Testumgebung (nicht Teil des Produktivbetriebs):
  * simulierter Postausgang, Zurücksetzen des Datenbestands, vorbereitete Testszenarien und Zeitraffer.
  */
 
+/**
+ * Der Demo-Postausgang zeigt nur, was bei der Person ankäme, die gerade am Gerät ist:
+ * angemeldet (auch während der Code-Abfrage) nur die eigenen Nachrichten,
+ * ohne Anmeldung nur Nachrichten aus Abläufen vor oder ohne Konto: Anmeldecodes der letzten
+ * 10 Minuten, Registrierung, Passwort vergessen und Mitgliedsantrag der letzten Stunde.
+ */
+function sichtbar(a: Anfrage): AusgehendeNachricht[] {
+  const s = sitzungen.finden(a.token);
+  const ich = s && !s.vorlaeufig ? s.benutzerId : undefined;
+  const jetzt = Date.now();
+  return (a.store.postausgang || []).filter(n => {
+    if (ich) return n.empfaengerId === ich;
+    const minuten = n.kanal === 'SMS' ? 10 : 60;
+    return (!n.empfaengerId || n.ohneAnmeldung) && new Date(n.zeitpunkt).getTime() >= jetzt - minuten * 60000;
+  });
+}
+
 function postausgang(a: Anfrage) {
-  return (a.store.postausgang || []).slice(0, 40);
+  return sichtbar(a).slice(0, 40);
 }
 
 function postausgangGelesen(a: Anfrage) {
-  (a.store.postausgang || []).forEach(n => (n.gelesen = true));
+  sichtbar(a).forEach(n => (n.gelesen = true));
   return { ok: true };
 }
 

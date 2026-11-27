@@ -67,10 +67,11 @@ export function statusSetzen(v: Vorgang, status: VorgangStatus, text: string, vo
 }
 
 /** Übergabe an das Versand-Gateway (E-Mail, SMS, Brief). In der Demo landet alles im Postausgang. */
-export function versenden(kanal: AusgehendeNachricht['kanal'], an: string, betreff: string, text: string, link?: AusgehendeNachricht['link']): AusgehendeNachricht {
+export function versenden(kanal: AusgehendeNachricht['kanal'], an: string, betreff: string, text: string, link?: AusgehendeNachricht['link'],
+  empfaenger?: { id: string; ohneAnmeldung?: boolean }): AusgehendeNachricht {
   const s = db();
   s.postausgang ??= [];
-  const n: AusgehendeNachricht = { id: neueId('out'), kanal, an, betreff, text, zeitpunkt: jetztIso(), link };
+  const n: AusgehendeNachricht = { id: neueId('out'), kanal, an, betreff, text, zeitpunkt: jetztIso(), link, empfaengerId: empfaenger?.id, ohneAnmeldung: empfaenger?.ohneAnmeldung };
   s.postausgang.unshift(n);
   s.postausgang = s.postausgang.slice(0, 60);
   return n;
@@ -106,7 +107,7 @@ export function postfachNachricht(
   if (empfaenger && empfaenger.kommunikation?.email !== false && hinweiswuerdig && empfaenger.rolle === 'VERSICHERTER') {
     versenden('EMAIL', empfaenger.email, 'Neue Nachricht in Ihrer Online-Geschäftsstelle',
       `Guten Tag ${voller(empfaenger)},\n\nin Ihrem Postfach der VitaPlus Online-Geschäftsstelle liegt eine neue Nachricht für Sie: „${n.betreff}“.\n\nAus Datenschutzgründen versenden wir die Inhalte nicht per E-Mail. Bitte melden Sie sich an, um die Nachricht zu lesen.\n\nIhre VitaPlus`,
-      { text: 'Zum Postfach', ziel: `/postfach/${n.id}` });
+      { text: 'Zum Postfach', ziel: `/postfach/${n.id}` }, { id: empfaenger.id });
   }
   return n;
 }

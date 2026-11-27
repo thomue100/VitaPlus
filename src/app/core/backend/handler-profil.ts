@@ -173,7 +173,7 @@ function zweiFaktorAendern(a: Anfrage) {
     if (!b.mobil) throw new ApiFehler(409, 'Bitte hinterlegen Sie zuerst eine Mobilnummer.');
     if (!code) {
       b.zweiFaktorCode = String(100000 + Math.floor(Math.random() * 899999));
-      versenden('SMS', b.mobil, 'VitaPlus Bestätigungscode', `Ihr Code zur Aktivierung der Zwei-Faktor-Anmeldung: ${b.zweiFaktorCode}`);
+      versenden('SMS', b.mobil, 'VitaPlus Bestätigungscode', `Ihr Code zur Aktivierung der Zwei-Faktor-Anmeldung: ${b.zweiFaktorCode}`, undefined, { id: b.id });
       return { codeGesendet: true, entwicklerCode: b.zweiFaktorCode };
     }
     if (String(code).trim() !== b.zweiFaktorCode) throw new ApiFehler(400, 'Der Bestätigungscode ist nicht korrekt.', 'code');

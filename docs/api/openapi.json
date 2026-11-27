@@ -7240,8 +7240,7 @@
           "Demo-Umgebung"
         ],
         "operationId": "getDemoPostausgang",
-        "summary": "Funktionen der Demo- und Testumgebung (nicht Teil des Produktivbetriebs):",
-        "description": "Funktionen der Demo- und Testumgebung (nicht Teil des Produktivbetriebs):\nsimulierter Postausgang, Zurücksetzen des Datenbestands, vorbereitete Testszenarien und Zeitraffer.",
+        "summary": "GET /api/demo/postausgang",
         "responses": {
           "200": {
             "description": "Erfolg",
@@ -27063,6 +27062,14 @@
           },
           "gelesen": {
             "type": "boolean"
+          },
+          "empfaengerId": {
+            "type": "string",
+            "description": "Versicherte/r, an die/den die Nachricht geht; fehlt bei externen Empfängern (z. B. Mitgliedsantrag)"
+          },
+          "ohneAnmeldung": {
+            "type": "boolean",
+            "description": "Entstanden in einem Ablauf ohne Anmeldung (Registrierung, Passwort vergessen)"
           }
         },
         "required": [
