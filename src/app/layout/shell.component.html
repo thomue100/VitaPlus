@@ -31,22 +31,24 @@
           </a>
         }
         <div class="benutzermenue">
-          <button type="button" class="benutzerknopf" (click)="menueOffen.set(!menueOffen()); $event.stopPropagation()" [attr.aria-expanded]="menueOffen()" aria-haspopup="menu">
+          <button type="button" class="benutzerknopf" ngMenuTrigger [menu]="benutzermenue" aria-label="Benutzermenü">
             <span class="initialen" aria-hidden="true">{{ initialen() }}</span>
             <span class="benutzername">{{ sitzung.benutzer()?.vorname }} {{ sitzung.benutzer()?.nachname }}</span>
             <vp-symbol name="chevron-down" [groesse]="16" />
           </button>
-          @if (menueOffen()) {
-            <ul class="menue" role="menu">
+          <!-- Menü nach WAI-ARIA (Angular Aria): Pfeiltasten, Pos1/Ende, Buchstabensuche, Escape -->
+          <div class="menue" ngMenu #benutzermenue="ngMenu" (itemSelected)="menuepunkt($event)" aria-label="Benutzermenü">
+            <ng-template ngMenuContent>
               @if (sitzung.benutzer()?.rolle === 'VERSICHERTER') {
-                <li role="none"><a role="menuitem" routerLink="/profil"><vp-symbol name="user-round" [groesse]="17" /> Persönliche Daten</a></li>
-                <li role="none"><a role="menuitem" routerLink="/einstellungen"><vp-symbol name="settings" [groesse]="17" /> Einstellungen</a></li>
-                <li role="none"><a role="menuitem" routerLink="/vertretung"><vp-symbol name="key-round" [groesse]="17" /> Als Bevollmächtigte/r handeln</a></li>
+                <div ngMenuItem value="/profil"><vp-symbol name="user-round" [groesse]="17" /> Persönliche Daten</div>
+                <div ngMenuItem value="/einstellungen"><vp-symbol name="settings" [groesse]="17" /> Einstellungen</div>
+                <div ngMenuItem value="/vertretung"><vp-symbol name="key-round" [groesse]="17" /> Als Bevollmächtigte/r handeln</div>
               }
-              <li role="none"><a role="menuitem" routerLink="/einstellungen/sicherheit"><vp-symbol name="shield-check" [groesse]="17" /> Sicherheit</a></li>
-              <li role="none" class="trennlinie"><button role="menuitem" type="button" (click)="abmelden()"><vp-symbol name="log-out" [groesse]="17" /> {{ 'kopf.abmelden' | t }}</button></li>
-            </ul>
-          }
+              <div ngMenuItem value="/einstellungen/sicherheit"><vp-symbol name="shield-check" [groesse]="17" /> Sicherheit</div>
+              <div class="trennlinie" role="separator"></div>
+              <div ngMenuItem value="abmelden"><vp-symbol name="log-out" [groesse]="17" /> {{ 'kopf.abmelden' | t }}</div>
+            </ng-template>
+          </div>
         </div>
       } @else {
         <a class="btn klein" routerLink="/mitglied-werden">Mitglied werden</a>
@@ -137,12 +139,11 @@
 <vp-dokument-betrachter />
 <vp-cookie-hinweis />
 @if (warnen()) {
-  <div class="sitzung-hintergrund"></div>
-  <section class="sitzung-dialog" role="alertdialog" aria-labelledby="sitzung-titel" aria-describedby="sitzung-text">
+  <dialog vpModal class="sitzung-dialog" role="alertdialog" aria-labelledby="sitzung-titel" aria-describedby="sitzung-text" (vpAbbrechen)="angemeldetBleiben()">
     <h2 id="sitzung-titel"><vp-symbol name="clock" [groesse]="22" /> Ihre Sitzung läuft gleich ab</h2>
     <p id="sitzung-text">Aus Sicherheitsgründen melden wir Sie nach 15 Minuten ohne Aktivität automatisch ab. Verbleibende Zeit: <strong>{{ restzeit() }}</strong></p>
-    <div class="aktionen"><button type="button" class="btn primaer" (click)="angemeldetBleiben()">Angemeldet bleiben</button><button type="button" class="btn" (click)="abmelden()">Abmelden</button></div>
-  </section>
+    <div class="aktionen"><button type="button" class="btn primaer" (click)="angemeldetBleiben()" autofocus>Angemeldet bleiben</button><button type="button" class="btn" (click)="abmelden()">Abmelden</button></div>
+  </dialog>
 }
 
 <div class="toasts" aria-live="assertive">
@@ -152,14 +153,12 @@
 </div>
 
 @if (ui.dialog(); as d) {
-  <div class="dialog-hintergrund" (click)="d.aufloesen(false)">
-    <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dialog-titel" (click)="$event.stopPropagation()">
-      <h2 id="dialog-titel">{{ d.titel }}</h2>
-      <p>{{ d.text }}</p>
-      <div class="aktionen rechts">
-        <button type="button" class="btn" (click)="d.aufloesen(false)">{{ d.abbrechen }}</button>
-        <button type="button" class="btn primaer" [class.gefahr]="d.gefaehrlich" (click)="d.aufloesen(true)" autofocus>{{ d.bestaetigen }}</button>
-      </div>
+  <dialog vpModal class="dialog" role="alertdialog" aria-labelledby="dialog-titel" aria-describedby="dialog-text" (vpAbbrechen)="d.aufloesen(false)">
+    <h2 id="dialog-titel">{{ d.titel }}</h2>
+    <p id="dialog-text">{{ d.text }}</p>
+    <div class="aktionen rechts">
+      <button type="button" class="btn" (click)="d.aufloesen(false)" [attr.autofocus]="d.gefaehrlich ? '' : null">{{ d.abbrechen }}</button>
+      <button type="button" class="btn primaer" [class.gefahr]="d.gefaehrlich" (click)="d.aufloesen(true)" [attr.autofocus]="d.gefaehrlich ? null : ''">{{ d.bestaetigen }}</button>
     </div>
-  </div>
+  </dialog>
 }

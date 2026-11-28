@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, Injector, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { AusgehendeNachricht } from '../core/models';
 import { Api } from '../core/services/api.service';
 import { fehlertext } from '../core/services/auth.interceptor';
 import { UiService } from '../core/services/ui.service';
 import { SymbolComponent } from '../shared/symbol.component';
+import { Tab, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 
 /**
  * Demo-Umgebung: zeigt, was die Kasse per E-Mail, SMS oder Brief „versendet“ hat
@@ -12,22 +13,24 @@ import { SymbolComponent } from '../shared/symbol.component';
  */
 @Component({
   selector: 'vp-postausgang',
-  imports: [SymbolComponent],
+  imports: [SymbolComponent, Tabs, TabList, Tab, TabPanel],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <button type="button" class="postausgang-knopf" (click)="umschalten()" [attr.aria-expanded]="offen()" aria-controls="postausgang-liste"
+    <button #knopf type="button" class="postausgang-knopf" (click)="umschalten()" [attr.aria-expanded]="offen()" aria-controls="postausgang-liste"
       title="Demo-Umgebung: Hier landen E-Mails, SMS und Briefe, die an Sie verschickt werden.">
       <vp-symbol name="mail" [groesse]="18" /> <span class="text">Demo</span><span class="sr-only">: E-Mail, SMS und Testdaten</span>
       @if (ungelesen()) { <span class="zaehlpunkt">{{ ungelesen() }}</span> }
     </button>
     @if (offen()) {
-      <section id="postausgang-liste" class="postausgang-panel" role="dialog" aria-label="Demo-Postfach für E-Mail, SMS und Briefe">
-        <header><strong>Demo-Umgebung</strong><button type="button" class="btn link klein" (click)="offen.set(false)" aria-label="Schließen"><vp-symbol name="x" [groesse]="18" /></button></header>
-        <nav class="demo-reiter" role="tablist">
-          <button type="button" role="tab" [attr.aria-selected]="reiter() === 'post'" [class.aktiv]="reiter() === 'post'" (click)="reiter.set('post')">E-Mail &amp; SMS @if (ungelesen()) { ({{ ungelesen() }}) }</button>
-          <button type="button" role="tab" [attr.aria-selected]="reiter() === 'test'" [class.aktiv]="reiter() === 'test'" (click)="reiter.set('test'); statusLaden()">Testdaten</button>
-        </nav>
-        @if (reiter() === 'test') {
+      <section #panel id="postausgang-liste" class="postausgang-panel" role="dialog" aria-labelledby="demo-titel" (keydown.escape)="schliessen()">
+        <header><strong id="demo-titel">Demo-Umgebung</strong><button type="button" class="btn link klein" (click)="schliessen()" aria-label="Demo-Umgebung schließen"><vp-symbol name="x" [groesse]="18" /></button></header>
+        <!-- Reiter nach WAI-ARIA (Angular Aria): Pfeiltasten wechseln, Pos1/Ende springen -->
+        <div ngTabs>
+          <div class="demo-reiter" ngTabList [(selectedTab)]="reiter" selectionMode="follow" aria-label="Bereiche der Demo-Umgebung">
+            <button type="button" ngTab value="post" [class.aktiv]="reiter() === 'post'">E-Mail &amp; SMS @if (ungelesen()) { ({{ ungelesen() }}) }</button>
+            <button type="button" ngTab value="test" [class.aktiv]="reiter() === 'test'">Testdaten</button>
+          </div>
+        <div ngTabPanel value="test" [hidden]="reiter() !== 'test'">
           <section class="werkzeuge">
             <h3>Hintergrundverarbeitung</h3>
             <p class="klein leise">Anträge werden nach kurzer Zeit automatisch bearbeitet. Mit dem Zeitraffer vergeht für alle offenen Vorgänge sofort eine Stunde.</p>
@@ -51,7 +54,8 @@ import { SymbolComponent } from '../shared/symbol.component';
             <p class="klein leise">Stellt alle Testdaten, Testkonten und Vorgänge auf den Ausgangszustand zurück. Sie werden dabei abgemeldet.</p>
             <button type="button" class="btn klein gefahr" (click)="zuruecksetzen()" [disabled]="beschaeftigt()"><vp-symbol name="refresh-cw" [groesse]="16" /> Testdaten zurücksetzen</button>
           </section>
-        } @else {
+        </div>
+        <div ngTabPanel value="post" [hidden]="reiter() !== 'post'">
         <p class="leise klein">Nachrichten, die die VitaPlus per E-Mail, SMS oder Post verschickt, erscheinen hier.</p>
         @for (n of liste(); track n.id) {
           <article class="ausgang" [class.neu]="!n.gelesen">
@@ -66,7 +70,8 @@ import { SymbolComponent } from '../shared/symbol.component';
             @if (n.link) { <button type="button" class="btn primaer klein" (click)="oeffnen(n)">{{ n.link.text }}</button> }
           </article>
         } @empty { <p class="leise">Noch keine Nachrichten.</p> }
-        }
+        </div>
+        </div>
       </section>
     }`,
   styles: [`
@@ -100,12 +105,20 @@ export class PostausgangComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private ui = inject(UiService);
   readonly offen = signal(false);
-  readonly reiter = signal<'post' | 'test'>('post');
+  readonly reiter = signal<string | undefined>('post');
   readonly status = signal<{ stoerung: boolean; inVerarbeitung: number; auszahlungOffen: number; rolle?: string } | null>(null);
   readonly beschaeftigt = signal(false);
   readonly liste = signal<AusgehendeNachricht[]>([]);
   readonly ungelesen = computed(() => this.liste().filter(n => !n.gelesen).length);
   private timer?: ReturnType<typeof setInterval>;
+  private knopf = viewChild<ElementRef<HTMLButtonElement>>('knopf');
+  private panel = viewChild<ElementRef<HTMLElement>>('panel');
+  private injector = inject(Injector);
+
+  constructor() {
+    // Beim Wechsel auf „Testdaten“ den aktuellen Stand laden
+    effect(() => { if (this.reiter() === 'test' && this.offen()) this.statusLaden(); });
+  }
 
   ngOnInit() {
     this.laden();
@@ -124,8 +137,16 @@ export class PostausgangComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Schließen per Knopf oder Escape; der Fokus kehrt zum Demo-Knopf zurück */
+  schliessen() {
+    this.offen.set(false);
+    this.knopf()?.nativeElement.focus();
+  }
+
   async umschalten() {
     this.offen.update(o => !o);
+    // Fokus auf den aktiven Reiter, damit Tastatur und Screenreader im Bereich landen
+    if (this.offen()) afterNextRender(() => this.panel()?.nativeElement.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.focus(), { injector: this.injector });
     // Beim Öffnen sofort aktualisieren, damit gerade verschickte Codes schon sichtbar sind
     if (this.offen()) await this.laden();
     if (this.offen() && this.ungelesen()) {

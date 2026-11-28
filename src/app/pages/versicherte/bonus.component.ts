@@ -11,12 +11,13 @@ import { bonusEuro } from '../../core/util/berechnungen';
 import { heuteIso } from '../../core/util/datum';
 import { DateienComponent, StatusComponent } from '../../shared/bausteine';
 import { DatumPipe, EuroPipe } from '../../shared/pipes';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 const KATEGORIEN: Record<string, string> = { VORSORGE: 'Vorsorge', BEWEGUNG: 'Bewegung', ERNAEHRUNG: 'Ernährung & Kurse', IMPFUNG: 'Impfungen', LEBENSSTIL: 'Lebensstil' };
 
 @Component({
   selector: 'vp-bonus',
-  imports: [FormsModule, RouterLink, DateienComponent, StatusComponent, DatumPipe, EuroPipe],
+  imports: [DatumEingabeComponent, FormsModule, RouterLink, DateienComponent, StatusComponent, DatumPipe, EuroPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <section class="seitenbuehne">
@@ -68,7 +69,7 @@ const KATEGORIEN: Record<string, string> = { VORSORGE: 'Vorsorge', BEWEGUNG: 'Be
             <div class="feld"><label for="b-code" class="pflicht">Maßnahme</label>
               <select id="b-code" name="code" [(ngModel)]="neu.code"><option value="">Bitte wählen</option>
                 @for (k of kategorien(); track k[0]) { <optgroup [label]="k[1]">@for (m of katalogFuer(k[0]); track m.code) { <option [value]="m.code">{{ m.bezeichnung }} ({{ m.punkte }} P.)</option> }</optgroup> }</select></div>
-            <div class="feld"><label for="b-datum" class="pflicht">Datum der Maßnahme</label><input id="b-datum" name="datum" type="date" [max]="heute" [(ngModel)]="neu.datum" /></div>
+            <div class="feld"><label for="b-datum" class="pflicht">Datum der Maßnahme</label><vp-datum id="b-datum" name="datum" [max]="heute" [(ngModel)]="neu.datum" /></div>
             @if (gewaehlt(); as m) {
               <p class="breit klein leise">{{ m.punkte }} Punkte, höchstens {{ m.maxProJahr }}× pro Jahr{{ m.mindestalter ? ', ab ' + m.mindestalter + ' Jahren' : '' }}{{ m.nachweisErforderlich ? ', Nachweis erforderlich' : '' }}</p>
               @if (m.nachweisErforderlich) { <div class="breit"><vp-dateien label="Nachweis (z. B. Stempel im Bonusheft, Bescheinigung)" [pflicht]="true" [max]="1" [(dateien)]="nachweis" /></div> }

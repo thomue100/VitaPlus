@@ -15,9 +15,10 @@ import { SymbolComponent } from '../../shared/symbol.component';
 interface ArchivEintrag { datum: string; titel: string; kategorie: 'BESCHEINIGUNG' | 'BESCHEID' | 'UPLOAD' | 'INFORMATION'; quelle: string; link?: any[]; aktion?: () => void }
 
 import { anhangOeffner } from '../../shared/dokumente/anhang-oeffnen';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 @Component({
   selector: 'vp-dokumente',
-  imports: [FormsModule, RouterLink, DatumPipe, SymbolComponent],
+  imports: [DatumEingabeComponent, FormsModule, RouterLink, DatumPipe, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Dokumente & Bescheinigungen</h1><p class="leise">Bescheinigungen sofort als PDF – und alle Ihre Dokumente an einem Ort</p></div></div>
@@ -42,7 +43,7 @@ import { anhangOeffner } from '../../shared/dokumente/anhang-oeffnen';
                   @for (f of familie(); track f.id) { <option [value]="f.id">{{ f.vorname }} {{ f.nachname }}</option> }</select></div> }
                 @case ('ARBEITGEBER') {
                   <div class="feld"><label for="d-ag" class="pflicht">Arbeitgeber</label><input id="d-ag" name="ag" [(ngModel)]="p['arbeitgeber']" /></div>
-                  <div class="feld"><label for="d-beginn" class="pflicht">Beschäftigungsbeginn</label><input id="d-beginn" name="beginn" type="date" [(ngModel)]="p['beschaeftigungsbeginn']" /></div> }
+                  <div class="feld"><label for="d-beginn" class="pflicht">Beschäftigungsbeginn</label><vp-datum id="d-beginn" name="beginn" [(ngModel)]="p['beschaeftigungsbeginn']" /></div> }
                 @case ('STUDIUM') {
                   <div class="feld"><label for="d-hs" class="pflicht">Hochschule</label><input id="d-hs" name="hs" [(ngModel)]="p['hochschule']" /></div>
                   <div class="feld"><label for="d-sem" class="pflicht">Semester</label><input id="d-sem" name="sem" [(ngModel)]="p['semester']" placeholder="WiSe 2026/27" /></div> }
@@ -51,8 +52,8 @@ import { anhangOeffner } from '../../shared/dokumente/anhang-oeffnen';
                 @case ('EHIC') {
                   <div class="feld"><label for="d-land" class="pflicht">Reiseland</label><select id="d-land" name="land" [(ngModel)]="p['land']"><option value="">Bitte wählen</option>
                     @for (l of euLaender(); track l) { <option [value]="l">{{ l }}</option> }</select></div>
-                  <div class="feld"><label for="d-von" class="pflicht">Reisebeginn</label><input id="d-von" name="von" type="date" [(ngModel)]="p['von']" /></div>
-                  <div class="feld"><label for="d-bis" class="pflicht">Reiseende</label><input id="d-bis" name="bis" type="date" [(ngModel)]="p['bis']" /></div> }
+                  <div class="feld"><label for="d-von" class="pflicht">Reisebeginn</label><vp-datum id="d-von" name="von" [(ngModel)]="p['von']" /></div>
+                  <div class="feld"><label for="d-bis" class="pflicht">Reiseende</label><vp-datum id="d-bis" name="bis" [(ngModel)]="p['bis']" /></div> }
                 @default { <p class="breit">Die Bescheinigung wird mit Ihren aktuellen Daten erstellt.</p> }
               }
             </div>
@@ -65,8 +66,8 @@ import { anhangOeffner } from '../../shared/dokumente/anhang-oeffnen';
           <div class="feld"><label for="ar-suche">Suche</label><input id="ar-suche" type="search" [(ngModel)]="suche" /></div>
           <div class="feld"><label for="ar-kat">Kategorie</label><select id="ar-kat" [(ngModel)]="kategorie"><option value="">Alle</option>
             <option value="BESCHEINIGUNG">Bescheinigungen</option><option value="BESCHEID">Bescheide</option><option value="INFORMATION">Informationen</option></select></div>
-          <div class="feld"><label for="ar-von">Von</label><input id="ar-von" type="date" [(ngModel)]="von" /></div>
-          <div class="feld"><label for="ar-bis">Bis</label><input id="ar-bis" type="date" [(ngModel)]="bis" /></div>
+          <div class="feld"><label for="ar-von">Von</label><vp-datum id="ar-von" [(ngModel)]="von" /></div>
+          <div class="feld"><label for="ar-bis">Bis</label><vp-datum id="ar-bis" [(ngModel)]="bis" /></div>
           <button class="btn" type="button" (click)="exportieren()">Auswahl exportieren</button>
           <button class="btn link" type="button" (click)="drucken()">Liste drucken</button>
         </div>

@@ -7,6 +7,8 @@ import {
 } from '@jsonforms/core';
 import { Anhang } from '../../core/models';
 import { DateienComponent } from '../bausteine';
+import { DatumEingabeComponent } from '../datum-eingabe.component';
+import { SuchauswahlComponent, SuchOption } from '../suchauswahl.component';
 
 interface Auswahl { const: string; title: string }
 
@@ -111,18 +113,20 @@ export class ZahlRenderer extends VpControl {
 
 @Component({
   selector: 'vp-jf-datum',
+  imports: [DatumEingabeComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <label [for]="id" [class.pflicht]="pflichtfeld">{{ label }}</label>
-    <input [id]="id" type="date" [value]="data ?? ''" [attr.min]="optionen['min'] || null" [attr.max]="optionen['max'] || null"
-      [attr.aria-invalid]="!!meldung()" [attr.aria-describedby]="meldung() ? fehlerId : null"
-      (change)="setzen($any($event.target).value || undefined)" (blur)="verlassen()" />
+    <vp-datum [id]="id" [startwert]="data ?? ''" [min]="optionen['min'] || null" [max]="optionen['max'] || null"
+      [fehlerhaft]="!!meldung()" [beschreibung]="meldung() ? fehlerId : null"
+      (geaendert)="setzen($event || undefined)" (formatfehler)="setzen($event)" (verlassen)="verlassen()" />
     ${FEHLER}`,
 })
 export class DatumRenderer extends VpControl {}
 
 @Component({
   selector: 'vp-jf-auswahl',
+  imports: [SuchauswahlComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (optionen['format'] === 'radio') {
@@ -134,6 +138,10 @@ export class DatumRenderer extends VpControl {}
           }
         </div>
       </fieldset>
+    } @else if (auswahl.length > 12) {
+      <label [for]="id" [class.pflicht]="pflichtfeld">{{ label }}</label>
+      <vp-suchauswahl [id]="id" [optionen]="suchoptionen" [startwert]="data ?? null" [beschriftung]="label" [fehlerhaft]="!!meldung()"
+        [beschreibung]="meldung() ? fehlerId : null" (geaendert)="setzen($event || undefined)" (verlassen)="verlassen()" />
     } @else {
       <label [for]="id" [class.pflicht]="pflichtfeld">{{ label }}</label>
       <select [id]="id" [attr.aria-invalid]="!!meldung()" [attr.aria-describedby]="meldung() ? fehlerId : null" (change)="setzen($any($event.target).value || undefined)" (blur)="verlassen()">
@@ -145,7 +153,14 @@ export class DatumRenderer extends VpControl {}
 })
 export class AuswahlRenderer extends VpControl {
   auswahl: Auswahl[] = [];
-  protected override zusatzwerte() { this.auswahl = ((this.scopedSchema?.oneOf ?? []) as Auswahl[]); }
+  suchoptionen: SuchOption[] = [];
+  protected override zusatzwerte() {
+    const neu = ((this.scopedSchema?.oneOf ?? []) as Auswahl[]);
+    if (neu.length !== this.auswahl.length || neu.some((o, i) => o.const !== this.auswahl[i]?.const)) {
+      this.auswahl = neu;
+      this.suchoptionen = neu.map(o => ({ wert: String(o.const), text: o.title }));
+    }
+  }
 }
 
 @Component({

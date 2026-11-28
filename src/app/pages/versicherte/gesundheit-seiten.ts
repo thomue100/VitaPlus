@@ -10,10 +10,11 @@ import { StatusComponent } from '../../shared/bausteine';
 import { DatumPipe, EuroPipe } from '../../shared/pipes';
 import { pdfHerunterladen } from '../../shared/pdf';
 import { SymbolComponent } from '../../shared/symbol.component';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 @Component({
   selector: 'vp-vorsorge',
-  imports: [FormsModule, RouterLink, DatumPipe],
+  imports: [DatumEingabeComponent, FormsModule, RouterLink, DatumPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Vorsorge & Gesundheitsziele</h1><p class="leise">Ihre persönlichen Vorsorgeansprüche nach Alter und Geschlecht</p></div>
@@ -40,7 +41,7 @@ import { SymbolComponent } from '../../shared/symbol.component';
               <div class="feld breit"><label for="z-titel">Was möchten Sie erreichen?</label><input id="z-titel" name="titel" [(ngModel)]="ziel.titel" placeholder="z. B. 10 kg abnehmen" /></div>
               <div class="feld"><label for="z-wert">Zielwert</label><input id="z-wert" name="wert" type="number" min="1" [(ngModel)]="ziel.zielwert" /></div>
               <div class="feld"><label for="z-einheit">Einheit</label><input id="z-einheit" name="einheit" [(ngModel)]="ziel.einheit" placeholder="kg, km, Tage …" /></div>
-              <div class="feld"><label for="z-bis">Bis</label><input id="z-bis" name="bis" type="date" [(ngModel)]="ziel.bis" /></div>
+              <div class="feld"><label for="z-bis">Bis</label><vp-datum id="z-bis" name="bis" [(ngModel)]="ziel.bis" /></div>
             </div>
             <button class="btn mt" type="submit">Ziel anlegen</button>
           </form>
@@ -100,7 +101,7 @@ export class VorsorgeComponent implements OnInit {
 
 @Component({
   selector: 'vp-epa',
-  imports: [FormsModule, RouterLink, DatumPipe],
+  imports: [DatumEingabeComponent, FormsModule, RouterLink, DatumPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Elektronische Patientenakte (ePA)</h1><p class="leise">Ihre Gesundheitsdaten – sicher an einem Ort. Sie entscheiden, wer zugreifen darf.</p></div></div>
@@ -135,7 +136,7 @@ export class VorsorgeComponent implements OnInit {
           @if (e.appGekoppelt) {
             <form class="filterleiste mt" (ngSubmit)="aktion('BERECHTIGUNG_ERTEILEN', undefined, undefined, { einrichtung: neueEinrichtung, bis: neuBis })">
               <div class="feld"><label for="epa-neu">Einrichtung</label><input id="epa-neu" name="einr" [(ngModel)]="neueEinrichtung" /></div>
-              <div class="feld"><label for="epa-bis">bis</label><input id="epa-bis" name="bis" type="date" [(ngModel)]="neuBis" /></div>
+              <div class="feld"><label for="epa-bis">bis</label><vp-datum id="epa-bis" name="bis" [(ngModel)]="neuBis" /></div>
               <button class="btn" type="submit">Zugriff erteilen</button></form>
           }
         </section>
@@ -224,14 +225,14 @@ const BEREICH: Record<string, string> = { AERZTLICH: 'Ärztlich', ZAHNAERZTLICH:
 
 @Component({
   selector: 'vp-patientenquittung',
-  imports: [FormsModule, RouterLink, DatumPipe, EuroPipe],
+  imports: [DatumEingabeComponent, FormsModule, RouterLink, DatumPipe, EuroPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Patientenquittung</h1><p class="leise">Welche Leistungen wurden für Sie abgerechnet? (§ 305 SGB V)</p></div>
       <div class="aktionen"><button class="btn" type="button" (click)="pdf()">Als PDF herunterladen</button><a class="btn link" routerLink="/antraege/neu/LEISTUNGSAUSKUNFT">Auskunft beantragen</a></div></div>
     <form class="filterleiste" (ngSubmit)="laden()">
-      <div class="feld"><label for="pq-von">Von</label><input id="pq-von" name="von" type="date" [(ngModel)]="f.von" /></div>
-      <div class="feld"><label for="pq-bis">Bis</label><input id="pq-bis" name="bis" type="date" [(ngModel)]="f.bis" /></div>
+      <div class="feld"><label for="pq-von">Von</label><vp-datum id="pq-von" name="von" [(ngModel)]="f.von" /></div>
+      <div class="feld"><label for="pq-bis">Bis</label><vp-datum id="pq-bis" name="bis" [(ngModel)]="f.bis" /></div>
       <div class="feld"><label for="pq-ber">Bereich</label><select id="pq-ber" name="ber" [(ngModel)]="f.bereich"><option value="">Alle</option>@for (b of bereiche; track b[0]) { <option [value]="b[0]">{{ b[1] }}</option> }</select></div>
       <div class="feld"><label for="pq-pers">Person</label><select id="pq-pers" name="pers" [(ngModel)]="f.person"><option value="">Alle</option>@for (p of d()?.personen || []; track p) { <option [value]="p">{{ p }}</option> }</select></div>
       <button class="btn" type="submit">Anzeigen</button>

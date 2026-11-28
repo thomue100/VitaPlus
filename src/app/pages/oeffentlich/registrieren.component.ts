@@ -7,10 +7,11 @@ import { fehlertext } from '../../core/services/auth.interceptor';
 import { FeldfehlerComponent } from '../../shared/bausteine';
 import { PasswortStaerkeComponent } from '../../shared/passwort-staerke.component';
 import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 @Component({
   selector: 'vp-registrieren',
-  imports: [ReactiveFormsModule, RouterLink, FeldfehlerComponent, PasswortStaerkeComponent],
+  imports: [DatumEingabeComponent, ReactiveFormsModule, RouterLink, FeldfehlerComponent, PasswortStaerkeComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <h1>Registrierung für die Online-Geschäftsstelle</h1>
@@ -31,7 +32,7 @@ import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
               <input id="vnr" formControlName="versichertennummer" placeholder="A123456789" (input)="grossschreiben()" />
               <vp-feldfehler [control]="pruefung.controls.versichertennummer" /></div>
             <div class="feld"><label for="geb" class="pflicht">Geburtsdatum</label>
-              <input id="geb" type="date" formControlName="geburtsdatum" /><vp-feldfehler [control]="pruefung.controls.geburtsdatum" /></div>
+              <vp-datum id="geb" formControlName="geburtsdatum" /><vp-feldfehler [control]="pruefung.controls.geburtsdatum" /></div>
           </div>
           <div class="aktionen"><button class="btn primaer" type="submit" [disabled]="laedt()">Weiter</button><a routerLink="/anmelden">Abbrechen</a></div>
         </form>

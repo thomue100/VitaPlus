@@ -11,12 +11,13 @@ import { DateienComponent, StatusComponent } from '../../shared/bausteine';
 import { DatumPipe } from '../../shared/pipes';
 import { EgkComponent } from '../../shared/egk.component';
 import { SymbolComponent } from '../../shared/symbol.component';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 type Aktion = 'sperren' | 'ersatz' | 'foto' | 'pin' | 'aktivieren' | 'versand' | null;
 
 @Component({
   selector: 'vp-gesundheitskarte',
-  imports: [FormsModule, RouterLink, DateienComponent, StatusComponent, DatumPipe, EgkComponent, SymbolComponent],
+  imports: [DatumEingabeComponent, FormsModule, RouterLink, DateienComponent, StatusComponent, DatumPipe, EgkComponent, SymbolComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Elektronische Gesundheitskarte</h1><p class="leise">Ihre Karten und die Ihrer Familie</p></div>
@@ -29,7 +30,7 @@ type Aktion = 'sperren' | 'ersatz' | 'foto' | 'pin' | 'aktivieren' | 'versand' |
         <div class="feldgruppe">
           <div class="feld"><label for="eeb-person" class="pflicht">Für wen?</label><select id="eeb-person" name="karte" [(ngModel)]="eeb.karteId">
             @for (k of aktiveKarten(); track k.id) { <option [value]="k.id">{{ k.inhaber }}</option> }</select></div>
-          <div class="feld"><label for="eeb-datum" class="pflicht">Behandlungsdatum</label><input id="eeb-datum" name="datum" type="date" [(ngModel)]="eeb.behandlungsdatum" /></div>
+          <div class="feld"><label for="eeb-datum" class="pflicht">Behandlungsdatum</label><vp-datum id="eeb-datum" name="datum" [(ngModel)]="eeb.behandlungsdatum" /></div>
           <div class="feld breit"><label for="eeb-praxis" class="pflicht">Praxis (Name und Ort)</label><input id="eeb-praxis" name="praxis" [(ngModel)]="eeb.praxis" /></div>
         </div>
         <div class="aktionen"><button class="btn primaer" type="submit">An Praxis übermitteln</button></div>

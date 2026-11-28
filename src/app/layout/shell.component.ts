@@ -11,6 +11,8 @@ import { UebersetzungPipe } from '../shared/pipes';
 import { ChatComponent } from './chat.component';
 import { PostausgangComponent } from './postausgang.component';
 import { laufzeit } from '../core/laufzeit';
+import { Menu, MenuContent, MenuItem, MenuTrigger } from '@angular/aria/menu';
+import { ModalDirective } from '../shared/modal.directive';
 import { CookieHinweisComponent, statistikErlaubt } from './cookie-hinweis.component';
 import { DokumentBetrachterComponent } from '../shared/dokumente/dokument-betrachter.component';
 import { SymbolComponent } from '../shared/symbol.component';
@@ -21,7 +23,7 @@ interface NavGruppe { schluessel: string; eintraege: NavEintrag[] }
 
 @Component({
   selector: 'vp-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, UebersetzungPipe, ChatComponent, SymbolComponent, LogoComponent, PostausgangComponent, DokumentBetrachterComponent, CookieHinweisComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, UebersetzungPipe, ChatComponent, SymbolComponent, LogoComponent, PostausgangComponent, DokumentBetrachterComponent, CookieHinweisComponent, Menu, MenuContent, MenuItem, MenuTrigger, ModalDirective],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
@@ -184,6 +186,11 @@ export class ShellComponent implements OnInit {
 
   abmelden() {
     this.sitzung.abmelden('manuell');
+  }
+
+  menuepunkt(wert: string | undefined) {
+    if (wert === 'abmelden') this.abmelden();
+    else if (wert) this.router.navigateByUrl(wert);
   }
 
   @HostListener('document:keydown', ['$event'])

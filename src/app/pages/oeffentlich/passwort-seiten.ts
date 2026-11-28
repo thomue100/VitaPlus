@@ -8,10 +8,11 @@ import { UiService } from '../../core/services/ui.service';
 import { FeldfehlerComponent } from '../../shared/bausteine';
 import { PasswortStaerkeComponent } from '../../shared/passwort-staerke.component';
 import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 @Component({
   selector: 'vp-passwort-vergessen',
-  imports: [ReactiveFormsModule, RouterLink, FeldfehlerComponent],
+  imports: [DatumEingabeComponent, ReactiveFormsModule, RouterLink, FeldfehlerComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <section class="karte formular">
@@ -25,7 +26,7 @@ import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
         <form [formGroup]="form" (ngSubmit)="senden()" novalidate>
           <div class="feldgruppe">
             <div class="feld"><label for="email" class="pflicht">E-Mail-Adresse</label><input id="email" type="email" formControlName="email" /><vp-feldfehler [control]="form.controls.email" /></div>
-            <div class="feld"><label for="geb" class="pflicht">Geburtsdatum</label><input id="geb" type="date" formControlName="geburtsdatum" /><vp-feldfehler [control]="form.controls.geburtsdatum" /></div>
+            <div class="feld"><label for="geb" class="pflicht">Geburtsdatum</label><vp-datum id="geb" formControlName="geburtsdatum" /><vp-feldfehler [control]="form.controls.geburtsdatum" /></div>
           </div>
           <div class="aktionen"><button class="btn primaer" type="submit">Link anfordern</button><a routerLink="/anmelden">Abbrechen</a></div>
         </form>

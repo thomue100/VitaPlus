@@ -20,7 +20,7 @@ export const fehlertext: ErrorTranslator = (fehler, _t, uischema?: UISchemaEleme
       return 'Bitte prüfen Sie das Format.';
     case 'format':
       if (p.format === 'email') return 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
-      if (p.format === 'date') return 'Bitte geben Sie ein gültiges Datum ein.';
+      if (p.format === 'date') return 'Bitte geben Sie ein gültiges Datum im Format TT.MM.JJJJ ein, z. B. 17.05.1990.';
       return 'Bitte prüfen Sie das Format.';
     case 'minLength': return `Bitte geben Sie mindestens ${p.limit} Zeichen ein.`;
     case 'maxLength': return `Höchstens ${p.limit} Zeichen erlaubt.`;

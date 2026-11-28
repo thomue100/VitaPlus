@@ -6,10 +6,11 @@ import { fehlertext } from '../../core/services/auth.interceptor';
 import { UiService } from '../../core/services/ui.service';
 import { StatusComponent } from '../../shared/bausteine';
 import { DatumPipe, EuroPipe, TypTextPipe } from '../../shared/pipes';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 @Component({
   selector: 'vp-pflege',
-  imports: [FormsModule, RouterLink, StatusComponent, DatumPipe, EuroPipe, TypTextPipe],
+  imports: [DatumEingabeComponent, FormsModule, RouterLink, StatusComponent, DatumPipe, EuroPipe, TypTextPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <section class="seitenbuehne">
@@ -43,7 +44,7 @@ import { DatumPipe, EuroPipe, TypTextPipe } from '../../shared/pipes';
           @if (v.daten['begutachtung']?.datum) { <p>Termin: <strong>{{ v.daten['begutachtung'].datum | datum }} um {{ v.daten['begutachtung'].uhrzeit }} Uhr</strong> ({{ v.daten['begutachtung'].gutachter }})</p> }
           @else {
             <p>Bitte wählen Sie einen Wunschtermin für die Begutachtung:</p>
-            <div class="filterleiste"><div class="feld"><label for="bg-datum">Datum</label><input id="bg-datum" type="date" [(ngModel)]="termin.datum" /></div>
+            <div class="filterleiste"><div class="feld"><label for="bg-datum">Datum</label><vp-datum id="bg-datum" [(ngModel)]="termin.datum" /></div>
               <div class="feld"><label for="bg-zeit">Uhrzeit</label><select id="bg-zeit" [(ngModel)]="termin.uhrzeit"><option value="09:00">09:00 Uhr</option><option value="11:00">11:00 Uhr</option><option value="14:00">14:00 Uhr</option></select></div>
               <button class="btn" type="button" (click)="terminWaehlen()">Termin bestätigen</button></div>
           }

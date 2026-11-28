@@ -9,10 +9,11 @@ import { VorgangApi } from '../../core/services/vorgang-api.service';
 import { heuteIso, tageZwischen } from '../../core/util/datum';
 import { DateienComponent, FeldfehlerComponent, StatusComponent } from '../../shared/bausteine';
 import { serverfehlerSetzen } from '../../shared/validatoren';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 @Component({
   selector: 'vp-krankmeldung',
-  imports: [ReactiveFormsModule, RouterLink, FeldfehlerComponent, DateienComponent, StatusComponent],
+  imports: [DatumEingabeComponent, ReactiveFormsModule, RouterLink, FeldfehlerComponent, DateienComponent, StatusComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Krankmeldung</h1><p class="leise">Arbeitsunfähigkeit mitteilen</p></div><a class="btn" routerLink="/krankengeld">Krankengeld</a></div>
@@ -33,8 +34,8 @@ import { serverfehlerSetzen } from '../../shared/validatoren';
                 @for (v of bisherige(); track v.id) { <option [value]="v.id">{{ v.titel }}</option> }</select>
               <vp-feldfehler [control]="form.controls.vorgaengerId" /></div>
           }
-          <div class="feld"><label for="au-von" class="pflicht">Arbeitsunfähig seit</label><input id="au-von" type="date" formControlName="von" /><vp-feldfehler [control]="form.controls.von" /></div>
-          <div class="feld"><label for="au-bis" class="pflicht">Voraussichtlich bis</label><input id="au-bis" type="date" formControlName="bis" /><vp-feldfehler [control]="form.controls.bis" /></div>
+          <div class="feld"><label for="au-von" class="pflicht">Arbeitsunfähig seit</label><vp-datum id="au-von" formControlName="von" /><vp-feldfehler [control]="form.controls.von" /></div>
+          <div class="feld"><label for="au-bis" class="pflicht">Voraussichtlich bis</label><vp-datum id="au-bis" formControlName="bis" /><vp-feldfehler [control]="form.controls.bis" /></div>
           <div class="feld breit"><label for="au-arzt" class="pflicht">Behandelnde Ärztin / behandelnder Arzt</label><input id="au-arzt" formControlName="arzt" /><vp-feldfehler [control]="form.controls.arzt" /></div>
           <div class="feld breit"><div class="auswahlgruppe">
             <label class="auswahl"><input type="checkbox" formControlName="unfall" /> Die Arbeitsunfähigkeit beruht auf einem Unfall</label>

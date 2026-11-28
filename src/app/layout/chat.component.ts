@@ -29,13 +29,13 @@ const SPEICHER = 'vp_chat';
       <button class="chat-knopf" type="button" (click)="oeffnen()" aria-haspopup="dialog" aria-label="Chat öffnen: Fragen an den VitaPlus-Assistenten"><vp-symbol name="message-circle" [groesse]="20" /> <span class="chat-text">Chat</span>
         @if (nachrichten().length > 1) { <span class="punkt" aria-label="laufendes Gespräch"></span> }</button>
     } @else {
-      <section class="chat" role="dialog" aria-label="Service-Chat">
+      <section class="chat" role="dialog" aria-label="Service-Chat" (keydown.escape)="schliessen()">
         <header>
           <span class="kopf"><span class="avatar" aria-hidden="true"><vp-symbol [name]="live() ? 'headset' : 'sparkles'" [groesse]="18" /></span>
             <span><strong>{{ live() ? 'Live-Chat Kundenservice' : 'Digitaler Assistent' }}</strong><span class="status">{{ live() ? 'Jana ist online' : 'antwortet sofort' }}</span></span></span>
           <span>
             <button type="button" (click)="neuBeginnen()" title="Neues Gespräch beginnen" aria-label="Neues Gespräch beginnen"><vp-symbol name="refresh-cw" [groesse]="17" /></button>
-            <button type="button" (click)="offen.set(false)" aria-label="Chat schließen"><vp-symbol name="x" [groesse]="18" /></button>
+            <button type="button" (click)="schliessen()" aria-label="Chat schließen"><vp-symbol name="x" [groesse]="18" /></button>
           </span>
         </header>
         <div class="verlauf" #verlauf aria-live="polite">
@@ -144,6 +144,12 @@ export class ChatComponent {
     this.nachrichten.set([]);
     this.kontext = {};
     this.live.set(false);
+  }
+
+  /** Chat schließen (Knopf oder Escape); der Fokus geht zurück auf den Chat-Knopf */
+  schliessen() {
+    this.offen.set(false);
+    setTimeout(() => document.querySelector<HTMLElement>('.chat-knopf')?.focus());
   }
 
   async oeffnen() {

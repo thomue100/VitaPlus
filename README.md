@@ -110,6 +110,18 @@ Das Frontend spricht ausschließlich über HTTP mit `/api/**`. Welches Backend a
 - Fehler kommen als `application/problem+json` nach RFC 9457 (`type`, `title`, `status`, `detail`) mit den Erweiterungen `code`, `feld` und `details`. Angezeigt wird `detail`.
 - Dateien werden einzeln per `POST /api/dateien` (multipart, Feld `datei`) hochgeladen; Anträge und Nachrichten verweisen nur auf die zurückgegebenen Anhänge. Inhalte liefert `GET /api/dateien/{id}/inhalt`.
 
+## Bedienelemente
+
+- **Datumsfelder** (`vp-datum`): Eingabe im Format TT.MM.JJJJ (auch „17051990“ oder „17.5.90“) mit Kalender nach dem
+  WAI-ARIA-Muster „Date Picker Dialog“ – Pfeiltasten wechseln den Tag, Bild auf/ab den Monat, Umschalt+Bild auf/ab das Jahr,
+  Eingabetaste übernimmt, Escape schließt. Der Wert ist ein ISO-Datum; Format, frühestes und spätestes Datum werden geprüft.
+  Funktioniert mit Reactive Forms, `ngModel` und in den JSON-Forms-Renderern.
+- **Auswahl mit Suche** (`vp-suchauswahl`): Combobox auf Basis von Angular Aria (Combobox, Listbox) für lange Listen
+  wie Staatsangehörigkeit, Bundesland oder bisherige Krankenkasse. In JSON Forms automatisch ab 13 Einträgen.
+- **Menüs und Reiter** nutzen Angular Aria (Benutzermenü, Reiter der Demo-Umgebung) und sind vollständig per Tastatur bedienbar.
+- **Dialoge** (Bestätigungen, Sitzungsablauf, Cookie-Einwilligung, Dokumentbetrachter) sind native modale `<dialog>`-Elemente:
+  Der Fokus bleibt im Dialog und kehrt danach an die Ausgangsstelle zurück.
+
 ## Projektstruktur
 
 ```

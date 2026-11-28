@@ -9,12 +9,13 @@ import { DateienComponent, FeldfehlerComponent, StatusComponent } from '../../sh
 import { DatumPipe } from '../../shared/pipes';
 import { herunterladen } from '../../shared/pdf';
 import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 const UMFANG: Record<string, string> = { POSTFACH: 'Postfach lesen', ANTRAEGE: 'Anträge stellen', AUSKUNFT: 'Auskünfte erhalten', PFLEGE: 'Pflegeangelegenheiten', BEITRAEGE: 'Beitragsangelegenheiten', ALLES: 'Alle Angelegenheiten' };
 
 @Component({
   selector: 'vp-vollmachten',
-  imports: [ReactiveFormsModule, RouterLink, FeldfehlerComponent, DateienComponent, StatusComponent, DatumPipe],
+  imports: [DatumEingabeComponent, ReactiveFormsModule, RouterLink, FeldfehlerComponent, DateienComponent, StatusComponent, DatumPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Vollmachten & Vertretung</h1><p class="leise">Legen Sie fest, wer Ihre Angelegenheiten bei der VitaPlus erledigen darf.</p></div>
@@ -29,8 +30,8 @@ const UMFANG: Record<string, string> = { POSTFACH: 'Postfach lesen', ANTRAEGE: '
             <div class="feld"><label for="vm-bez" class="pflicht">Beziehung</label><input id="vm-bez" formControlName="beziehung" placeholder="z. B. Tochter, Ehemann" /><vp-feldfehler [control]="form.controls.beziehung" /></div>
             <div class="feld"><label for="vm-vn" class="pflicht">Vorname</label><input id="vm-vn" formControlName="vorname" /><vp-feldfehler [control]="form.controls.vorname" /></div>
             <div class="feld"><label for="vm-nn" class="pflicht">Nachname</label><input id="vm-nn" formControlName="nachname" /><vp-feldfehler [control]="form.controls.nachname" /></div>
-            <div class="feld"><label for="vm-geb" class="pflicht">Geburtsdatum</label><input id="vm-geb" type="date" formControlName="geburtsdatum" /><vp-feldfehler [control]="form.controls.geburtsdatum" /></div>
-            <div class="feld"><label for="vm-bis">Gültig bis (optional)</label><input id="vm-bis" type="date" formControlName="gueltigBis" /><vp-feldfehler [control]="form.controls.gueltigBis" /></div>
+            <div class="feld"><label for="vm-geb" class="pflicht">Geburtsdatum</label><vp-datum id="vm-geb" formControlName="geburtsdatum" /><vp-feldfehler [control]="form.controls.geburtsdatum" /></div>
+            <div class="feld"><label for="vm-bis">Gültig bis (optional)</label><vp-datum id="vm-bis" formControlName="gueltigBis" /><vp-feldfehler [control]="form.controls.gueltigBis" /></div>
             <fieldset class="breit"><legend class="pflicht">Umfang</legend><div class="auswahlgruppe zeile">
               @for (u of umfaenge; track u[0]) { <label class="auswahl"><input type="checkbox" [checked]="umfang().includes(u[0])" (change)="umschalten(u[0])" /> {{ u[1] }}</label> }</div></fieldset>
             <label class="auswahl breit"><input type="checkbox" formControlName="onlineZugriff" /> Die Person soll über ihren eigenen Online-Zugang für mich handeln können</label>

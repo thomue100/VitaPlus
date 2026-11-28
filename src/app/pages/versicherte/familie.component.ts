@@ -10,12 +10,13 @@ import { alterAm, heuteIso } from '../../core/util/datum';
 import { DateienComponent, FeldfehlerComponent, StatusComponent } from '../../shared/bausteine';
 import { DatumPipe } from '../../shared/pipes';
 import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 const BEZIEHUNG: Record<string, string> = { EHEPARTNER: 'Ehepartner/in', LEBENSPARTNER: 'Lebenspartner/in', KIND: 'Kind', STIEFKIND: 'Stiefkind', ENKELKIND: 'Enkelkind' };
 
 @Component({
   selector: 'vp-familie',
-  imports: [ReactiveFormsModule, RouterLink, FeldfehlerComponent, DateienComponent, StatusComponent, DatumPipe],
+  imports: [DatumEingabeComponent, ReactiveFormsModule, RouterLink, FeldfehlerComponent, DateienComponent, StatusComponent, DatumPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Familienversicherung</h1><p class="leise">Ehe- und Lebenspartner sowie Kinder ohne eigenes Einkommen sind bei Ihnen beitragsfrei mitversichert.</p></div>
@@ -43,7 +44,7 @@ const BEZIEHUNG: Record<string, string> = { EHEPARTNER: 'Ehepartner/in', LEBENSP
       <form class="karte formular hervor" [formGroup]="abmeldeForm" (ngSubmit)="abmeldenBestaetigen()" novalidate>
         <h2>Familienversicherung für {{ a.vorname }} beenden</h2>
         <div class="feldgruppe">
-          <div class="feld"><label for="ab-zum" class="pflicht">Zum (Monatsende)</label><input id="ab-zum" type="date" formControlName="zum" /><vp-feldfehler [control]="abmeldeForm.controls.zum" /></div>
+          <div class="feld"><label for="ab-zum" class="pflicht">Zum (Monatsende)</label><vp-datum id="ab-zum" formControlName="zum" /><vp-feldfehler [control]="abmeldeForm.controls.zum" /></div>
           <div class="feld"><label for="ab-grund" class="pflicht">Grund</label><select id="ab-grund" formControlName="grund"><option value="">Bitte wählen</option>
             <option value="EIGENE_VERSICHERUNG">Eigene Versicherung (z. B. Ausbildung, Job)</option><option value="SCHEIDUNG">Scheidung / Trennung</option>
             <option value="AUSZUG">Auszug / kein Unterhalt mehr</option><option value="TOD">Todesfall</option><option value="SONSTIGES">Sonstiges</option></select>
@@ -65,8 +66,8 @@ const BEZIEHUNG: Record<string, string> = { EHEPARTNER: 'Ehepartner/in', LEBENSP
             <vp-feldfehler [control]="form.controls.geschlecht" /></div>
           <div class="feld"><label for="fv-vn" class="pflicht">Vorname</label><input id="fv-vn" formControlName="vorname" /><vp-feldfehler [control]="form.controls.vorname" /></div>
           <div class="feld"><label for="fv-nn" class="pflicht">Nachname</label><input id="fv-nn" formControlName="nachname" /><vp-feldfehler [control]="form.controls.nachname" /></div>
-          <div class="feld"><label for="fv-geb" class="pflicht">Geburtsdatum</label><input id="fv-geb" type="date" formControlName="geburtsdatum" /><vp-feldfehler [control]="form.controls.geburtsdatum" /></div>
-          <div class="feld"><label for="fv-beginn">Beginn der Familienversicherung</label><input id="fv-beginn" type="date" formControlName="beginn" /></div>
+          <div class="feld"><label for="fv-geb" class="pflicht">Geburtsdatum</label><vp-datum id="fv-geb" formControlName="geburtsdatum" /><vp-feldfehler [control]="form.controls.geburtsdatum" /></div>
+          <div class="feld"><label for="fv-beginn">Beginn der Familienversicherung</label><vp-datum id="fv-beginn" formControlName="beginn" /></div>
           <div class="feld"><label for="fv-ek">Regelmäßiges monatliches Gesamteinkommen (€)</label><input id="fv-ek" type="number" min="0" step="0.01" formControlName="einkommenMonat" />
             <span class="hilfe">Grenze: {{ grenze }} € (bei Minijob {{ grenzeMinijob }} €)</span><vp-feldfehler [control]="form.controls.einkommenMonat" /></div>
           <div class="feld"><span class="label">Weitere Angaben</span>
@@ -78,7 +79,7 @@ const BEZIEHUNG: Record<string, string> = { EHEPARTNER: 'Ehepartner/in', LEBENSP
             <label class="auswahl"><input type="checkbox" formControlName="anderweitigVersichert" /> ist selbst gesetzlich oder privat versichert</label>
             <label class="auswahl"><input type="checkbox" formControlName="hauptberuflichSelbststaendig" /> ist hauptberuflich selbstständig</label>
           </div>
-          @if (form.value.inAusbildung) { <div class="feld"><label for="fv-ende">Voraussichtliches Ausbildungsende</label><input id="fv-ende" type="date" formControlName="ausbildungsende" /></div> }
+          @if (form.value.inAusbildung) { <div class="feld"><label for="fv-ende">Voraussichtliches Ausbildungsende</label><vp-datum id="fv-ende" formControlName="ausbildungsende" /></div> }
           <div class="feld"><label for="fv-vv">Bisherige Krankenkasse</label><input id="fv-vv" formControlName="vorversicherung" /></div>
           @if (alter() >= 15) { <div class="breit"><vp-dateien label="Nachweise (z. B. Schul- oder Studienbescheinigung)" [max]="2" [(dateien)]="anhaenge" /></div> }
         </div>

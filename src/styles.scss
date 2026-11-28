@@ -137,7 +137,7 @@ input:not([type]), input[type='text'], input[type='email'], input[type='password
 }
 textarea { min-height: 7rem; resize: vertical; }
 input:focus, select:focus, textarea:focus { border-color: var(--vp-primaer); box-shadow: 0 0 0 3px rgba(11, 110, 105, .15); outline: none; }
-input.ng-invalid.ng-touched, select.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(--vp-fehler); background: #fffafa; }
+input.ng-invalid.ng-touched, select.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched, vp-datum.ng-invalid.ng-touched input, input[aria-invalid="true"] { border-color: var(--vp-fehler); background: #fffafa; }
 .feldfehler { color: var(--vp-fehler); font-size: .875rem; }
 .auswahl { display: flex; align-items: flex-start; gap: .5rem; cursor: pointer; font-weight: 400; }
 .auswahl input { margin-top: .3rem; width: 1.05rem; height: 1.05rem; }
@@ -202,8 +202,10 @@ dl.daten dd { margin: 0; font-weight: 500; }
 .zeitleiste li::before { content: ''; position: absolute; left: -1.55rem; top: .35rem; width: .8rem; height: .8rem; border-radius: 50%; background: var(--vp-primaer); border: 2px solid #fff; }
 
 /* Dialog */
-.dialog-hintergrund { position: fixed; inset: 0; background: rgba(10, 30, 32, .45); display: flex; align-items: center; justify-content: center; z-index: 900; padding: 1rem; }
-.dialog { background: #fff; border-radius: var(--vp-radius); max-width: 520px; width: 100%; padding: 1.5rem; box-shadow: 0 10px 40px rgba(0,0,0,.2); max-height: 90vh; overflow: auto; }
+/* Modale Dialoge sind native <dialog>-Elemente: Fokus bleibt im Dialog, die Seite dahinter ist inaktiv */
+dialog { color: var(--vp-text); }
+dialog::backdrop { background: rgba(10, 30, 32, .45); }
+.dialog { background: #fff; border: none; border-radius: var(--vp-radius); max-width: 520px; width: calc(100% - 2rem); padding: 1.5rem; box-shadow: 0 10px 40px rgba(0,0,0,.2); max-height: 90vh; overflow: auto; }
 .dialog h2 { margin-top: 0; }
 
 /* Toasts */
@@ -314,8 +316,7 @@ fieldset.liste > .btn { align-self: flex-start; }
 .antragsteller > span .leise { display: block; }
 .antragsteller vp-symbol { color: var(--vp-primaer); }
 .kommunikation li { display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap; padding: .35rem 0; border-bottom: 1px solid var(--vp-rand); }
-.sitzung-hintergrund { position: fixed; inset: 0; background: rgba(10, 30, 30, .45); z-index: 1300; }
-.sitzung-dialog { position: fixed; left: 50%; top: 30%; transform: translate(-50%, -30%); width: min(480px, calc(100vw - 2rem)); background: #fff; border-radius: var(--vp-radius); padding: 1.5rem; z-index: 1301; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+.sitzung-dialog { width: min(480px, calc(100vw - 2rem)); background: #fff; border: none; border-radius: var(--vp-radius); padding: 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
 .sitzung-dialog h2 { display: flex; align-items: center; gap: .5rem; margin-top: 0; font-size: 1.25rem; }
 .sitzung-dialog vp-symbol { color: var(--vp-akzent); }
 

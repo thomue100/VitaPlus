@@ -12,6 +12,7 @@ import { formatiereIban, normalisiereIban } from '../../core/util/pruefungen';
 import { DateienComponent, FeldfehlerComponent } from '../../shared/bausteine';
 import { DatumPipe } from '../../shared/pipes';
 import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 type Reiter = 'uebersicht' | 'adresse' | 'kontakt' | 'bank' | 'weitere' | 'name' | 'kommunikation' | 'historie';
 
@@ -19,7 +20,7 @@ const FAMILIENSTAND: Record<string, string> = { LEDIG: 'ledig', VERHEIRATET: 've
 
 @Component({
   selector: 'vp-profil',
-  imports: [ReactiveFormsModule, RouterLink, FeldfehlerComponent, DateienComponent, DatumPipe],
+  imports: [DatumEingabeComponent, ReactiveFormsModule, RouterLink, FeldfehlerComponent, DateienComponent, DatumPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @let b = sitzung.benutzer()!;
@@ -59,7 +60,7 @@ const FAMILIENSTAND: Record<string, string> = { LEDIG: 'ledig', VERHEIRATET: 've
             <div class="feld"><label for="land">Land</label><select id="land" formControlName="land">
               @for (l of ['Deutschland', 'Österreich', 'Schweiz', 'Niederlande', 'Polen', 'Sonstiges']; track l) { <option [value]="l">{{ l }}</option> }</select>
               <vp-feldfehler [control]="adresse.controls.land" /></div>
-            <div class="feld"><label for="ab" class="pflicht">Gültig ab (Umzugsdatum)</label><input id="ab" type="date" formControlName="gueltigAb" /><vp-feldfehler [control]="adresse.controls.gueltigAb" /></div>
+            <div class="feld"><label for="ab" class="pflicht">Gültig ab (Umzugsdatum)</label><vp-datum id="ab" formControlName="gueltigAb" /><vp-feldfehler [control]="adresse.controls.gueltigAb" /></div>
             <label class="auswahl breit"><input type="checkbox" formControlName="fuerFamilie" /> Anschrift auch für meine mitversicherten Familienangehörigen übernehmen</label>
           </div>
           @if (adresse.value.land !== 'Deutschland') { <div class="hinweis warnung">Bei einem Umzug ins Ausland kann sich Ihr Versicherungsschutz ändern. Bitte lassen Sie sich beraten.</div> }
@@ -131,7 +132,7 @@ const FAMILIENSTAND: Record<string, string> = { LEDIG: 'ledig', VERHEIRATET: 've
             <div class="feld"><label for="ng" class="pflicht">Grund</label><select id="ng" formControlName="grund"><option value="">Bitte wählen</option>
               <option value="HEIRAT">Heirat / Lebenspartnerschaft</option><option value="SCHEIDUNG">Scheidung</option><option value="SONSTIGES">Sonstiges</option></select>
               <vp-feldfehler [control]="name.controls.grund" /></div>
-            <div class="feld"><label for="nab" class="pflicht">Gültig ab</label><input id="nab" type="date" formControlName="gueltigAb" /><vp-feldfehler [control]="name.controls.gueltigAb" /></div>
+            <div class="feld"><label for="nab" class="pflicht">Gültig ab</label><vp-datum id="nab" formControlName="gueltigAb" /><vp-feldfehler [control]="name.controls.gueltigAb" /></div>
             <div class="breit"><vp-dateien label="Nachweis (z. B. Heiratsurkunde)" [pflicht]="true" [max]="2" [(dateien)]="nachweis" /></div>
           </div>
           <div class="aktionen"><button class="btn primaer" type="submit">Namensänderung beantragen</button></div>

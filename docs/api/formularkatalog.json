@@ -2390,16 +2390,344 @@
               "pflicht": true,
               "optionen": [
                 {
-                  "wert": "DE",
+                  "wert": "deutsch",
                   "text": "deutsch"
                 },
                 {
-                  "wert": "EU",
-                  "text": "anderes EU-Land"
+                  "wert": "afghanisch",
+                  "text": "afghanisch"
                 },
                 {
-                  "wert": "SONSTIGE",
-                  "text": "andere"
+                  "wert": "ägyptisch",
+                  "text": "ägyptisch"
+                },
+                {
+                  "wert": "albanisch",
+                  "text": "albanisch"
+                },
+                {
+                  "wert": "algerisch",
+                  "text": "algerisch"
+                },
+                {
+                  "wert": "amerikanisch",
+                  "text": "amerikanisch"
+                },
+                {
+                  "wert": "argentinisch",
+                  "text": "argentinisch"
+                },
+                {
+                  "wert": "armenisch",
+                  "text": "armenisch"
+                },
+                {
+                  "wert": "aserbaidschanisch",
+                  "text": "aserbaidschanisch"
+                },
+                {
+                  "wert": "äthiopisch",
+                  "text": "äthiopisch"
+                },
+                {
+                  "wert": "australisch",
+                  "text": "australisch"
+                },
+                {
+                  "wert": "belgisch",
+                  "text": "belgisch"
+                },
+                {
+                  "wert": "bosnisch-herzegowinisch",
+                  "text": "bosnisch-herzegowinisch"
+                },
+                {
+                  "wert": "brasilianisch",
+                  "text": "brasilianisch"
+                },
+                {
+                  "wert": "britisch",
+                  "text": "britisch"
+                },
+                {
+                  "wert": "bulgarisch",
+                  "text": "bulgarisch"
+                },
+                {
+                  "wert": "chilenisch",
+                  "text": "chilenisch"
+                },
+                {
+                  "wert": "chinesisch",
+                  "text": "chinesisch"
+                },
+                {
+                  "wert": "dänisch",
+                  "text": "dänisch"
+                },
+                {
+                  "wert": "eritreisch",
+                  "text": "eritreisch"
+                },
+                {
+                  "wert": "estnisch",
+                  "text": "estnisch"
+                },
+                {
+                  "wert": "finnisch",
+                  "text": "finnisch"
+                },
+                {
+                  "wert": "französisch",
+                  "text": "französisch"
+                },
+                {
+                  "wert": "georgisch",
+                  "text": "georgisch"
+                },
+                {
+                  "wert": "ghanaisch",
+                  "text": "ghanaisch"
+                },
+                {
+                  "wert": "griechisch",
+                  "text": "griechisch"
+                },
+                {
+                  "wert": "indisch",
+                  "text": "indisch"
+                },
+                {
+                  "wert": "indonesisch",
+                  "text": "indonesisch"
+                },
+                {
+                  "wert": "irakisch",
+                  "text": "irakisch"
+                },
+                {
+                  "wert": "iranisch",
+                  "text": "iranisch"
+                },
+                {
+                  "wert": "irisch",
+                  "text": "irisch"
+                },
+                {
+                  "wert": "isländisch",
+                  "text": "isländisch"
+                },
+                {
+                  "wert": "israelisch",
+                  "text": "israelisch"
+                },
+                {
+                  "wert": "italienisch",
+                  "text": "italienisch"
+                },
+                {
+                  "wert": "japanisch",
+                  "text": "japanisch"
+                },
+                {
+                  "wert": "jordanisch",
+                  "text": "jordanisch"
+                },
+                {
+                  "wert": "kanadisch",
+                  "text": "kanadisch"
+                },
+                {
+                  "wert": "kasachisch",
+                  "text": "kasachisch"
+                },
+                {
+                  "wert": "kenianisch",
+                  "text": "kenianisch"
+                },
+                {
+                  "wert": "kolumbianisch",
+                  "text": "kolumbianisch"
+                },
+                {
+                  "wert": "koreanisch",
+                  "text": "koreanisch"
+                },
+                {
+                  "wert": "kosovarisch",
+                  "text": "kosovarisch"
+                },
+                {
+                  "wert": "kroatisch",
+                  "text": "kroatisch"
+                },
+                {
+                  "wert": "lettisch",
+                  "text": "lettisch"
+                },
+                {
+                  "wert": "libanesisch",
+                  "text": "libanesisch"
+                },
+                {
+                  "wert": "liechtensteinisch",
+                  "text": "liechtensteinisch"
+                },
+                {
+                  "wert": "litauisch",
+                  "text": "litauisch"
+                },
+                {
+                  "wert": "luxemburgisch",
+                  "text": "luxemburgisch"
+                },
+                {
+                  "wert": "maltesisch",
+                  "text": "maltesisch"
+                },
+                {
+                  "wert": "marokkanisch",
+                  "text": "marokkanisch"
+                },
+                {
+                  "wert": "mexikanisch",
+                  "text": "mexikanisch"
+                },
+                {
+                  "wert": "moldauisch",
+                  "text": "moldauisch"
+                },
+                {
+                  "wert": "montenegrinisch",
+                  "text": "montenegrinisch"
+                },
+                {
+                  "wert": "niederländisch",
+                  "text": "niederländisch"
+                },
+                {
+                  "wert": "nigerianisch",
+                  "text": "nigerianisch"
+                },
+                {
+                  "wert": "nordmazedonisch",
+                  "text": "nordmazedonisch"
+                },
+                {
+                  "wert": "norwegisch",
+                  "text": "norwegisch"
+                },
+                {
+                  "wert": "österreichisch",
+                  "text": "österreichisch"
+                },
+                {
+                  "wert": "pakistanisch",
+                  "text": "pakistanisch"
+                },
+                {
+                  "wert": "philippinisch",
+                  "text": "philippinisch"
+                },
+                {
+                  "wert": "polnisch",
+                  "text": "polnisch"
+                },
+                {
+                  "wert": "portugiesisch",
+                  "text": "portugiesisch"
+                },
+                {
+                  "wert": "rumänisch",
+                  "text": "rumänisch"
+                },
+                {
+                  "wert": "russisch",
+                  "text": "russisch"
+                },
+                {
+                  "wert": "schwedisch",
+                  "text": "schwedisch"
+                },
+                {
+                  "wert": "schweizerisch",
+                  "text": "schweizerisch"
+                },
+                {
+                  "wert": "serbisch",
+                  "text": "serbisch"
+                },
+                {
+                  "wert": "slowakisch",
+                  "text": "slowakisch"
+                },
+                {
+                  "wert": "slowenisch",
+                  "text": "slowenisch"
+                },
+                {
+                  "wert": "somalisch",
+                  "text": "somalisch"
+                },
+                {
+                  "wert": "spanisch",
+                  "text": "spanisch"
+                },
+                {
+                  "wert": "sri-lankisch",
+                  "text": "sri-lankisch"
+                },
+                {
+                  "wert": "südafrikanisch",
+                  "text": "südafrikanisch"
+                },
+                {
+                  "wert": "syrisch",
+                  "text": "syrisch"
+                },
+                {
+                  "wert": "thailändisch",
+                  "text": "thailändisch"
+                },
+                {
+                  "wert": "tschechisch",
+                  "text": "tschechisch"
+                },
+                {
+                  "wert": "tunesisch",
+                  "text": "tunesisch"
+                },
+                {
+                  "wert": "türkisch",
+                  "text": "türkisch"
+                },
+                {
+                  "wert": "ukrainisch",
+                  "text": "ukrainisch"
+                },
+                {
+                  "wert": "ungarisch",
+                  "text": "ungarisch"
+                },
+                {
+                  "wert": "usbekisch",
+                  "text": "usbekisch"
+                },
+                {
+                  "wert": "vietnamesisch",
+                  "text": "vietnamesisch"
+                },
+                {
+                  "wert": "zyprisch",
+                  "text": "zyprisch"
+                },
+                {
+                  "wert": "staatenlos",
+                  "text": "staatenlos"
+                },
+                {
+                  "wert": "ungeklärt",
+                  "text": "ungeklärt"
                 }
               ]
             }
@@ -2644,9 +2972,154 @@
             {
               "name": "bisherigeKasse",
               "label": "Bisherige Krankenkasse",
-              "typ": "text",
+              "typ": "auswahl",
               "pflicht": true,
-              "maxLaenge": 120,
+              "optionen": [
+                {
+                  "wert": "AOK Baden-Württemberg",
+                  "text": "AOK Baden-Württemberg"
+                },
+                {
+                  "wert": "AOK Bayern",
+                  "text": "AOK Bayern"
+                },
+                {
+                  "wert": "AOK Bremen/Bremerhaven",
+                  "text": "AOK Bremen/Bremerhaven"
+                },
+                {
+                  "wert": "AOK Hessen",
+                  "text": "AOK Hessen"
+                },
+                {
+                  "wert": "AOK Niedersachsen",
+                  "text": "AOK Niedersachsen"
+                },
+                {
+                  "wert": "AOK Nordost",
+                  "text": "AOK Nordost"
+                },
+                {
+                  "wert": "AOK NordWest",
+                  "text": "AOK NordWest"
+                },
+                {
+                  "wert": "AOK PLUS",
+                  "text": "AOK PLUS"
+                },
+                {
+                  "wert": "AOK Rheinland/Hamburg",
+                  "text": "AOK Rheinland/Hamburg"
+                },
+                {
+                  "wert": "AOK Rheinland-Pfalz/Saarland",
+                  "text": "AOK Rheinland-Pfalz/Saarland"
+                },
+                {
+                  "wert": "AOK Sachsen-Anhalt",
+                  "text": "AOK Sachsen-Anhalt"
+                },
+                {
+                  "wert": "Audi BKK",
+                  "text": "Audi BKK"
+                },
+                {
+                  "wert": "BARMER",
+                  "text": "BARMER"
+                },
+                {
+                  "wert": "BIG direkt gesund",
+                  "text": "BIG direkt gesund"
+                },
+                {
+                  "wert": "BKK firmus",
+                  "text": "BKK firmus"
+                },
+                {
+                  "wert": "BKK Mobil Oil",
+                  "text": "BKK Mobil Oil"
+                },
+                {
+                  "wert": "DAK-Gesundheit",
+                  "text": "DAK-Gesundheit"
+                },
+                {
+                  "wert": "Handelskrankenkasse (hkk)",
+                  "text": "Handelskrankenkasse (hkk)"
+                },
+                {
+                  "wert": "HEK – Hanseatische Krankenkasse",
+                  "text": "HEK – Hanseatische Krankenkasse"
+                },
+                {
+                  "wert": "IKK classic",
+                  "text": "IKK classic"
+                },
+                {
+                  "wert": "IKK gesund plus",
+                  "text": "IKK gesund plus"
+                },
+                {
+                  "wert": "IKK – Die Innovationskasse",
+                  "text": "IKK – Die Innovationskasse"
+                },
+                {
+                  "wert": "IKK Südwest",
+                  "text": "IKK Südwest"
+                },
+                {
+                  "wert": "KKH Kaufmännische Krankenkasse",
+                  "text": "KKH Kaufmännische Krankenkasse"
+                },
+                {
+                  "wert": "KNAPPSCHAFT",
+                  "text": "KNAPPSCHAFT"
+                },
+                {
+                  "wert": "mhplus Krankenkasse",
+                  "text": "mhplus Krankenkasse"
+                },
+                {
+                  "wert": "Mobil Krankenkasse",
+                  "text": "Mobil Krankenkasse"
+                },
+                {
+                  "wert": "pronova BKK",
+                  "text": "pronova BKK"
+                },
+                {
+                  "wert": "SBK Siemens-Betriebskrankenkasse",
+                  "text": "SBK Siemens-Betriebskrankenkasse"
+                },
+                {
+                  "wert": "SVLFG Landwirtschaftliche Krankenkasse",
+                  "text": "SVLFG Landwirtschaftliche Krankenkasse"
+                },
+                {
+                  "wert": "Techniker Krankenkasse",
+                  "text": "Techniker Krankenkasse"
+                },
+                {
+                  "wert": "VIACTIV Krankenkasse",
+                  "text": "VIACTIV Krankenkasse"
+                },
+                {
+                  "wert": "andere Betriebskrankenkasse (BKK)",
+                  "text": "andere Betriebskrankenkasse (BKK)"
+                },
+                {
+                  "wert": "andere gesetzliche Krankenkasse",
+                  "text": "andere gesetzliche Krankenkasse"
+                },
+                {
+                  "wert": "private Krankenversicherung",
+                  "text": "private Krankenversicherung"
+                },
+                {
+                  "wert": "Krankenversicherung im Ausland",
+                  "text": "Krankenversicherung im Ausland"
+                }
+              ],
               "sichtbarWenn": {
                 "feld": "vorversicherung",
                 "in": [
@@ -4215,9 +4688,350 @@
             {
               "name": "staatsangehoerigkeit",
               "label": "Neue Staatsangehörigkeit",
-              "typ": "text",
+              "typ": "auswahl",
               "pflicht": true,
-              "maxLaenge": 120
+              "optionen": [
+                {
+                  "wert": "deutsch",
+                  "text": "deutsch"
+                },
+                {
+                  "wert": "afghanisch",
+                  "text": "afghanisch"
+                },
+                {
+                  "wert": "ägyptisch",
+                  "text": "ägyptisch"
+                },
+                {
+                  "wert": "albanisch",
+                  "text": "albanisch"
+                },
+                {
+                  "wert": "algerisch",
+                  "text": "algerisch"
+                },
+                {
+                  "wert": "amerikanisch",
+                  "text": "amerikanisch"
+                },
+                {
+                  "wert": "argentinisch",
+                  "text": "argentinisch"
+                },
+                {
+                  "wert": "armenisch",
+                  "text": "armenisch"
+                },
+                {
+                  "wert": "aserbaidschanisch",
+                  "text": "aserbaidschanisch"
+                },
+                {
+                  "wert": "äthiopisch",
+                  "text": "äthiopisch"
+                },
+                {
+                  "wert": "australisch",
+                  "text": "australisch"
+                },
+                {
+                  "wert": "belgisch",
+                  "text": "belgisch"
+                },
+                {
+                  "wert": "bosnisch-herzegowinisch",
+                  "text": "bosnisch-herzegowinisch"
+                },
+                {
+                  "wert": "brasilianisch",
+                  "text": "brasilianisch"
+                },
+                {
+                  "wert": "britisch",
+                  "text": "britisch"
+                },
+                {
+                  "wert": "bulgarisch",
+                  "text": "bulgarisch"
+                },
+                {
+                  "wert": "chilenisch",
+                  "text": "chilenisch"
+                },
+                {
+                  "wert": "chinesisch",
+                  "text": "chinesisch"
+                },
+                {
+                  "wert": "dänisch",
+                  "text": "dänisch"
+                },
+                {
+                  "wert": "eritreisch",
+                  "text": "eritreisch"
+                },
+                {
+                  "wert": "estnisch",
+                  "text": "estnisch"
+                },
+                {
+                  "wert": "finnisch",
+                  "text": "finnisch"
+                },
+                {
+                  "wert": "französisch",
+                  "text": "französisch"
+                },
+                {
+                  "wert": "georgisch",
+                  "text": "georgisch"
+                },
+                {
+                  "wert": "ghanaisch",
+                  "text": "ghanaisch"
+                },
+                {
+                  "wert": "griechisch",
+                  "text": "griechisch"
+                },
+                {
+                  "wert": "indisch",
+                  "text": "indisch"
+                },
+                {
+                  "wert": "indonesisch",
+                  "text": "indonesisch"
+                },
+                {
+                  "wert": "irakisch",
+                  "text": "irakisch"
+                },
+                {
+                  "wert": "iranisch",
+                  "text": "iranisch"
+                },
+                {
+                  "wert": "irisch",
+                  "text": "irisch"
+                },
+                {
+                  "wert": "isländisch",
+                  "text": "isländisch"
+                },
+                {
+                  "wert": "israelisch",
+                  "text": "israelisch"
+                },
+                {
+                  "wert": "italienisch",
+                  "text": "italienisch"
+                },
+                {
+                  "wert": "japanisch",
+                  "text": "japanisch"
+                },
+                {
+                  "wert": "jordanisch",
+                  "text": "jordanisch"
+                },
+                {
+                  "wert": "kanadisch",
+                  "text": "kanadisch"
+                },
+                {
+                  "wert": "kasachisch",
+                  "text": "kasachisch"
+                },
+                {
+                  "wert": "kenianisch",
+                  "text": "kenianisch"
+                },
+                {
+                  "wert": "kolumbianisch",
+                  "text": "kolumbianisch"
+                },
+                {
+                  "wert": "koreanisch",
+                  "text": "koreanisch"
+                },
+                {
+                  "wert": "kosovarisch",
+                  "text": "kosovarisch"
+                },
+                {
+                  "wert": "kroatisch",
+                  "text": "kroatisch"
+                },
+                {
+                  "wert": "lettisch",
+                  "text": "lettisch"
+                },
+                {
+                  "wert": "libanesisch",
+                  "text": "libanesisch"
+                },
+                {
+                  "wert": "liechtensteinisch",
+                  "text": "liechtensteinisch"
+                },
+                {
+                  "wert": "litauisch",
+                  "text": "litauisch"
+                },
+                {
+                  "wert": "luxemburgisch",
+                  "text": "luxemburgisch"
+                },
+                {
+                  "wert": "maltesisch",
+                  "text": "maltesisch"
+                },
+                {
+                  "wert": "marokkanisch",
+                  "text": "marokkanisch"
+                },
+                {
+                  "wert": "mexikanisch",
+                  "text": "mexikanisch"
+                },
+                {
+                  "wert": "moldauisch",
+                  "text": "moldauisch"
+                },
+                {
+                  "wert": "montenegrinisch",
+                  "text": "montenegrinisch"
+                },
+                {
+                  "wert": "niederländisch",
+                  "text": "niederländisch"
+                },
+                {
+                  "wert": "nigerianisch",
+                  "text": "nigerianisch"
+                },
+                {
+                  "wert": "nordmazedonisch",
+                  "text": "nordmazedonisch"
+                },
+                {
+                  "wert": "norwegisch",
+                  "text": "norwegisch"
+                },
+                {
+                  "wert": "österreichisch",
+                  "text": "österreichisch"
+                },
+                {
+                  "wert": "pakistanisch",
+                  "text": "pakistanisch"
+                },
+                {
+                  "wert": "philippinisch",
+                  "text": "philippinisch"
+                },
+                {
+                  "wert": "polnisch",
+                  "text": "polnisch"
+                },
+                {
+                  "wert": "portugiesisch",
+                  "text": "portugiesisch"
+                },
+                {
+                  "wert": "rumänisch",
+                  "text": "rumänisch"
+                },
+                {
+                  "wert": "russisch",
+                  "text": "russisch"
+                },
+                {
+                  "wert": "schwedisch",
+                  "text": "schwedisch"
+                },
+                {
+                  "wert": "schweizerisch",
+                  "text": "schweizerisch"
+                },
+                {
+                  "wert": "serbisch",
+                  "text": "serbisch"
+                },
+                {
+                  "wert": "slowakisch",
+                  "text": "slowakisch"
+                },
+                {
+                  "wert": "slowenisch",
+                  "text": "slowenisch"
+                },
+                {
+                  "wert": "somalisch",
+                  "text": "somalisch"
+                },
+                {
+                  "wert": "spanisch",
+                  "text": "spanisch"
+                },
+                {
+                  "wert": "sri-lankisch",
+                  "text": "sri-lankisch"
+                },
+                {
+                  "wert": "südafrikanisch",
+                  "text": "südafrikanisch"
+                },
+                {
+                  "wert": "syrisch",
+                  "text": "syrisch"
+                },
+                {
+                  "wert": "thailändisch",
+                  "text": "thailändisch"
+                },
+                {
+                  "wert": "tschechisch",
+                  "text": "tschechisch"
+                },
+                {
+                  "wert": "tunesisch",
+                  "text": "tunesisch"
+                },
+                {
+                  "wert": "türkisch",
+                  "text": "türkisch"
+                },
+                {
+                  "wert": "ukrainisch",
+                  "text": "ukrainisch"
+                },
+                {
+                  "wert": "ungarisch",
+                  "text": "ungarisch"
+                },
+                {
+                  "wert": "usbekisch",
+                  "text": "usbekisch"
+                },
+                {
+                  "wert": "vietnamesisch",
+                  "text": "vietnamesisch"
+                },
+                {
+                  "wert": "zyprisch",
+                  "text": "zyprisch"
+                },
+                {
+                  "wert": "staatenlos",
+                  "text": "staatenlos"
+                },
+                {
+                  "wert": "ungeklärt",
+                  "text": "ungeklärt"
+                }
+              ]
             },
             {
               "name": "seit",

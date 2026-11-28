@@ -19,6 +19,24 @@ const f = {
   person: (name = 'person', label = 'Für wen stellen Sie den Antrag?'): FeldDef => ({ name, label, typ: 'person', pflicht: true }),
 };
 
+/** Häufige Staatsangehörigkeiten (Adjektiv, wie in den Stammdaten gespeichert), deutsch zuerst */
+const STAATSANGEHOERIGKEITEN = ['deutsch', 'afghanisch', 'ägyptisch', 'albanisch', 'algerisch', 'amerikanisch', 'argentinisch', 'armenisch', 'aserbaidschanisch',
+  'äthiopisch', 'australisch', 'belgisch', 'bosnisch-herzegowinisch', 'brasilianisch', 'britisch', 'bulgarisch', 'chilenisch', 'chinesisch', 'dänisch', 'eritreisch',
+  'estnisch', 'finnisch', 'französisch', 'georgisch', 'ghanaisch', 'griechisch', 'indisch', 'indonesisch', 'irakisch', 'iranisch', 'irisch', 'isländisch',
+  'israelisch', 'italienisch', 'japanisch', 'jordanisch', 'kanadisch', 'kasachisch', 'kenianisch', 'kolumbianisch', 'koreanisch', 'kosovarisch', 'kroatisch',
+  'lettisch', 'libanesisch', 'liechtensteinisch', 'litauisch', 'luxemburgisch', 'maltesisch', 'marokkanisch', 'mexikanisch', 'moldauisch', 'montenegrinisch',
+  'niederländisch', 'nigerianisch', 'nordmazedonisch', 'norwegisch', 'österreichisch', 'pakistanisch', 'philippinisch', 'polnisch', 'portugiesisch',
+  'rumänisch', 'russisch', 'schwedisch', 'schweizerisch', 'serbisch', 'slowakisch', 'slowenisch', 'somalisch', 'spanisch', 'sri-lankisch', 'südafrikanisch',
+  'syrisch', 'thailändisch', 'tschechisch', 'tunesisch', 'türkisch', 'ukrainisch', 'ungarisch', 'usbekisch', 'vietnamesisch', 'zyprisch', 'staatenlos', 'ungeklärt'];
+
+/** Gesetzliche Krankenkassen für die Angabe der Vorversicherung (Auswahl) */
+const KRANKENKASSEN = ['AOK Baden-Württemberg', 'AOK Bayern', 'AOK Bremen/Bremerhaven', 'AOK Hessen', 'AOK Niedersachsen', 'AOK Nordost', 'AOK NordWest', 'AOK PLUS',
+  'AOK Rheinland/Hamburg', 'AOK Rheinland-Pfalz/Saarland', 'AOK Sachsen-Anhalt', 'Audi BKK', 'BARMER', 'BIG direkt gesund', 'BKK firmus', 'BKK Mobil Oil',
+  'DAK-Gesundheit', 'Handelskrankenkasse (hkk)', 'HEK – Hanseatische Krankenkasse', 'IKK classic', 'IKK gesund plus', 'IKK – Die Innovationskasse', 'IKK Südwest',
+  'KKH Kaufmännische Krankenkasse', 'KNAPPSCHAFT', 'mhplus Krankenkasse', 'Mobil Krankenkasse', 'pronova BKK', 'SBK Siemens-Betriebskrankenkasse',
+  'SVLFG Landwirtschaftliche Krankenkasse', 'Techniker Krankenkasse', 'VIACTIV Krankenkasse', 'andere Betriebskrankenkasse (BKK)', 'andere gesetzliche Krankenkasse',
+  'private Krankenversicherung', 'Krankenversicherung im Ausland'];
+
 const BUNDESLAENDER = ['Baden-Württemberg', 'Bayern', 'Berlin', 'Brandenburg', 'Bremen', 'Hamburg', 'Hessen', 'Mecklenburg-Vorpommern', 'Niedersachsen',
   'Nordrhein-Westfalen', 'Rheinland-Pfalz', 'Saarland', 'Sachsen', 'Sachsen-Anhalt', 'Schleswig-Holstein', 'Thüringen'];
 
@@ -359,7 +377,7 @@ export const FORMULARE: FormularDef[] = [
         f.text('vorname', 'Vorname'), f.text('nachname', 'Nachname'),
         f.datum('geburtsdatum', 'Geburtsdatum', { nichtZukunft: true }),
         f.text('geburtsort', 'Geburtsort', { pflicht: false }),
-        f.wahl('staatsangehoerigkeit', 'Staatsangehörigkeit', o(['DE', 'deutsch'], ['EU', 'anderes EU-Land'], ['SONSTIGE', 'andere'])),
+        f.wahl('staatsangehoerigkeit', 'Staatsangehörigkeit', STAATSANGEHOERIGKEITEN.map(w => ({ wert: w, text: w }))),
       ] },
       { titel: 'Kontakt und Anschrift', felder: [
         { name: 'email', label: 'E-Mail-Adresse', typ: 'email', pflicht: true, hilfe: 'An diese Adresse senden wir Ihre Bestätigung und Ihre Versichertennummer.' },
@@ -377,7 +395,7 @@ export const FORMULARE: FormularDef[] = [
       ] },
       { titel: 'Bisherige Versicherung', felder: [
         f.radio('vorversicherung', 'Wie waren Sie bisher versichert?', o(['GKV', 'Gesetzlich'], ['PKV', 'Privat'], ['FAMILIE', 'Familienversichert'], ['KEINE', 'Nicht versichert / aus dem Ausland'])),
-        f.text('bisherigeKasse', 'Bisherige Krankenkasse', { sichtbarWenn: { feld: 'vorversicherung', in: ['GKV', 'PKV', 'FAMILIE'] } }),
+        f.wahl('bisherigeKasse', 'Bisherige Krankenkasse', KRANKENKASSEN.map(w => ({ wert: w, text: w })), { sichtbarWenn: { feld: 'vorversicherung', in: ['GKV', 'PKV', 'FAMILIE'] } }),
         f.datum('versichertSeit', 'Dort versichert seit', { nichtZukunft: true, sichtbarWenn: { feld: 'vorversicherung', in: ['GKV'] } }),
         f.info('Bei einem Wechsel innerhalb der gesetzlichen Krankenversicherung müssen Sie nicht selbst kündigen – das übernehmen wir.'),
       ] },
@@ -603,7 +621,7 @@ export const FORMULARE: FormularDef[] = [
     code: 'STAATSANGEHOERIGKEIT', titel: 'Staatsangehörigkeit ändern', kurz: 'Staatsangehörigkeit', kategorie: 'STAMMDATEN', zustaendig: 'Mitgliedschaft & Beiträge', bearbeitungTage: 5,
     entwurfErlaubt: false, suchbegriffe: ['einbürgerung', 'staatsangehörigkeit', 'nationalität'], lebenslagen: [],
     schritte: [{ titel: 'Staatsangehörigkeit', felder: [
-      f.text('staatsangehoerigkeit', 'Neue Staatsangehörigkeit'),
+      f.wahl('staatsangehoerigkeit', 'Neue Staatsangehörigkeit', STAATSANGEHOERIGKEITEN.map(w => ({ wert: w, text: w }))),
       f.datum('seit', 'Seit', { nichtZukunft: true }),
       f.datei('anhaenge', 'Einbürgerungsurkunde oder Ausweis', { maxDateien: 2 }),
     ] }],

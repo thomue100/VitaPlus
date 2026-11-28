@@ -8,6 +8,7 @@ import { UiService } from '../../core/services/ui.service';
 import { DatumPipe, EuroPipe } from '../../shared/pipes';
 import { SymbolComponent } from '../../shared/symbol.component';
 import { laufzeit } from '../../core/laufzeit';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 @Component({
   selector: 'vp-admin-monitoring',
@@ -170,7 +171,7 @@ export class AdminMitarbeitendeComponent implements OnInit {
 
 @Component({
   selector: 'vp-admin-inhalte',
-  imports: [FormsModule, DatumPipe],
+  imports: [DatumEingabeComponent, FormsModule, DatumPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <h1>Inhalte verwalten</h1>
@@ -201,8 +202,8 @@ export class AdminMitarbeitendeComponent implements OnInit {
           <div class="feld"><label for="ml-titel">Titel</label><input id="ml-titel" name="titel" [(ngModel)]="meldung.titel" /></div>
           <div class="feld"><label for="ml-typ">Typ</label><select id="ml-typ" name="typ" [(ngModel)]="meldung.typ"><option value="INFO">Information</option><option value="WARNUNG">Warnung</option><option value="STOERUNG">Störung</option></select></div>
           <div class="feld breit"><label for="ml-text">Text</label><textarea id="ml-text" name="text" rows="2" [(ngModel)]="meldung.text"></textarea></div>
-          <div class="feld"><label for="ml-von">Aktiv von</label><input id="ml-von" name="von" type="date" [(ngModel)]="meldung.aktivVon" /></div>
-          <div class="feld"><label for="ml-bis">Aktiv bis</label><input id="ml-bis" name="bis" type="date" [(ngModel)]="meldung.aktivBis" /></div>
+          <div class="feld"><label for="ml-von">Aktiv von</label><vp-datum id="ml-von" name="von" [(ngModel)]="meldung.aktivVon" /></div>
+          <div class="feld"><label for="ml-bis">Aktiv bis</label><vp-datum id="ml-bis" name="bis" [(ngModel)]="meldung.aktivBis" /></div>
           <div class="feld"><label for="ml-ziel">Zielgruppe</label><select id="ml-ziel" name="ziel" [(ngModel)]="meldung.zielgruppe"><option value="ALLE">Alle</option><option value="VERSICHERTE">Versicherte</option><option value="MITARBEITENDE">Mitarbeitende</option></select></div>
         </div>
         <div class="aktionen"><button class="btn primaer" type="submit">Speichern</button></div>

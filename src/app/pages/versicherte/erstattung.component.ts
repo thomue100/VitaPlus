@@ -13,10 +13,11 @@ import { addMonate, alterAm, heute, toIso } from '../../core/util/datum';
 import { DateienComponent, FeldfehlerComponent, StatusComponent } from '../../shared/bausteine';
 import { EuroPipe } from '../../shared/pipes';
 import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
+import { DatumEingabeComponent } from '../../shared/datum-eingabe.component';
 
 @Component({
   selector: 'vp-erstattung',
-  imports: [ReactiveFormsModule, RouterLink, FeldfehlerComponent, DateienComponent, StatusComponent, EuroPipe],
+  imports: [DatumEingabeComponent, ReactiveFormsModule, RouterLink, FeldfehlerComponent, DateienComponent, StatusComponent, EuroPipe],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="seitenkopf"><div><h1>Kostenerstattung</h1><p class="leise">Reichen Sie Rechnungen für Zusatzleistungen Ihres Tarifs ein.</p></div>
@@ -45,7 +46,7 @@ import { serverfehlerSetzen, VpValidatoren } from '../../shared/validatoren';
               @if (regel()?.hinweis) { <span class="hilfe">{{ regel()?.hinweis }}</span> }</div>
             <div class="feld"><label for="er-person" class="pflicht">Behandelte Person</label>
               <select id="er-person" formControlName="patientId">@for (p of personen(); track p.id) { <option [value]="p.id">{{ p.name }}</option> }</select></div>
-            <div class="feld"><label for="er-datum" class="pflicht">Rechnungsdatum</label><input id="er-datum" type="date" formControlName="rechnungsdatum" [min]="minDatum" [max]="maxDatum" />
+            <div class="feld"><label for="er-datum" class="pflicht">Rechnungsdatum</label><vp-datum id="er-datum" formControlName="rechnungsdatum" [min]="minDatum" [max]="maxDatum" />
               <vp-feldfehler [control]="form.controls.rechnungsdatum" /></div>
             <div class="feld"><label for="er-nr" class="pflicht">Rechnungsnummer</label><input id="er-nr" formControlName="rechnungsnummer" /><vp-feldfehler [control]="form.controls.rechnungsnummer" /></div>
             <div class="feld"><label for="er-betrag" class="pflicht">Rechnungsbetrag (€)</label><input id="er-betrag" type="number" min="0.01" step="0.01" formControlName="betrag" inputmode="decimal" />
